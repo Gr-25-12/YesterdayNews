@@ -30,8 +30,11 @@ namespace YesterdayNews.Models.Db
         [Required]
         public string Content { get; set; }
         [Required]
-        [Display(Name = "Author(s)")]
-        public List<User> Authors { get; set; }
+        [Display(Name = "Author")]
+        public string AuthorId { get; set; }  // Changed from List<User>
+
+        [ForeignKey("AuthorId")]
+        public User Author { get; set; }
         public int Views { get; set; }
         public int Likes { get; set; }
         [Required]
