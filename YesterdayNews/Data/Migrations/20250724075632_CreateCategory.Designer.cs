@@ -12,7 +12,7 @@ using YesterdayNews.Data;
 namespace YesterdayNews.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250724065758_CreateCategory")]
+    [Migration("20250724075632_CreateCategory")]
     partial class CreateCategory
     {
         /// <inheritdoc />
@@ -234,11 +234,6 @@ namespace YesterdayNews.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Name")
                         .IsRequired()
