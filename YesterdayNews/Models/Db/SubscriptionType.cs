@@ -19,5 +19,7 @@ namespace YesterdayNews.Models.Db
         [DataType(DataType.Currency)]
         public decimal Price { get; set; }
 
+        public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+
     }
 }
