@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using YesterdayNews.Models;
+using YesterdayNews.Models.Db;
 
 namespace YesterdayNews.Data;
 
@@ -12,4 +12,5 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<Category> Categories { get; set; }
+    public DbSet<SubscriptionType> SubsriptionType { get; set; }
 }

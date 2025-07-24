@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace YesterdayNews.Data.Db
+namespace YesterdayNews.Models.Db
 {
     public class User : IdentityUser
     {
