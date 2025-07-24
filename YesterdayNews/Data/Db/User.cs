@@ -14,11 +14,11 @@ namespace YesterdayNews.Data.Db
         public string LastName { get; set; }
 
         [DataType(DataType.Date)]
-        public DateOnly? DateOfBirth { get; set; } // Nullable
+        public DateOnly? DateOfBirth { get; set; } 
 
         // Navigation Properties
-        public ICollection<Article> AuthoredArticles { get; set; } = new List<Article>();
-        public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+        //public ICollection<Article> AuthoredArticles { get; set; } = new List<Article>();
+        //public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
 
     }
 }
