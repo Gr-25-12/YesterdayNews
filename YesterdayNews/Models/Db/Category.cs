@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace YesterdayNews.Models
+namespace YesterdayNews.Models.Db
 {
     public class Category
     {
