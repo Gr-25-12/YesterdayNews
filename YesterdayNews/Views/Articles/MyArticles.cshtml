@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@model IEnumerable<YesterdayNews.Models.Db.Article>
+@using YesterdayNews.Models.Db
+
+@{
+    ViewData["Title"] = "My Articles";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="MyArticles" method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="searchString"
+           value="@HttpContextAccessor.HttpContext.Request.Query["searchString"]"
+           placeholder="Search headline or summary..." class="form-control w-50" />
+
+    <select name="sortOrder" class="form-select w-25">
+        <option value="" selected="@(HttpContextAccessor.HttpContext.Request.Query["sortOrder"] == "" ? "selected" : null)">Sort by Headline</option>
+        <option value="date" selected="@(HttpContextAccessor.HttpContext.Request.Query["sortOrder"] == "date" ? "selected" : null)">Sort by Date</option>
+        <option value="status" selected="@(HttpContextAccessor.HttpContext.Request.Query["sortOrder"] == "status" ? "selected" : null)">Sort by Status</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Apply</button>
+</form>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No articles found matching your search.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Headline</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var article in Model)
+            {
+                <tr>
+                    <td>@article.Headline</td>
+                    <td>@article.Category?.Name</td>
+                    <td>@article.ArticleStatus</td>
+                    <td>@article.DateStamp.ToShortDateString()</td>
+                    <td>
+                        @if (article.ArticleStatus == ArticleStatus.Draft || article.ArticleStatus == ArticleStatus.Published)
+                        {
+                            <a asp-action="Edit" asp-route-id="@article.Id" class="btn btn-sm btn-warning">Edit</a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Locked</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
