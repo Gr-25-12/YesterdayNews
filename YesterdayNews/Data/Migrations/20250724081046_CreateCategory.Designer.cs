@@ -12,7 +12,7 @@ using YesterdayNews.Data;
 namespace YesterdayNews.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250724075632_CreateCategory")]
+    [Migration("20250724081046_CreateCategory")]
     partial class CreateCategory
     {
         /// <inheritdoc />
