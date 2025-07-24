@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<Category> Categories { get; set; }
-    public DbSet<SubscriptionType> SubsriptionType { get; set; }
+    public DbSet<SubscriptionType> SubsriptionTypes { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Article> Articles { get; set; }
 }
