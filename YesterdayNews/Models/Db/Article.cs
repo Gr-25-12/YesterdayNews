@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace YesterdayNews.Models.Db
 {
@@ -31,7 +31,7 @@ namespace YesterdayNews.Models.Db
         public string Content { get; set; }
         [Required]
         [Display(Name = "Author(s)")]
-        public List<IdentityUser> Authors { get; set; }
+        public List<User> Authors { get; set; }
         public int Views { get; set; }
         public int Likes { get; set; }
         [Required]
@@ -41,7 +41,7 @@ namespace YesterdayNews.Models.Db
         public int CategoryId { get; set; }
         [Required]
         public ArticleStatus ArticleStatus { get; set; } = ArticleStatus.Draft;
-        //[ForeignKey("CategoryId")]
-        //public Category Category { get; set; }
+        [ForeignKey("CategoryId")]
+        public Category Category { get; set; }
     }
 }
