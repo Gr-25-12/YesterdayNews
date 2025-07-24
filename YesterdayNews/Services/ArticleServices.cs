@@ -1,6 +1,6 @@
 ﻿namespace YesterdayNews.Services
 {
-    public interface Interface
+    public class ArticleServices
     {
     }
 }
