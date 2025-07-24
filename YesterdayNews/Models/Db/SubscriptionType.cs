@@ -16,10 +16,8 @@ namespace YesterdayNews.Models.Db
         public string Description { get; set; }
 
         [Required]
-        [StringLength(10)]
-        public string Price { get; set; }
-
-        //[ForeignKey("SubsciptionId")]
+        [DataType(DataType.Currency)]
+        public decimal Price { get; set; }
 
     }
 }
