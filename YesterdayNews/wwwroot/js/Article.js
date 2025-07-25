@@ -2,6 +2,10 @@ var dataTable;
 
 function loadDataTable() {
     dataTable = $('#articlesTable').DataTable({
+        "language": {
+            "searchPlaceholder": "Search articles...", 
+        },
+        "responsive": true,
         "processing": true,
         "serverSide": false,
         "ajax": {
