@@ -1,0 +1,37 @@
+﻿@model IEnumerable<YesterdayNews.Models.Db.Article>
+
+@{
+    ViewData["Title"] = "Articles";
+}
+
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Articles List</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> &nbsp; Create New Article
+            </a>
+        </div>
+    </div>
+
+    <table id="articlesTable" class="table table-bordered table-striped" style="width:100%">
+        <thead>
+            <tr>
+                <th>Headline</th>
+                <th>Author</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>Likes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/article.js"></script>
+}
