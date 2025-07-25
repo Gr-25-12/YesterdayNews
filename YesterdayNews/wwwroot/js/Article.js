@@ -3,7 +3,7 @@ var dataTable;
 function loadDataTable() {
     dataTable = $('#articlesTable').DataTable({
         "language": {
-            "searchPlaceholder": "Search articles...", // Add this line
+            "searchPlaceholder": "Search articles...", 
         },
         "responsive": true,
         "processing": true,
