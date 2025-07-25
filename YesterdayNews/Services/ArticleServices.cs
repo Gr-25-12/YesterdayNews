@@ -33,11 +33,11 @@ namespace YesterdayNews.Services
 
         public void Delete(int id)
         {
-            var movie = _db.Articles.FirstOrDefault(m => m.Id == id);
-            if (movie == null)
-                throw new Exception("Movie not found.");
+            var article = _db.Articles.FirstOrDefault(m => m.Id == id);
+            if (article == null)
+                throw new Exception("Articale not found.");
 
-            _db.Articles.Remove(movie);
+            _db.Articles.Remove(article);
             _db.SaveChanges();
         }
 
