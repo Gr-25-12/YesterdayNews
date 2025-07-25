@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Data;
+using YesterdayNews.Services;
+using YesterdayNews.Services.IServices;
 
 namespace YesterdayNews;
 
@@ -19,6 +21,11 @@ public class Program
         builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddControllersWithViews();
+
+
+        builder.Services.AddScoped<IArticleServices, ArticleServices>();
+
+
 
         var app = builder.Build();
 
