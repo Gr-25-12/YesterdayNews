@@ -40,7 +40,11 @@ namespace YesterdayNews.Services
             _db.Articles.Remove(article);
             _db.SaveChanges();
         }
-
+        public void Add(Article article)
+        {
+            _db.Articles.Add(article);
+            _db.SaveChanges(true);
+        }
        
     }
 }

@@ -87,6 +87,30 @@ namespace YesterdayNews.Controllers
                 });
             }
         }
+        public IActionResult Create()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Create(Article article)
+        {
+            try
+            {
+                if(ModelState.IsValid)
+                {
+                    _articleServices.Add(article);
+                }
+                return View(article);
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Error while creating article: {ex.Message}"
+                });
+            }
+        }
         #endregion
     }
 }
