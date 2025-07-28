@@ -46,5 +46,7 @@ namespace YesterdayNews.Models.Db
         public ArticleStatus ArticleStatus { get; set; } = ArticleStatus.Draft;
         [ForeignKey("CategoryId")]
         public Category Category { get; set; }
+        [NotMapped]
+        public IFormFile ImageFile { get; set; }
     }
 }

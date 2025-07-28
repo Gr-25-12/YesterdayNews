@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Security.Claims;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
 
@@ -11,10 +13,12 @@ namespace YesterdayNews.Controllers
     public class ArticleController : Controller
     {
         private readonly IArticleServices _articleServices;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public ArticleController(IArticleServices articleServices)
+        public ArticleController(IArticleServices articleServices, UserManager<IdentityUser> userManager)
         {
             _articleServices = articleServices;
+            _userManager = userManager;
         }
         public IActionResult Index()
         {
@@ -90,37 +94,42 @@ namespace YesterdayNews.Controllers
                 });
             }
         }
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
 
-            ViewBag.CategoryId = new SelectList(new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "World" }
-            }, "Value", "Text");
-
-            ViewBag.AuthorId = new SelectList(new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "Test Author" }
-            }, "Value", "Text");
+            PopulateDropdownList();
             return View();
         }
         [HttpPost]
-        public IActionResult Create(Article article)
+        public async Task<IActionResult> Create(Article article, string action)
         {
             try
             {
-                UserManager<User>.
-                //add USerService from Roberts code?
+                if (article.CategoryId == 0)
+                {
+                    ModelState.AddModelError("", "You must choose a category");
+                }
                 article.DateStamp = DateTime.Now;
-                article.ArticleStatus = ArticleStatus.Draft;
-                article.Category = new Category() { Id = article.CategoryId, Name = "World" };
-                article.Author = user;
-                
+                if (action == "draft")
+                    article.ArticleStatus = ArticleStatus.Draft;
+                else if (action == "review")
+                    article.ArticleStatus = ArticleStatus.PendingReview;
+                else if (action == "publish")
+                    article.ArticleStatus = ArticleStatus.Published;
+
+                article.Category = _articleServices.GetCategory(article.CategoryId);
+                article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                article.Author = (User) await _userManager.FindByIdAsync(article.AuthorId);
+                ModelState.Remove("Author");
+                ModelState.Remove("AuthorId");
+                ModelState.Remove("Category");
                 if (ModelState.IsValid)
                 {
                     _articleServices.Add(article);
                     return RedirectToAction("Index");
                 }
+
+                PopulateDropdownList();
                 return View(article);
             }
             catch (Exception ex)
@@ -133,5 +142,12 @@ namespace YesterdayNews.Controllers
             }
         }
         #endregion
+
+        private void PopulateDropdownList()
+        {
+            var categories = _articleServices.GetAllCategories();
+            categories.Insert(0, new Category { Id = 0, Name = "-- Choose Category --" });
+            ViewBag.CategoryId = new SelectList(categories, "Id", "Name");
+        }
     }
 }
