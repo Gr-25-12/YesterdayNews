@@ -26,6 +26,11 @@ body {
 .dt-length label {
     display: none;
 }
+/*Align all th & td*/
+#articlesTable th,
+#articlesTable td {
+    text-align: center;
+}
 /* Mobile styles */
 @media (max-width: 767px) {
 
@@ -49,3 +54,7 @@ body {
 
 
 }
+
+
+
+  
