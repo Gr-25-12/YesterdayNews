@@ -48,9 +48,6 @@ namespace YesterdayNews.Services
                 .Include(a => a.Category)
                 .FirstOrDefault(m => m.Id == id);
 
-            if(article==null)
-                throw new Exception("Article not found.");
-
             return article;
         }
     }

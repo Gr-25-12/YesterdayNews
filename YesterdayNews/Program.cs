@@ -18,10 +18,15 @@ public class Program
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
-        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
 
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-            
+        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+        builder.Services.ConfigureApplicationCookie(options => {
+            options.LoginPath = $"/Identity/Account/Login";
+            options.LogoutPath = $"/Identity/Account/Logout";
+            options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+        });
         builder.Services.AddRazorPages();
         builder.Services.AddControllersWithViews();
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
 
@@ -21,9 +22,19 @@ namespace YesterdayNews.Controllers
             return View(articles);
         }
         public IActionResult Details(int id)
-        {
+       {
+            try
+            {
             var article = _articleServices.GetById(id);
+
             return View(article);
+            }
+            catch (Exception ex)
+            {
+
+                TempData["error"] = $"{ex.Message}";
+                throw;
+            }
         }
 
         #region API CALLS
