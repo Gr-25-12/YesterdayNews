@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
 
@@ -89,6 +92,16 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Create()
         {
+
+            ViewBag.CategoryId = new SelectList(new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "World" }
+            }, "Value", "Text");
+
+            ViewBag.AuthorId = new SelectList(new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "Test Author" }
+            }, "Value", "Text");
             return View();
         }
         [HttpPost]
@@ -96,9 +109,17 @@ namespace YesterdayNews.Controllers
         {
             try
             {
-                if(ModelState.IsValid)
+                UserManager<User>.
+                //add USerService from Roberts code?
+                article.DateStamp = DateTime.Now;
+                article.ArticleStatus = ArticleStatus.Draft;
+                article.Category = new Category() { Id = article.CategoryId, Name = "World" };
+                article.Author = user;
+                
+                if (ModelState.IsValid)
                 {
                     _articleServices.Add(article);
+                    return RedirectToAction("Index");
                 }
                 return View(article);
             }
