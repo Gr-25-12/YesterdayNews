@@ -1,11 +1,15 @@
 var dataTable;
 
-function loadDataTable() {
+function loadDataTable(status) {
     dataTable = $('#articlesTable').DataTable({
+        "language": {
+            "searchPlaceholder": "Search articles...", 
+        },
+        "responsive": true,
         "processing": true,
         "serverSide": false,
         "ajax": {
-            url: '/Article/GetAll',
+            url: '/Article/GetAll?status='+status,
             type: 'GET',
             dataType: 'json',
             dataSrc: 'data' 
@@ -13,10 +17,11 @@ function loadDataTable() {
         "columns": [
             {
                 "data": "headline",
-                
+                "width": "5%",
             },
             {
                 "data": "author",
+                "width": "15%",
                 "render": function (data) {
                     return `${data.firstName} ${data.lastName}`;
                 },
@@ -24,6 +29,7 @@ function loadDataTable() {
             },
             {
                 "data": "dateStamp",
+                "width": "10%",
                 "render": function (data) {
                     return new Date(data).toLocaleDateString();
                 },
@@ -31,11 +37,11 @@ function loadDataTable() {
             },
             {
                 "data": "category.name",
-               
+                "width": "10%"
             },
             {
                 "data": "articleStatus",
-                
+                "width": "10%"
             },
             {
                 "data": "views",
@@ -52,6 +58,9 @@ function loadDataTable() {
                 "render": function (data) {
                     return `
                         <div class="btn-group" role="group">
+                        <a href="/Article/Details/${data}" class="btn btn-secondary btn-sm mx-1">
+                                <i class="bi bi-list px-2"></i>Details
+                            </a>
                             <a href="/Article/Edit/${data}" class="btn btn-primary btn-sm mx-1">
                                 <i class="bi bi-pencil-square"></i> Edit
                             </a>
@@ -66,10 +75,6 @@ function loadDataTable() {
                 "className": "text-center"
             }
         ],
-        "error": function (xhr, error, thrown) {
-            console.error("DataTables error:", xhr.responseText);
-            toastr.error("Failed to load articles. Please try again.");
-        }
     });
 }
 function Delete(url) {
@@ -100,5 +105,26 @@ function Delete(url) {
 }
 
 $(document).ready(function () {
-    loadDataTable();
+    var url = window.location.search;
+
+    if (url.includes("draft")) {
+
+        loadDataTable("draft");
+    } else if (url.includes("pendingReview")) {
+        loadDataTable("pendingReview");
+
+    } else if (url.includes("rejected")) {
+        loadDataTable("rejected");
+
+    } else if (url.includes("published")) {
+        loadDataTable("published");
+
+    } else if (url.includes("archived")) {
+        loadDataTable("archived");
+
+    } else {
+        loadDataTable("all");
+    }
+
+  
 });
