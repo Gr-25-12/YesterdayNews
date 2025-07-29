@@ -19,7 +19,6 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
-
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         builder.Services.ConfigureApplicationCookie(options => {
@@ -31,6 +30,7 @@ public class Program
         builder.Services.AddControllersWithViews();
 
         builder.Services.AddScoped<IArticleServices, ArticleServices>();
+        builder.Services.AddScoped<IFileServices, FileServices>();
         builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 

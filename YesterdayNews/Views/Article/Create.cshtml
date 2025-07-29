@@ -1,0 +1,66 @@
+﻿@model YesterdayNews.Models.Db.Article
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="row d-flex justify-content-center">
+    <div class="col-md-6">
+        <div class="text-center">
+            <h3>Create Article</h3>
+            <hr />
+        </div>
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="form-group">
+                <h3 style="color: red"> You need to be logged in to create an article!</h3>
+            </div>
+        }
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Headline" class="control-label"></label>
+                <input asp-for="Headline" class="form-control" />
+                <span asp-validation-for="Headline" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LinkText" class="control-label"></label>
+                <input asp-for="LinkText" class="form-control" />
+                <span asp-validation-for="LinkText" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="ContentSummary" class="control-label"></label>
+                <textarea asp-for="ContentSummary" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="ContentSummary" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                <textarea asp-for="Content" class="form-control" rows="12"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="File">Upload image</label>
+                <input type="file" name="File" class="form-control" />
+                <span asp-validation-for="ImageLink" class="text-danger"></span>
+            </div>
+            <div class="form-group text-end">
+                <button type="submit" name="action" value="draft" class="btn btn-primary">Save Draft</button>
+                <button type="submit" name="action" value="review" class="btn btn-warning">Send for Review</button>
+                <button type="submit" name="action" value="publish" class="btn btn-danger">Publish</button>
+            </div>
+        </form>
+        <div class="text-start">
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+
+</div>
+
+
+
