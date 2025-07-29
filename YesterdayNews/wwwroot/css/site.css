@@ -20,3 +20,41 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/*Remove the default labels*/
+.dt-search label,
+.dt-length label {
+    display: none;
+}
+/*Align all th & td*/
+#articlesTable th,
+#articlesTable td {
+    text-align: center;
+}
+/* Mobile styles */
+@media (max-width: 767px) {
+
+    .dt-search {
+        width: 50%;
+    }
+   .dt-search input.dt-input {
+            width: 100% !important;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+  
+    .dt-length {
+       
+        display: flex;
+        align-items: start;
+        justify-content: start;
+        
+    }
+
+
+}
+
+
+
+  

@@ -41,6 +41,7 @@ namespace YesterdayNews.Services
             _db.Articles.Remove(article);
             _db.SaveChanges();
         }
+
         public void Add(Article article)
         {
             _db.Articles.Add(article);
@@ -56,6 +57,15 @@ namespace YesterdayNews.Services
         {
             var category = _db.Categories.FirstOrDefault(c => c.Id == id);
             return category;
+
+        public Article GetById(int id)
+        {
+            var article = _db.Articles
+                .Include(a => a.Author)
+                .Include(a => a.Category)
+                .FirstOrDefault(m => m.Id == id);
+
+            return article;
         }
     }
 }

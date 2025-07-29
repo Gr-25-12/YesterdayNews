@@ -5,7 +5,7 @@ using YesterdayNews.Models.Db;
 
 namespace YesterdayNews.Data;
 
-public class ApplicationDbContext : IdentityDbContext
+public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -16,4 +16,5 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<SubscriptionType> SubsriptionTypes { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Article> Articles { get; set; }
+    public DbSet<User> Users { get; set; }
 }

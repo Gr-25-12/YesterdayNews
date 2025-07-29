@@ -27,50 +27,74 @@ namespace YesterdayNews.Controllers
             List<Article> articles = _articleServices.GetAll();
             return View(articles);
         }
-
-        #region API CALLS
-        [HttpGet]
-        public IActionResult GetAll()
-        {
+        public IActionResult Details(int id)
+       {
             try
             {
-                var articles = _articleServices
-                    .GetAll()
-                    .Select(a => new
+            var article = _articleServices.GetById(id);
+
+            return View(article);
+            }
+            catch (Exception ex)
+            {
+
+                TempData["error"] = $"{ex.Message}";
+                throw;
+            }
+        }
+
+        #region API CALLS
+
+        [HttpGet]
+        public IActionResult GetAll(string status)
+        {
+            
+                IEnumerable<Article> articles = _articleServices
+                    .GetAll();
+
+
+                switch (status)
+                {
+                    case "draft":
+                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Draft); break;
+                    case "pendingReview":
+                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.PendingReview); break;
+                    case "rejected":
+                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Rejected); break;
+                    case "published":
+                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Published); break;
+                    case "archived":
+                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Archived); break;
+                    default: break;
+                }
+
+                var result = articles.Select(a => new
+                {
+                    id = a.Id,
+                    headline = a.Headline,
+                    author = new
                     {
-                        id = a.Id,
-                        headline = a.Headline,
-                        author = new
-                        {
-                            firstName = a.Author?.FirstName ?? "Unknown",
-                            lastName = a.Author?.LastName ?? ""
-                        },
-                        dateStamp = a.DateStamp.ToString("o"), // ISO 8601 format
-                        category = new
-                        {
-                            name = a.Category?.Name ?? "Uncategorized"
-                        },
-                        articleStatus = a.ArticleStatus.ToString(),
-                        views = a.Views,
-                        likes = a.Likes
-                    }).ToList();
+                        firstName = a.Author?.FirstName ,
+                        lastName = a.Author?.LastName
+                    },
+                    dateStamp = a.DateStamp,
+                    category = new
+                    {
+                        name = a.Category?.Name
+                    },
+                    articleStatus = a.ArticleStatus.ToString(),
+                    views = a.Views,
+                    likes = a.Likes
+                }).ToList();
 
                 return Json(new
                 {
                     success = true,
-                    data = articles
+                    data = result
                 });
-            }
-            catch (Exception ex)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
+            
+            
         }
-
         [HttpDelete]
         public IActionResult Delete(int id)
         {

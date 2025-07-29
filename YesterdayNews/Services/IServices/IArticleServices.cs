@@ -8,6 +8,7 @@ namespace YesterdayNews.Services.IServices
         Article GetOne(int id);
         void Delete(int id);
         void Add(Article article);
+        Article GetById(int id);
         List<Category> GetAllCategories();
         Category GetCategory(int id);
     }
