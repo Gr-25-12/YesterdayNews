@@ -21,7 +21,11 @@ namespace YesterdayNews.Services
             blobServiceClient.GetBlobContainerClient(containerName);
 
             await containerClient.CreateIfNotExistsAsync();
-            BlobClient blobClient = containerClient.GetBlobClient(file.FileName);
+
+            var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
+
+            var blobClient = containerClient.GetBlobClient(uniqueFileName);
+
 
             using (var stream = file.OpenReadStream())
             {
