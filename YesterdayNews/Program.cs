@@ -19,12 +19,6 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
-
-        //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-        //    .AddEntityFrameworkStores<ApplicationDbContext>();
-        //builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
-        //    .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         builder.Services.ConfigureApplicationCookie(options => {

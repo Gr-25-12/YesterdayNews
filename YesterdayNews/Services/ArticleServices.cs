@@ -47,6 +47,15 @@ namespace YesterdayNews.Services
             _db.Articles.Add(article);
             _db.SaveChanges(true);
         }
+        public Article GetById(int id)
+        {
+            var article = _db.Articles
+                .Include(a => a.Author)
+                .Include(a => a.Category)
+                .FirstOrDefault(m => m.Id == id);
+
+            return article;
+        }
         //Temporary method? move to CategoryServices or wit for that to be done then delete this?
         public List<Category> GetAllCategories()
         {
@@ -57,15 +66,7 @@ namespace YesterdayNews.Services
         {
             var category = _db.Categories.FirstOrDefault(c => c.Id == id);
             return category;
-
-        public Article GetById(int id)
-        {
-            var article = _db.Articles
-                .Include(a => a.Author)
-                .Include(a => a.Category)
-                .FirstOrDefault(m => m.Id == id);
-
-            return article;
         }
+
     }
 }
