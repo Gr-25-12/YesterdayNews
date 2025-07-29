@@ -49,5 +49,7 @@ namespace YesterdayNews.Models.Db
         [ForeignKey("CategoryId")]
         [ValidateNever]
         public Category Category { get; set; }
+        [NotMapped]
+        public IFormFile ImageFile { get; set; }
     }
 }

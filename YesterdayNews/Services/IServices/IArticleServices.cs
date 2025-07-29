@@ -1,4 +1,4 @@
-﻿using YesterdayNews.Models.Db;
+using YesterdayNews.Models.Db;
 
 namespace YesterdayNews.Services.IServices
 {
@@ -7,7 +7,10 @@ namespace YesterdayNews.Services.IServices
         List<Article> GetAll();
         Article GetOne(int id);
         void Delete(int id);
-        //void Update(Article existing);
+        void Add(Article article);
+        Article GetById(int id);
+        List<Category> GetAllCategories();
+        Category GetCategory(int id);
         void Edit(Article existing);
     }
 }
