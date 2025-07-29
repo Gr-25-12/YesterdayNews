@@ -68,9 +68,8 @@
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ArticleStatus" class="control-label"></label>
-                <select asp-for="ArticleStatus" class="form-control"asp-items="ViewBag.ArticleStatusList"></select>
-                <span asp-validation-for="ArticleStatus" class="text-danger"></span>
+                <label asp-for="Author" class="control-label"></label>
+                <input class="form-control" value="@($"{Model.Author.FirstName} {Model.Author.LastName}")" readonly />
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

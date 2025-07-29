@@ -46,71 +46,6 @@ namespace YesterdayNews.Controllers
             }
         }
 
-        // GET: Article/Edit/5
-        public IActionResult Edit(int id)
-        {
-            var article = _articleServices.GetOne(id);
-            if (article == null)
-            {
-                return NotFound();
-            }
-
-            // Fetch categories and authors
-            var categories = _context.Categories
-                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
-                .ToList();
-            var authors = _context.Users
-                .Select(u => new SelectListItem { Value = u.Id, Text = u.FirstName + " " + u.LastName })
-                .ToList();
-
-            ViewBag.CategoryList = categories;
-            ViewBag.AuthorList = authors;
-
-            // for the dropdown
-            ViewBag.ArticleStatusList = Enum.GetValues(typeof(ArticleStatus))
-                .Cast<ArticleStatus>()
-                .Select(s => new SelectListItem
-                {
-                    Value = s.ToString(),
-                    Text = s.ToString()
-                }).ToList();
-
-            return View(article);
-        }
-
-        // POST: Article/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Article article)
-        {
-            if (!ModelState.IsValid)
-            {
-                TempData["error"] = "couldnt update";
-                return View(article);
-            }
-
-            var existing = _articleServices.GetOne(article.Id);
-            if (existing == null)
-            {
-                return NotFound();
-            }
-
-            // Update values
-            existing.Headline = article.Headline;
-            existing.Content = article.Content;
-            existing.ContentSummary = article.ContentSummary;
-            existing.CategoryId = article.CategoryId;
-            existing.ArticleStatus = article.ArticleStatus;
-            existing.ImageLink = article.ImageLink;
-            existing.AuthorId = article.AuthorId;// This was missing
-            // Save to DB
-            _articleServices.Edit(existing);
-
-            TempData["success"] = "Article updated successfully!";
-            return RedirectToAction("Index");
-        }
-
-
         #region API CALLS
 
         [HttpGet]
@@ -190,7 +125,7 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Create()
         {
-            PopulateDropdownList();
+            PopulateCategoryDropdownList();
             return View();
         }
         [HttpPost]
@@ -226,7 +161,7 @@ namespace YesterdayNews.Controllers
                     return RedirectToAction("Index");
                 }
 
-                PopulateDropdownList();
+                PopulateCategoryDropdownList();
                 return View(article);
             }
             catch (Exception ex)
@@ -238,10 +173,67 @@ namespace YesterdayNews.Controllers
                 });
             }
         }
+        // GET: Article/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            var article = _articleServices.GetById(id);
+            if (article == null)
+            {
+                return NotFound();
+            }
+
+            // Fetch categories
+            PopulateCategoryDropdownList();
+
+            // for the dropdown
+            ViewBag.ArticleStatusList = Enum.GetValues(typeof(ArticleStatus))
+                .Cast<ArticleStatus>()
+                .Select(s => new SelectListItem
+                {
+                    Value = s.ToString(),
+                    Text = s.ToString()
+                }).ToList();
+
+            return View(article);
+        }
+
+        // POST: Article/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Article article)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["error"] = "couldnt update";
+                return View(article);
+            }
+
+            var existing = _articleServices.GetOne(article.Id);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            // Update values
+            existing.Headline = article.Headline;
+            existing.Content = article.Content;
+            existing.ContentSummary = article.ContentSummary;
+            existing.CategoryId = article.CategoryId;
+            existing.ArticleStatus = article.ArticleStatus;
+            existing.ImageLink = article.ImageLink;
+            existing.AuthorId = article.AuthorId;// This was missing
+            // Save to DB
+            _articleServices.Edit(existing);
+
+            TempData["success"] = "Article updated successfully!";
+            return RedirectToAction("Index");
+        }
+
+
 
         #endregion
 
-        private void PopulateDropdownList()
+        private void PopulateCategoryDropdownList()
         {
             var categories = _articleServices.GetAllCategories();
             categories.Insert(0, new Category { Id = 0, Name = "-- Choose Category --" });
