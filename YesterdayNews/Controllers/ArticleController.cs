@@ -14,11 +14,13 @@ namespace YesterdayNews.Controllers
     {
         private readonly IArticleServices _articleServices;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IFileServices _fileServices;
 
-        public ArticleController(IArticleServices articleServices, UserManager<IdentityUser> userManager)
+        public ArticleController(IArticleServices articleServices, UserManager<IdentityUser> userManager, IFileServices fileServices)
         {
             _articleServices = articleServices;
             _userManager = userManager;
+            _fileServices = fileServices;
         }
         public IActionResult Index()
         {
@@ -101,10 +103,17 @@ namespace YesterdayNews.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(Article article, string action)
+        public async Task<IActionResult> Create(Article article, IFormFile file, string action)
         {
             try
             {
+                if (file != null && file.Length > 0)
+                {
+                    var imageUrl = await _fileServices.UploadFileToContainer(file);
+                    article.ImageLink = imageUrl;
+                    TempData["ImageLink"] = imageUrl;
+                }
+
                 if (article.CategoryId == 0)
                 {
                     ModelState.AddModelError("", "You must choose a category");
@@ -141,6 +150,7 @@ namespace YesterdayNews.Controllers
                 });
             }
         }
+
         #endregion
 
         private void PopulateDropdownList()

@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="CategoryId" class="control-label"></label>
@@ -39,10 +39,18 @@
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ImageLink" class="control-label"></label>
-                <input asp-for="ImageLink" class="form-control" />
-                <span asp-validation-for="ImageLink" class="text-danger"></span>
+                <label for="File">Upload image</label>
+                <input type="file" name="File" class="form-control" />
             </div>
+            @if (TempData["ImageLink"] != null)
+            {
+                <div class="form-group">
+                    <label>Uploaded Image:</label>
+                    <input type="text" readonly class="form-control" value="@TempData["ImageLink"]" />
+                    <img src="@TempData["ImageLink"]" style="max-width: 100%; margin-top: 10px;" />
+                    <input type="hidden" asp-for="ImageLink" value="@TempData["ImageLink"]" />
+                </div>
+            }
             <div class="form-group">
                 <h3 style="color: red"> You need to be logged in to create an article!</h3>
             </div>
