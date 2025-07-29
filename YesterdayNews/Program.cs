@@ -24,6 +24,7 @@ public class Program
 
 
         builder.Services.AddScoped<IArticleServices, ArticleServices>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 
 
