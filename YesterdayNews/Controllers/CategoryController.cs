@@ -112,7 +112,7 @@ namespace YesterdayNews.Controllers
                 }
 
                 _categoryService.Delete(id);
-                TempData["success"] = "Article deleted successfully!";
+                TempData["success"] = "Category deleted successfully!";
                 return Json(new { success = true, message = "Deleted successfully!" });
             }
             catch (Exception ex)
