@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
 
@@ -8,15 +10,31 @@ namespace YesterdayNews.Controllers
     public class ArticleController : Controller
     {
         private readonly IArticleServices _articleServices;
-
+        
         public ArticleController(IArticleServices articleServices)
         {
             _articleServices = articleServices;
+          
         }
         public IActionResult Index()
         {
             List<Article> articles = _articleServices.GetAll();
             return View(articles);
+        }
+        public IActionResult Details(int id)
+       {
+            try
+            {
+            var article = _articleServices.GetById(id);
+
+            return View(article);
+            }
+            catch (Exception ex)
+            {
+
+                TempData["error"] = $"{ex.Message}";
+                throw;
+            }
         }
 
         #region API CALLS

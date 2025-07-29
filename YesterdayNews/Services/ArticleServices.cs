@@ -41,6 +41,14 @@ namespace YesterdayNews.Services
             _db.SaveChanges();
         }
 
-       
+        public Article GetById(int id)
+        {
+            var article = _db.Articles
+                .Include(a => a.Author)
+                .Include(a => a.Category)
+                .FirstOrDefault(m => m.Id == id);
+
+            return article;
+        }
     }
 }

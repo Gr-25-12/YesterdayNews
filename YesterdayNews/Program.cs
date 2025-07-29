@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Data;
+using YesterdayNews.Models.Db;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 
@@ -15,15 +17,22 @@ public class Program
         // Add services to the container.
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
-        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+        builder.Services.ConfigureApplicationCookie(options => {
+            options.LoginPath = $"/Identity/Account/Login";
+            options.LogoutPath = $"/Identity/Account/Logout";
+            options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+        });
+        builder.Services.AddRazorPages();
         builder.Services.AddControllersWithViews();
 
-
         builder.Services.AddScoped<IArticleServices, ArticleServices>();
+        builder.Services.AddScoped<IEmailSender, EmailSender>();
+
 
 
 
@@ -45,7 +54,7 @@ public class Program
         app.UseStaticFiles();
 
         app.UseRouting();
-
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllerRoute(
