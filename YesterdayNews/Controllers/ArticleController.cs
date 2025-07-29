@@ -96,9 +96,8 @@ namespace YesterdayNews.Controllers
                 });
             }
         }
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-
             PopulateDropdownList();
             return View();
         }
@@ -111,12 +110,11 @@ namespace YesterdayNews.Controllers
                 {
                     var imageUrl = await _fileServices.UploadFileToContainer(file);
                     article.ImageLink = imageUrl;
-                    TempData["ImageLink"] = imageUrl;
                 }
 
                 if (article.CategoryId == 0)
                 {
-                    ModelState.AddModelError("", "You must choose a category");
+                    ModelState.AddModelError("CategoryId", "You must choose a category");
                 }
                 article.DateStamp = DateTime.Now;
                 if (action == "draft")
@@ -129,11 +127,9 @@ namespace YesterdayNews.Controllers
                 article.Category = _articleServices.GetCategory(article.CategoryId);
                 article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 article.Author = (User) await _userManager.FindByIdAsync(article.AuthorId);
-                ModelState.Remove("Author");
-                ModelState.Remove("AuthorId");
-                ModelState.Remove("Category");
-                if (ModelState.IsValid)
-                {
+                
+                if(article != null && IsArticleValid(article) )
+                { 
                     _articleServices.Add(article);
                     return RedirectToAction("Index");
                 }
@@ -158,6 +154,34 @@ namespace YesterdayNews.Controllers
             var categories = _articleServices.GetAllCategories();
             categories.Insert(0, new Category { Id = 0, Name = "-- Choose Category --" });
             ViewBag.CategoryId = new SelectList(categories, "Id", "Name");
+        }
+
+        private bool IsArticleValid(Article article)
+        {
+            if(article.Author != null)
+            {
+                ModelState.Remove("Author");
+                ModelState.Remove("AuthorId");
+            }
+            if (article.Category != null)
+            {
+                ModelState.Remove("Category");
+            }
+            
+            if (article.ImageLink != null)
+            {
+                ModelState.Remove("ImageLink");
+                ModelState.Remove("ImageFile");
+            }
+            else
+            {
+                ModelState.AddModelError("ImageLink", "You must upload an Image");
+            }
+            if (ModelState.IsValid)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
