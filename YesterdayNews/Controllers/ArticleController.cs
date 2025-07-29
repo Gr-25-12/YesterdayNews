@@ -65,6 +65,7 @@ namespace YesterdayNews.Controllers
         {
             if (!ModelState.IsValid)
             {
+                TempData["error"] = "couldnt update";
                 return View(article);
             }
 
@@ -81,9 +82,9 @@ namespace YesterdayNews.Controllers
             existing.CategoryId = article.CategoryId;
             existing.ArticleStatus = article.ArticleStatus;
             existing.ImageLink = article.ImageLink;
-
+            existing.AuthorId = article.AuthorId;// This was missing
             // Save to DB
-            _articleServices.Update(existing); // make sure you add this method
+            _articleServices.Edit(existing);
 
             TempData["success"] = "Article updated successfully!";
             return RedirectToAction("Index");

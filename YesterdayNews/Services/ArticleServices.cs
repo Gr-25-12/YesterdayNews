@@ -41,7 +41,7 @@ namespace YesterdayNews.Services
             _db.SaveChanges();
         }
 
-        public void Update(Article article)
+        public void Edit(Article article)
         {
             _db.Articles.Update(article);
             _db.SaveChanges();

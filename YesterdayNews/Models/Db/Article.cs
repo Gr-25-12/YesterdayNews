@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace YesterdayNews.Models.Db
@@ -34,6 +35,7 @@ namespace YesterdayNews.Models.Db
         public string AuthorId { get; set; }  // Changed from List<User>
 
         [ForeignKey("AuthorId")]
+        [ValidateNever]
         public User Author { get; set; }
         public int Views { get; set; }
         public int Likes { get; set; }
@@ -45,6 +47,7 @@ namespace YesterdayNews.Models.Db
         [Required]
         public ArticleStatus ArticleStatus { get; set; } = ArticleStatus.Draft;
         [ForeignKey("CategoryId")]
+        [ValidateNever]
         public Category Category { get; set; }
     }
 }
