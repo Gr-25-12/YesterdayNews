@@ -228,11 +228,9 @@ namespace YesterdayNews.Controllers
         private void PopulateCategoryDropdownList(Article article)
         {
             var categories = _articleServices.GetAllCategories();
-            if (article == null || article.CategoryId == null)
-            {
-                categories.Insert(0, new Category { Id = 0, Name = "-- Choose Category --" });
-            }
-            ViewBag.CategoryId = new SelectList(categories, "Id", "Name", article.CategoryId);
+            categories.Insert(0, new Category { Id = 0, Name = "-- Choose Category --" });
+            int selectedId = article?.CategoryId ?? 0;
+            ViewBag.CategoryId = new SelectList(categories, "Id", "Name", selectedId);   
         }
 
         private async Task<string> UploadImage(Article article, IFormFile imageFile)
