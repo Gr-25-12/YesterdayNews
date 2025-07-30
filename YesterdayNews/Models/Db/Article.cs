@@ -50,6 +50,6 @@ namespace YesterdayNews.Models.Db
         [ValidateNever]
         public Category Category { get; set; }
         [NotMapped]
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 }
