@@ -16,12 +16,14 @@ namespace YesterdayNews.Controllers
         private readonly IArticleServices _articleServices;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IFileServices _fileServices;
+        private readonly ICategoryService _categoryService;
 
-        public ArticleController(IArticleServices articleServices, UserManager<IdentityUser> userManager, IFileServices fileServices)
+        public ArticleController(IArticleServices articleServices, UserManager<IdentityUser> userManager, IFileServices fileServices, ICategoryService categoryService)
         {
             _articleServices = articleServices;
             _userManager = userManager;
             _fileServices = fileServices;
+            _categoryService = categoryService;
         }
 
 
@@ -152,7 +154,7 @@ namespace YesterdayNews.Controllers
                 else if (action == "publish")
                     article.ArticleStatus = ArticleStatus.Published;
 
-                article.Category = _articleServices.GetCategory(article.CategoryId);
+                article.Category = _categoryService.GetOne(article.CategoryId);
                 article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 article.Author = (User)await _userManager.FindByIdAsync(article.AuthorId);
 
@@ -229,7 +231,7 @@ namespace YesterdayNews.Controllers
 
         private void PopulateCategoryDropdownList(Article article)
         {
-            var categories = _articleServices.GetAllCategories();
+            var categories = _categoryService.GetAll();
             categories.Insert(0, new Category { Id = 0, Name = "-- Choose Category --" });
             int selectedId = article?.CategoryId ?? 0;
             ViewBag.CategoryId = new SelectList(categories, "Id", "Name", selectedId);   

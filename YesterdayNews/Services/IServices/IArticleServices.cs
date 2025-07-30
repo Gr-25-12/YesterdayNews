@@ -9,8 +9,6 @@ namespace YesterdayNews.Services.IServices
         void Delete(int id);
         void Add(Article article);
         Article GetById(int id);
-        List<Category> GetAllCategories();
-        Category GetCategory(int id);
         void Edit(Article existing);
     }
 }
