@@ -1,39 +1,49 @@
 ﻿var dataTable;
 
 function loadDataTable() {
-    dataTable = $('#myTable').DataTable({
+    dataTable = $('#myDataTable').DataTable({
         "ajax": {
-            url: '/SubscriptionType/getall',
+            url: '/SubscriptionType/GetAll',
+            type: 'GET',
             dataSrc: 'data'
         },
         "columns": [
-            { "title": "Type Name", data: 'typeName' },
-            { "title": "Description", data: 'description' },
-            { "title": "Price", data: 'price' },
+            { "data": 'typeName', "width": "20%" },
+            { "data": 'description', "width": "30%" },
             {
-                "title": "Subscriptions count", data: 'subscriptions', "render": function (data) {
-                    return `${data.length}`;
-                },
+                "data": 'price',
+                "width": "15%",
+                "render": function (data) {
+                    return 'Kr' + data.toFixed(2);
+                }
+            },
             {
-                "title": "Actions",
-                data: 'id',
-                render: function (data) {
+                "data": 'subscriptions',
+                "width": "15%",
+                "render": function (data) {
+                    return data ? data.length : 0;
+                }
+            },
+            {
+                "data": 'id',
+                "width": "20%",
+                "render": function (data) {
                     return `
                         <div class="w-100 btn-group gap-2" role="group">
-                            <a href="/SubscriptionType/id=${data}" class="btn btn-primary mx-1">
+                            <a href="/SubscriptionType/Edit/${data}" class="btn btn-primary mx-1">
                                 <i class="bi bi-pencil-square px-2"></i>Edit
                             </a>
-                            <a onClick=Delete("/SubscriptionType/id=${data}") class="btn btn-danger mx-1">
+                            <a onClick="Delete('/SubscriptionType/Delete/${data}')" class="btn btn-danger mx-1">
                                 <i class="bi bi-trash px-2"></i>Delete
                             </a>
                         </div>
                     `;
                 }
             }
-        ]
+        ],
+        
     });
 }
-
 
 function Delete(url) {
     Swal.fire({
@@ -50,14 +60,20 @@ function Delete(url) {
                 url: url,
                 type: 'DELETE',
                 success: function (data) {
-                    dataTable.ajax.reload();
-                    toastr.success(data.message)
+                    if (data.success) {
+                        dataTable.ajax.reload();
+                        toastr.success(data.message);
+                    } else {
+                        toastr.error(data.message);
+                    }
+                },
+                error: function () {
+                    toastr.error("An error occurred while deleting");
                 }
-            })
+            });
         }
     });
 }
-
 
 $(document).ready(function () {
     loadDataTable();

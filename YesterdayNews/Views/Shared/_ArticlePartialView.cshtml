@@ -1,0 +1,139 @@
+﻿@using YesterdayNews.Utils
+@using YesterdayNews.Models
+@model YesterdayNews.Models.Db.Article
+
+<div class="container-fluid">
+    <!-- Article Header Card -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="row g-0">
+            <!-- Article Image -->
+             @if (!string.IsNullOrEmpty(Model.ImageLink))  
+              {  
+                  <div class="col-md-4">  
+                      <img src="@Model.ImageLink" class="img-fluid rounded-start h-100" alt="@Model.Headline" style="object-fit: cover;">  
+                  </div>  
+              }  
+              else  
+              {  
+                  <div class="col-md-4 bg-light d-flex align-items-center justify-content-center">  
+                      <div class="text-center p-4">  
+                          <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>  
+                          <p class="mt-2 text-muted">No image available</p>  
+                      </div>  
+                  </div>  
+              } 
+
+            <!-- Article Meta -->
+            <div class="col-md-8">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge bg-@GetStatusColor(@Model.ArticleStatus.ToString()) mb-2">@Model.ArticleStatus</span>
+                            <h1 class="card-title display-6">@Model.Headline</h1>
+                            <p class="card-text text-muted">@Model.ContentSummary</p>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">@Model.Views <i class="bi bi-eye"></i></small>
+                            <small class="text-muted ms-2">@Model.Likes <i class="bi bi-hand-thumbs-up"></i></small>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex flex-wrap justify-content-between">
+                        <div class="mb-2">
+                            <span class="fw-bold">Author:</span>
+                            <span class="ms-2">
+                                <i class="bi bi-person-circle"></i> @Model.Author.FirstName @Model.Author.LastName
+                            </span>
+                        </div>
+
+                        <div class="mb-2">
+                            <span class="fw-bold">Category:</span>
+                            <span class="badge bg-info ms-2">@Model.Category?.Name</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <span class="fw-bold">Published:</span>
+                            <span class="ms-2">
+                                <i class="bi bi-calendar"></i> @Model.DateStamp.ToString("MMMM dd, yyyy")
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="fw-bold">Link:</span>
+                            <a href="@Model.LinkText" class="ms-2" target="_blank">
+                                <i class="bi bi-link-45deg"></i> View Source
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Card -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Article Content</h3>
+            <div class="article-content">
+                @Html.Raw(Model.Content)
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Article Management</h5>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+               
+                    <form asp-action="SubmitForReview" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-send-check"></i> Submit for Review
+                        </button>
+                    </form>
+                
+
+               
+                    <form asp-action="Publish" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Publish
+                        </button>
+                    </form>
+               
+
+               
+                    <form asp-action="Archive" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="bi bi-archive"></i> Archive
+                        </button>
+                    </form>
+                
+
+                <form asp-action="SaveDraft" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save as Draft
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            StaticConsts.ArticleDraft => "secondary",
+            StaticConsts.ArticlePendingReview => "warning",
+            StaticConsts.ArticlePublished => "success",
+            StaticConsts.ArticleRejected => "danger",
+            StaticConsts.ArticleArchived => "dark",
+            _ => "primary"
+        };
+    }
+}

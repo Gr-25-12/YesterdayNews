@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using YesterdayNews.Models.Db;
+using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 
 namespace YesterdayNews.Controllers
@@ -17,17 +18,19 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Index()
         {
+            
             return View();
+            
         }
 
 
 
         #region API CALLS
+
+        [HttpGet]
         public IActionResult GetAll()
         {
-            var typesList = _subscriptionTypeServices.GetAll().ToList();
-
-
+            var typesList = _subscriptionTypeServices.GetAll();
             return Json(new { data = typesList });
         }
 
@@ -37,14 +40,16 @@ namespace YesterdayNews.Controllers
             var typeToBeDeleted = _subscriptionTypeServices.GetOne(id);
             if (typeToBeDeleted == null)
             {
-                return Json(new { success = false, message = "Error while Deletinig!" });
+                return Json(new { success = false, message = "Subscription Type not found!" });
             }
 
-
-            _subscriptionTypeServices.Delete(id);
+         
+                _subscriptionTypeServices.Delete(id);
+                return Json(new { success = true, message = "Deleted successfully!" });
             
-            return Json(new { success = true, message = "Deleted successfully!" });
+            
         }
+
         #endregion
 
     }

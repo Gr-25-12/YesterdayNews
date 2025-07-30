@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
@@ -41,6 +42,31 @@ namespace YesterdayNews.Services
             _db.SaveChanges();
         }
 
-       
+        public void Add(Article article)
+        {
+            _db.Articles.Add(article);
+            _db.SaveChanges(true);
+        }
+        public Article GetById(int id)
+        {
+            var article = _db.Articles
+                .Include(a => a.Author)
+                .Include(a => a.Category)
+                .FirstOrDefault(m => m.Id == id);
+
+            return article;
+        }
+        //Temporary method? move to CategoryServices or wit for that to be done then delete this?
+        public List<Category> GetAllCategories()
+        {
+            return _db.Categories.ToList();
+        }
+        //Temporary method? move to CategoryServices or wit for that to be done then delete this?
+        public Category GetCategory(int id)
+        {
+            var category = _db.Categories.FirstOrDefault(c => c.Id == id);
+            return category;
+        }
+
     }
 }
