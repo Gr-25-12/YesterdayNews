@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Security.Claims;
+using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
 
@@ -22,18 +23,20 @@ namespace YesterdayNews.Controllers
             _userManager = userManager;
             _fileServices = fileServices;
         }
+
+
         public IActionResult Index()
         {
             List<Article> articles = _articleServices.GetAll();
             return View(articles);
         }
         public IActionResult Details(int id)
-       {
+        {
             try
             {
-            var article = _articleServices.GetById(id);
+                var article = _articleServices.GetById(id);
 
-            return View(article);
+                return View(article);
             }
             catch (Exception ex)
             {
@@ -48,52 +51,52 @@ namespace YesterdayNews.Controllers
         [HttpGet]
         public IActionResult GetAll(string status)
         {
-            
-                IEnumerable<Article> articles = _articleServices
-                    .GetAll();
+
+            IEnumerable<Article> articles = _articleServices
+                .GetAll();
 
 
-                switch (status)
+            switch (status)
+            {
+                case "draft":
+                    articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Draft); break;
+                case "pendingReview":
+                    articles = articles.Where(u => u.ArticleStatus == ArticleStatus.PendingReview); break;
+                case "rejected":
+                    articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Rejected); break;
+                case "published":
+                    articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Published); break;
+                case "archived":
+                    articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Archived); break;
+                default: break;
+            }
+
+            var result = articles.Select(a => new
+            {
+                id = a.Id,
+                headline = a.Headline,
+                author = new
                 {
-                    case "draft":
-                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Draft); break;
-                    case "pendingReview":
-                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.PendingReview); break;
-                    case "rejected":
-                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Rejected); break;
-                    case "published":
-                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Published); break;
-                    case "archived":
-                        articles = articles.Where(u => u.ArticleStatus == ArticleStatus.Archived); break;
-                    default: break;
-                }
-
-                var result = articles.Select(a => new
+                    firstName = a.Author?.FirstName,
+                    lastName = a.Author?.LastName
+                },
+                dateStamp = a.DateStamp,
+                category = new
                 {
-                    id = a.Id,
-                    headline = a.Headline,
-                    author = new
-                    {
-                        firstName = a.Author?.FirstName ,
-                        lastName = a.Author?.LastName
-                    },
-                    dateStamp = a.DateStamp,
-                    category = new
-                    {
-                        name = a.Category?.Name
-                    },
-                    articleStatus = a.ArticleStatus.ToString(),
-                    views = a.Views,
-                    likes = a.Likes
-                }).ToList();
+                    name = a.Category?.Name
+                },
+                articleStatus = a.ArticleStatus.ToString(),
+                views = a.Views,
+                likes = a.Likes
+            }).ToList();
 
-                return Json(new
-                {
-                    success = true,
-                    data = result
-                });
-            
-            
+            return Json(new
+            {
+                success = true,
+                data = result
+            });
+
+
         }
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -129,7 +132,7 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Create()
         {
-            PopulateDropdownList();
+            PopulateCategoryDropdownList(null);
             return View();
         }
         [HttpPost]
@@ -137,11 +140,8 @@ namespace YesterdayNews.Controllers
         {
             try
             {
-                if (file != null && file.Length > 0)
-                {
-                    var imageUrl = await _fileServices.UploadFileToContainer(file);
-                    article.ImageLink = imageUrl;
-                }
+                if(article != null)
+                    article.ImageLink = await UploadImage(article, file);
 
                 if (article.CategoryId == 0)
                 {
@@ -157,15 +157,15 @@ namespace YesterdayNews.Controllers
 
                 article.Category = _articleServices.GetCategory(article.CategoryId);
                 article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                article.Author = (User) await _userManager.FindByIdAsync(article.AuthorId);
-                
-                if(article != null && IsArticleValid(article) )
-                { 
+                article.Author = (User)await _userManager.FindByIdAsync(article.AuthorId);
+
+                if (article != null && IsArticleValid(article))
+                {
                     _articleServices.Add(article);
                     return RedirectToAction("Index");
                 }
 
-                PopulateDropdownList();
+                PopulateCategoryDropdownList(article);
                 return View(article);
             }
             catch (Exception ex)
@@ -177,19 +177,83 @@ namespace YesterdayNews.Controllers
                 });
             }
         }
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            var article = _articleServices.GetById(id);
+            if (article == null)
+            {
+                return NotFound();
+            }
+            // Fetch categories
+            PopulateCategoryDropdownList(article);
+
+            return View(article);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task <IActionResult> Edit(Article article, IFormFile imageFile)
+        {
+            string newImageLink = await UploadImage(article, imageFile);
+            if (newImageLink != null)
+                article.ImageLink = newImageLink;
+            if(IsArticleValid(article) == false)
+            {
+                TempData["error"] = "couldnt update";
+                return View(article);
+            }
+
+            var existing = _articleServices.GetById(article.Id);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            // Update values
+            existing.Headline = article.Headline;
+            existing.Content = article.Content;
+            existing.ContentSummary = article.ContentSummary;
+            existing.CategoryId = article.CategoryId;
+            existing.AuthorId = article.AuthorId;
+            existing.ImageLink = article.ImageLink;
+
+            if (article.ArticleStatus == ArticleStatus.Published)
+                existing.ArticleStatus = ArticleStatus.PendingReview;
+            else
+                existing.ArticleStatus = article.ArticleStatus;
+
+            // Save to DB
+            _articleServices.Edit(existing);
+
+            TempData["success"] = "Article updated successfully!";
+            return RedirectToAction("Index");
+        }
 
         #endregion
 
-        private void PopulateDropdownList()
+        private void PopulateCategoryDropdownList(Article article)
         {
             var categories = _articleServices.GetAllCategories();
             categories.Insert(0, new Category { Id = 0, Name = "-- Choose Category --" });
-            ViewBag.CategoryId = new SelectList(categories, "Id", "Name");
+            int selectedId = article?.CategoryId ?? 0;
+            ViewBag.CategoryId = new SelectList(categories, "Id", "Name", selectedId);   
+        }
+
+        private async Task<string> UploadImage(Article article, IFormFile imageFile)
+        {
+            if (article != null && imageFile != null && imageFile.Length > 0)
+            {
+                //Delete old picture?
+                var imageUrl = await _fileServices.UploadFileToContainer(imageFile);
+                return imageUrl;
+            }
+            return null;
         }
 
         private bool IsArticleValid(Article article)
         {
-            if(article.Author != null)
+            if (article.Author != null)
             {
                 ModelState.Remove("Author");
                 ModelState.Remove("AuthorId");
@@ -198,7 +262,7 @@ namespace YesterdayNews.Controllers
             {
                 ModelState.Remove("Category");
             }
-            
+
             if (article.ImageLink != null)
             {
                 ModelState.Remove("ImageLink");

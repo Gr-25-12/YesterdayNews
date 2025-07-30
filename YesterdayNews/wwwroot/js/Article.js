@@ -103,6 +103,23 @@ function Delete(url) {
         }
     });
 }
+function setupImagePreview() {
+    const input = document.getElementById('imageInput');
+    const preview = document.getElementById('imagePreview');
+
+    if (input) {
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width:100%; height:auto;" />`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+}
 
 $(document).ready(function () {
     var url = window.location.search;
@@ -126,5 +143,5 @@ $(document).ready(function () {
         loadDataTable("all");
     }
 
-  
+    setupImagePreview();
 });

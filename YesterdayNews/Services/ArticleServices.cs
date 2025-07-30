@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
@@ -67,6 +67,13 @@ namespace YesterdayNews.Services
             var category = _db.Categories.FirstOrDefault(c => c.Id == id);
             return category;
         }
+
+        public void Edit(Article article)
+        {
+            _db.Articles.Update(article);
+            _db.SaveChanges();
+        }
+
 
     }
 }
