@@ -96,7 +96,7 @@ namespace YesterdayNews.Controllers
             
         }
         [HttpDelete]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
@@ -106,6 +106,13 @@ namespace YesterdayNews.Controllers
                     TempData["error"] = "Article not found!";
                     return Json(new { success = false, message = "Article not found!" });
                 }
+
+
+                if (!string.IsNullOrEmpty(articleToDelete.ImageLink))
+                {
+                    await _fileServices.DeleteFileFromContainer(articleToDelete.ImageLink);
+                }
+
 
                 _articleServices.Delete(id);
                 TempData["success"] = "Article deleted successfully!";
