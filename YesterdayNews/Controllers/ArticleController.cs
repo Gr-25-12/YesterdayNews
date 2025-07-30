@@ -136,17 +136,14 @@ namespace YesterdayNews.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(Article article, IFormFile file, string action)
+        public async Task<IActionResult> Create(Article article, IFormFile imageFile, string action)
         {
             try
             {
-                if(article != null)
-                    article.ImageLink = await UploadImage(article, file);
+                string newImageLink = await UploadImage(article, imageFile);
+                if (newImageLink != null)
+                    article.ImageLink = newImageLink;
 
-                if (article.CategoryId == 0)
-                {
-                    ModelState.AddModelError("CategoryId", "You must choose a category");
-                }
                 article.DateStamp = DateTime.Now;
                 if (action == "draft")
                     article.ArticleStatus = ArticleStatus.Draft;
@@ -195,15 +192,6 @@ namespace YesterdayNews.Controllers
         [ValidateAntiForgeryToken]
         public async Task <IActionResult> Edit(Article article, IFormFile imageFile)
         {
-            string newImageLink = await UploadImage(article, imageFile);
-            if (newImageLink != null)
-                article.ImageLink = newImageLink;
-            if(IsArticleValid(article) == false)
-            {
-                TempData["error"] = "couldnt update";
-                return View(article);
-            }
-
             var existing = _articleServices.GetById(article.Id);
             if (existing == null)
             {
@@ -216,16 +204,23 @@ namespace YesterdayNews.Controllers
             existing.ContentSummary = article.ContentSummary;
             existing.CategoryId = article.CategoryId;
             existing.AuthorId = article.AuthorId;
-            existing.ImageLink = article.ImageLink;
+            string newImageLink = await UploadImage(article, imageFile);
+            if (newImageLink != null)
+                existing.ImageLink = newImageLink;
 
             if (article.ArticleStatus == ArticleStatus.Published)
                 existing.ArticleStatus = ArticleStatus.PendingReview;
             else
                 existing.ArticleStatus = article.ArticleStatus;
 
+            if (IsArticleValid(existing) == false)
+            {
+                PopulateCategoryDropdownList(existing);
+                return View(existing);
+            }
             // Save to DB
             _articleServices.Edit(existing);
-
+            _fileServices.DeleteFileFromContainer(article.ImageLink);
             TempData["success"] = "Article updated successfully!";
             return RedirectToAction("Index");
         }
@@ -244,7 +239,6 @@ namespace YesterdayNews.Controllers
         {
             if (article != null && imageFile != null && imageFile.Length > 0)
             {
-                //Delete old picture?
                 var imageUrl = await _fileServices.UploadFileToContainer(imageFile);
                 return imageUrl;
             }
@@ -262,7 +256,6 @@ namespace YesterdayNews.Controllers
             {
                 ModelState.Remove("Category");
             }
-
             if (article.ImageLink != null)
             {
                 ModelState.Remove("ImageLink");
@@ -271,6 +264,10 @@ namespace YesterdayNews.Controllers
             else
             {
                 ModelState.AddModelError("ImageLink", "You must upload an Image");
+            }
+            if (article?.CategoryId == 0)
+            {
+                ModelState.AddModelError("CategoryId", "You must choose a category");
             }
             if (ModelState.IsValid)
             {
