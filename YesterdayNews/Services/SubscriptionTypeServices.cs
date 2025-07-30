@@ -22,5 +22,14 @@ namespace YesterdayNews.Services
             return SubscriptionList;
         }
 
+        public void Delete(int id)
+        {
+            var type = _db.SubscriptionTypes.FirstOrDefault(m => m.Id == id);
+            if (type == null)
+                throw new Exception("SubscriptionType not found.");
+
+            _db.SubscriptionTypes.Remove(type);
+            _db.SaveChanges();
+        }
     }
 }

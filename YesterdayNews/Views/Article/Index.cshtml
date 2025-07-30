@@ -4,19 +4,69 @@
     ViewData["Title"] = "Articles";
 }
 
+@{
+    var status = Context.Request.Query["Status"];
+
+    var draft = "text-primary";
+    var pendingReview = "text-primary";
+    var rejected = "text-primary";
+    var published = "text-primary";
+    var archived = "text-primary";
+    var all = "text-primary";
+
+switch (status)
+    {
+        case "draft": draft = "active text-white bg-primary"; break;
+        case "pendingReview": pendingReview = "active text-white bg-primary"; break;
+        case "rejected": rejected = "active text-white bg-primary"; break;
+        case "published": published = "active text-white bg-primary"; break;
+        case "archived": archived = "active text-white bg-primary"; break;
+        case "all": all = "active text-white bg-primary"; break;
+        default: all = "active text-white bg-primary"; break;
+    }
+}
+
 <div class="container p-3">
     <div class="row pt-4">
-        <div class="col-6">
+        <div class="col-12 text-start">
             <h2 class="text-primary">Articles List</h2>
         </div>
-        <div class="col-6 text-end">
+        <div class="col-12 text-end mb-2">
             <a asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> &nbsp; Create New Article
             </a>
         </div>
     </div>
 
-    <table id="articlesTable" class="table table-bordered table-striped" style="width:100%">
+    <div class="d-flex justify-content-between  flex-nowrap overflow-auto pb-5 pt-2 w-100">
+        <div class="d-flex flex-shrink-0">
+        <ul class="list-group list-group-horizontal me-2">
+            <a asp-controller="Article" asp-action="Index" asp-route-status="all" style="text-decoration:none;">
+            <li class="list-group-item @all">All</li>
+            </a>
+            <a asp-controller="Article" asp-action="Index" asp-route-status="draft" style="text-decoration:none;">
+                <li class ="list-group-item @draft">Draft</li>
+            </a>
+            <a asp-controller="Article" asp-action="Index" asp-route-status="pendingReview" style="text-decoration:none;">
+            <li class="list-group-item @pendingReview">Pending Review</li>
+            </a>
+            <a asp-controller="Article" asp-action="Index" asp-route-status="rejected" as style="text-decoration:none;">
+            <li class="list-group-item @rejected">Rejected</li>
+            </a>
+            <a asp-controller="Article" asp-action="Index" asp-route-status="published" style="text-decoration:none;">
+            <li class="list-group-item @published">Published</li>
+            </a>
+            <a asp-controller="Article" asp-action="Index" asp-route-status="archived" style="text-decoration:none;">
+            <li class="list-group-item @archived">Archived</li>
+            </a>
+
+</ul>
+    </div>
+    </div>
+
+    <hr/>
+    <div class="table-responsive">
+        <table id="myDataTable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
         <thead>
             <tr>
                 <th>Headline</th>
@@ -30,6 +80,8 @@
             </tr>
         </thead>
     </table>
+    </div>
+
 </div>
 
 @section Scripts {
