@@ -1,152 +1,13 @@
 ﻿@using YesterdayNews.Utils
 @using YesterdayNews.Models
+@using System.Text.RegularExpressions
 @model YesterdayNews.Models.Db.Article
 
-<div class="container">
-    <div class="card">
-        <div class="card-header bg-primary text-light ml-0">
-            <div class="container row">
-                <div class="col-12 d-none d-md-block col-md-6 pb-1">
-                   &nbsp; Article Summary
-                </div>
-                <div class="col-12 col-md-4 offset-md-2 text-right">
-                    <a asp-controller="Article" asp-action="Index" class="btn btn-outline-light form-control btn-sm">
-                        <i class="bi bi-arrow-left me-2"></i>Back to Articles
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="card-body">
-
-<div class="container-fluid">
-    <!-- Article Header Card -->
-    <div class="card mb-4 border-0 shadow-sm">
-        <div class="row g-0">
-            <!-- Article Image -->
-             @if (!string.IsNullOrEmpty(Model.ImageLink))  
-              {  
-                  <div class="col-md-4">  
-                      @* <img src="@Model.ImageLink" class="img-fluid rounded-start h-100" alt="@Model.Headline" style="object-fit: cover;">   *@
-                                <img src="https://picsum.dev/static/123/400/300" class="img-fluid rounded-start h-100" alt="@Model.Headline" style="object-fit: cover;">
-                            </div>  
-              }  
-              else  
-              {  
-                  <div class="col-md-4 bg-light d-flex align-items-center justify-content-center">  
-                      <div class="text-center p-4">  
-                          <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>  
-                          <p class="mt-2 text-muted">No image available</p>  
-                      </div>  
-                  </div>  
-              } 
-
-            <!-- Article Meta -->
-            <div class="col-md-8">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="badge bg-@GetStatusColor(@Model.ArticleStatus.ToString()) mb-2">@Model.ArticleStatus.ToString().ToUpper()</span>
-                            <h1 class="card-title display-6">@Model.Headline</h1>
-                            <p class="card-text text-muted">@Model.ContentSummary</p>
-                        </div>
-                        <div class="text-end">
-                            <small class="text-muted">@Model.Views <i class="bi bi-eye"></i></small>
-                            <small class="text-muted ms-2">@Model.Likes <i class="bi bi-hand-thumbs-up"></i></small>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="d-flex flex-wrap justify-content-between">
-                        <div class="mb-2">
-                            <span class="fw-bold">Author:</span>
-                            <span class="ms-2">
-                                <i class="bi bi-person-circle"></i> @Model.Author.FirstName @Model.Author.LastName
-                            </span>
-                        </div>
-
-                        <div class="mb-2">
-                            <span class="fw-bold">Category:</span>
-                            <span class="badge bg-info ms-2">@Model.Category?.Name</span>
-                        </div>
-
-                        <div class="mb-2">
-                            <span class="fw-bold">Published:</span>
-                            <span class="ms-2">
-                                <i class="bi bi-calendar"></i> @Model.DateStamp.ToString("MMMM dd, yyyy")
-                            </span>
-                        </div>
-
-                        <div>
-                            <span class="fw-bold">Link:</span>
-                            <a href="@Model.LinkText" class="ms-2" target="_blank">
-                                <i class="bi bi-link-45deg"></i> View Source
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Content Card -->
-    <div class="card mb-4 border-0 shadow-sm">
-        <div class="card-body">
-            <h3 class="card-title mb-4">Article Content</h3>
-            <div class="article-content">
-                @Html.Raw(Model.Content)
-            </div>
-        </div>
-    </div>
-
-    <!-- Management Card -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Article Management</h5>
-        </div>
-        <div class="card-body">
-            <div class="d-flex flex-wrap gap-2">
-               
-                    <form asp-action="SubmitForReview" asp-route-id="@Model.Id" method="post">
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-send-check"></i> Submit for Review
-                        </button>
-                    </form>
-                
-
-               
-                    <form asp-action="Publish" asp-route-id="@Model.Id" method="post">
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-circle"></i> Publish
-                        </button>
-                    </form>
-               
-
-               
-                    <form asp-action="Archive" asp-route-id="@Model.Id" method="post">
-                        <button type="submit" class="btn btn-secondary">
-                            <i class="bi bi-archive"></i> Archive
-                        </button>
-                    </form>
-                
-
-                <form asp-action="SaveDraft" asp-route-id="@Model.Id" method="post">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Save as Draft
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-</div>
-</div>
 @functions {
 
     string SplitPascalCase(string input)
     {
-        return System.Text.RegularExpressions.Regex.Replace(input, "(\\B[A-Z])", " $1");
+        return Regex.Replace(input, "(\\B[A-Z])", " $1");
     }
 
     string GetStatusColor(string status)
@@ -162,18 +23,14 @@
         };
     }
 }
-<hr />
-<h1>Another View</h1>
-<hr />
+
 <div class="container-fluid">
 
     <div class="d-flex justify-content-around align-content-center bg-light shadow-sm border-0 mt-2 py-2">
 
-    @* <div class="row bg-secondary align-content-center my-2"> *@
         <div class="col-md-6 ">
             <h3 class="text-left mb-4">@Model.Category?.Name.ToUpper()</h3>
         </div>
-    @* </div> *@
         <div class="col-md-2 ">
         <a asp-controller="Article" asp-action="Index" class="btn btn-outline-secondary form-control btn-sm">
             <i class="bi bi-arrow-left me-2"></i>Back 
@@ -181,23 +38,22 @@
         </div>
     </div>
 
+    <div class="d-flex justify-content-center m-4">
+
     <!-- Article Image -->
-    @if (!string.IsNullOrEmpty(Model.ImageLink))
-    {
-        <div class="mb-4">
-            @* <img src="@Model.ImageLink" class="img-fluid rounded shadow-sm w-100" alt="@Model.Headline" style="object-fit: cover; max-height: 350px;"> *@
-            <img src="https://picsum.dev/static/123/400/300" class="img-fluid rounded shadow-sm w-100" alt="@Model.Headline" style="object-fit: cover; max-height: 350px;">
-        </div>
+     @if (!string.IsNullOrEmpty(Model.ImageLink)) 
+     { 
+    
+            <img src="@Model.ImageLink" class="img-fluid rounded shadow-sm w-100 border-top border-4 border-primary" alt="@Model.Headline" style="object-fit: cover; max-height: 350px;"> 
+   
     }
     else
     {
-        <div class="bg-light d-flex align-items-center justify-content-center rounded mb-4" style="height: 250px;">
-            <div class="text-center">
-                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
-                <p class="mt-2 text-muted">No image available</p>
-            </div>
-        </div>
+        
+            <img src="~/Placeholder.png" class="img-fluid rounded shadow-sm w-75 border-top border-4 border-primary" alt="@Model.Headline" style="object-fit: cover; max-height: 350px;">
+        
     }
+    </div>
 
     <!-- Headline -->
     <div class="text-center mb-3">
@@ -232,14 +88,15 @@
                 <i class="bi bi-calendar"></i> @Model.DateStamp.ToString("MMMM dd, yyyy")
             </li>
         </ul>
-        <ul class="list-unstyled">
+        @* no need for the admin view *@
+@*         <ul class="list-unstyled">
             <li>
                 <i class="bi bi-eye"></i> Views: @Model.Views
             </li>
             <li>
                 <i class="bi bi-hand-thumbs-up"></i> Likes: @Model.Likes
             </li>
-        </ul>
+        </ul> *@
     </div>
 
     <!-- Management Actions -->
@@ -247,6 +104,8 @@
         <div class="card-header bg-light">
             <h5 class="mb-0">Manage Article</h5>
         </div>
+
+        @* Will be controlled with permissons and to change them to inputs eaiser *@
         <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
             <form asp-action="SubmitForReview" asp-route-id="@Model.Id" method="post">
                 <button type="submit" class="btn btn-warning">
@@ -269,6 +128,17 @@
             <form asp-action="SaveDraft" asp-route-id="@Model.Id" method="post">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-save"></i> Save as Draft
+                </button>
+            </form>
+            <form asp-action="Rejected" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-x-square"></i> Reject
+                </button>
+            </form>
+
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Edit
                 </button>
             </form>
         </div>
