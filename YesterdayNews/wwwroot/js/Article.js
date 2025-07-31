@@ -1,7 +1,7 @@
 var dataTable;
 
 function loadDataTable(status) {
-    dataTable = $('#articlesTable').DataTable({
+    dataTable = $('#myDataTable').DataTable({
         "language": {
             "searchPlaceholder": "Search articles...", 
         },
