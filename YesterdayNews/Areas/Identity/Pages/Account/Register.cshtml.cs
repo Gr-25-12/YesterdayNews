@@ -1,11 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -15,7 +15,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using YesterdayNews.Models.Db;
@@ -109,6 +111,11 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
             public string LastName { get; set; }
 
             public DateOnly? DateOfBirth { get; set; }
+
+            public string? Role { get; set; }
+            [ValidateNever]
+            public IEnumerable<SelectListItem> RoleList { get; set; }
+
         }
 
 
@@ -121,6 +128,16 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                 _roleManager.CreateAsync(new IdentityRole(StaticConsts.Role_Admin)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(StaticConsts.Role_Editor)).GetAwaiter().GetResult();
             }
+            
+
+            Input = new()
+            {
+                RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
+                {
+                    Text = i,
+                    Value = i
+                })
+            };
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -139,15 +156,35 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
 
-                var result = await _userManager.CreateAsync(user, Input.Password);
+                IdentityResult result;
+
+                if (User.IsInRole(StaticConsts.Role_Admin))
+                {
+                    // Generate a strong random password
+                    var generatedPassword = GenerateRandomPassword();
+                    result = await _userManager.CreateAsync(user, generatedPassword);
+                    //Send email to user with his password
+                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                }
+                else
+                {
+                    result = await _userManager.CreateAsync(user, Input.Password);
+                }
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-                    
-                            // all users are customers 
+
+                    // all users are customers unless specified otherwise 
+                    if (Input.Role != null)
+                    {
+                        await _userManager.AddToRoleAsync(user, Input.Role);
+                    }
+                    else
+                    {
                         await _userManager.AddToRoleAsync(user, StaticConsts.Role_Customer);
-                    
+                    }
 
 
                     var userId = await _userManager.GetUserIdAsync(user);
@@ -168,7 +205,16 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+
+                        if (User.IsInRole(StaticConsts.Role_Admin))
+                        {
+                            TempData["success"] = "New user created sucssfully!";
+                        }
+                        else
+                        {
+
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                        }
                         return LocalRedirect(returnUrl);
                     }
                 }
@@ -203,6 +249,43 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<IdentityUser>)_userStore;
+        }
+
+        private string GenerateRandomPassword()
+        {
+            const string letters = "abcdefghijklmnopqrstuvwxyz";
+            const string digits = "0123456789";
+            const string specials = "!@#$%^&*_-=+";
+
+            var passwordChars = new List<char>();
+            var random = RandomNumberGenerator.Create();
+
+            // Ensure at least one of each required type
+            passwordChars.Add(GetRandomChar(letters.ToUpper(), random));
+            passwordChars.Add(GetRandomChar(letters, random));
+            passwordChars.Add(GetRandomChar(digits, random));
+            passwordChars.Add(GetRandomChar(specials, random));
+
+            // Fill remaining length
+            var allChars = letters + letters.ToUpper() + digits + specials;
+            for (int i = passwordChars.Count; i < 12; i++) // Default 12 chars
+            {
+                passwordChars.Add(GetRandomChar(allChars, random));
+            }
+
+            // Shuffle
+            for (int i = 0; i < passwordChars.Count; i++)
+            {
+                int j = RandomNumberGenerator.GetInt32(i, passwordChars.Count);
+                (passwordChars[i], passwordChars[j]) = (passwordChars[j], passwordChars[i]);
+            }
+
+            return new string(passwordChars.ToArray());
+        }
+
+        private char GetRandomChar(string chars, RandomNumberGenerator random)
+        {
+            return chars[RandomNumberGenerator.GetInt32(chars.Length)];
         }
     }
 }
