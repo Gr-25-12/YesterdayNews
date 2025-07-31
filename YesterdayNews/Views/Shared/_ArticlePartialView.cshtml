@@ -42,15 +42,15 @@
 
     <!-- Article Image -->
      @if (!string.IsNullOrEmpty(Model.ImageLink)) 
-     { 
-    
-            <img src="@Model.ImageLink" class="img-fluid rounded shadow-sm w-100 border-top border-4 border-primary" alt="@Model.Headline" style="object-fit: cover; max-height: 350px;"> 
-   
-    }
+     {
+
+            <img src="@Model.ImageLink" class="img-fluid rounded shadow-sm w-100 border-top border-4 border-primary" alt="@Model.Headline" style="object-fit: fill;">
+
+        }
     else
     {
-        
-            <img src="~/Placeholder.png" class="img-fluid rounded shadow-sm w-75 border-top border-4 border-primary" alt="@Model.Headline" style="object-fit: cover; max-height: 350px;">
+
+            <img src="~/Placeholder.png" class="img-fluid rounded shadow-sm w-75 border-top border-4 border-primary" alt="@Model.Headline" style="object-fit: fill;">
         
     }
     </div>
@@ -88,15 +88,6 @@
                 <i class="bi bi-calendar"></i> @Model.DateStamp.ToString("MMMM dd, yyyy")
             </li>
         </ul>
-        @* no need for the admin view *@
-@*         <ul class="list-unstyled">
-            <li>
-                <i class="bi bi-eye"></i> Views: @Model.Views
-            </li>
-            <li>
-                <i class="bi bi-hand-thumbs-up"></i> Likes: @Model.Likes
-            </li>
-        </ul> *@
     </div>
 
     <!-- Management Actions -->
