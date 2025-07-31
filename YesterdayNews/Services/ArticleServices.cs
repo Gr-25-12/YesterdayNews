@@ -56,17 +56,6 @@ namespace YesterdayNews.Services
 
             return article;
         }
-        //Temporary method? move to CategoryServices or wit for that to be done then delete this?
-        public List<Category> GetAllCategories()
-        {
-            return _db.Categories.ToList();
-        }
-        //Temporary method? move to CategoryServices or wit for that to be done then delete this?
-        public Category GetCategory(int id)
-        {
-            var category = _db.Categories.FirstOrDefault(c => c.Id == id);
-            return category;
-        }
 
         public void Edit(Article article)
         {
