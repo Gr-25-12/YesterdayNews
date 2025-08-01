@@ -18,9 +18,22 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Index()
         {
-            
             return View();
-            
+        }
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Create(SubscriptionType subscriptionType)
+        {
+            if (ModelState.IsValid)
+            {
+                _subscriptionTypeServices.Add(subscriptionType);
+                return RedirectToAction("Index");
+            }
+            return View();
         }
 
 
@@ -49,7 +62,7 @@ namespace YesterdayNews.Controllers
             
             
         }
-
+        
         #endregion
 
     }
