@@ -9,5 +9,6 @@ namespace YesterdayNews.Services.IServices
 
         void EditSubscriptionType(Category updatedSubscriptionType);
         void Delete(int id);
+        void Add(SubscriptionType subscriptionType);
     }
 }
