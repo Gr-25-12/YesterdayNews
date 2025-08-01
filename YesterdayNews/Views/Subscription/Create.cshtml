@@ -28,9 +28,12 @@
             </div>
             <div class="form-group">
                 <label for="UserId" class="control-label">User</label>
-                <select asp-for="UserId" class="form-control" id="UserId">
-                    <option></option>
+                <<select asp-for="UserId" class="form-control" id="UserId"
+                         data-val="true"
+                         data-val-required="Choose a user before saving">
+                    <option value=""></option>
                 </select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="SubscriptionTypeId" class="control-label"></label>
@@ -55,7 +58,7 @@
                     <input class="form-check-input" asp-for="PaymentComplete" /> @Html.DisplayNameFor(model => model.PaymentComplete)
                 </label>
             </div>
-            <div class="form-group text-end">
+            <div class="form-group text-end mt-3">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>

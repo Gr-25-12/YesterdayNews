@@ -8,7 +8,7 @@ namespace YesterdayNews.Services.IServices
         /// Get a list if all subscriptions including User and SubscriptionType
         /// </summary>
         /// <returns>List of all unsorted</returns>
-        //List<Subscription> GetAll();
+        List<Subscription> GetAll();
         /// <summary>
         /// Get a list if all subscriptions including User and SubscriptionType
         /// </summary>

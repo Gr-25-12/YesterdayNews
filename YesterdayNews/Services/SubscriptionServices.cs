@@ -12,12 +12,12 @@ namespace YesterdayNews.Services
         {
             _db = db;
         }
-        //public List<Subscription> GetAll()
-        //{
-        //    return _db.Subscriptions.Include(u => u.User)
-        //                            .Include(st => st.SubscriptionType)
-        //                            .ToList();
-        //}
+        public List<Subscription> GetAll()
+        {
+            return _db.Subscriptions.Include(u => u.User)
+                                    .Include(st => st.SubscriptionType)
+                                    .ToList();
+        }
         //public List<Subscription> GetAllByCreated()
         //{
         //    return _db.Subscriptions.Include(u => u.User)

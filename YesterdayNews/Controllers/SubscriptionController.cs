@@ -78,10 +78,10 @@ namespace YesterdayNews.Controllers
             }
 
             _subscriptionServices.Add(subscription);
-            return RedirectToAction("Create");
+            return RedirectToAction("Index");
         }
         [HttpGet]
-        public IActionResult Update(int id)
+        public IActionResult Edit(int id)
         {
             var subscription = _subscriptionServices.GetOne(id);
             if (subscription == null)
@@ -92,15 +92,18 @@ namespace YesterdayNews.Controllers
             return View(subscription);
         }
         [HttpPost]
-        public IActionResult Update(Subscription subscription)
+        public IActionResult Edit(Subscription subscription)
         {
+            ModelState.Remove("User");
+            ModelState.Remove("SubscriptionType");
             if (ModelState.IsValid)
             {
                 _subscriptionServices.Edit(subscription);
                 return RedirectToAction("Index");
 
             }
-
+            var types = _subscriptionTypeServices.GetAll();
+            ViewBag.SubscriptionTypes = types;
             return View(subscription);
         }
 
