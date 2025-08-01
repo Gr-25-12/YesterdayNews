@@ -1,4 +1,4 @@
-﻿using YesterdayNews.Models.Db;
+using YesterdayNews.Models.Db;
 
 namespace YesterdayNews.Services.IServices
 {
@@ -8,12 +8,12 @@ namespace YesterdayNews.Services.IServices
         /// Get a list if all subscriptions including User and SubscriptionType
         /// </summary>
         /// <returns>List of all unsorted</returns>
-        List<Subscription> GetAll();
+        //List<Subscription> GetAll();
         /// <summary>
         /// Get a list if all subscriptions including User and SubscriptionType
         /// </summary>
         /// <returns>List of all Ordered by DateCreation Descending</returns>
-        public List<Subscription> GetAllByCreated();
+        //public List<Subscription> GetAllByCreated();
         /// <summary>
         /// Get a list if all subscriptions including User and SubscriptionType
         /// </summary>
