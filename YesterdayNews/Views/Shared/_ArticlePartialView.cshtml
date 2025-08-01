@@ -1,0 +1,137 @@
+﻿@using YesterdayNews.Utils
+@using YesterdayNews.Models
+@using System.Text.RegularExpressions
+@model YesterdayNews.Models.Db.Article
+
+@functions {
+
+    string SplitPascalCase(string input)
+    {
+        return Regex.Replace(input, "(\\B[A-Z])", " $1");
+    }
+
+    string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            StaticConsts.ArticleDraft => "secondary",
+            StaticConsts.ArticlePendingReview => "warning",
+            StaticConsts.ArticlePublished => "success",
+            StaticConsts.ArticleRejected => "danger",
+            StaticConsts.ArticleArchived => "dark",
+            _ => "primary"
+        };
+    }
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-around align-content-center bg-light shadow-sm border-0 mt-2 py-2">
+
+        <div class="col-md-6 ">
+            <h3 class="text-left mb-4">@Model.Category?.Name.ToUpper()</h3>
+        </div>
+        <div class="col-md-2 ">
+        <a asp-controller="Article" asp-action="Index" class="btn btn-outline-secondary form-control btn-sm">
+            <i class="bi bi-arrow-left me-2"></i>Back 
+        </a>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center m-4">
+
+    <!-- Article Image -->
+     @if (!string.IsNullOrEmpty(Model.ImageLink)) 
+     {
+
+            <img src="@Model.ImageLink" class="img-fluid rounded shadow-sm w-100 border-top border-4 border-primary" alt="@Model.Headline" style="object-fit: fill;">
+
+        }
+    else
+    {
+
+            <img src="~/Placeholder.png" class="img-fluid rounded shadow-sm w-75 border-top border-4 border-primary" alt="@Model.Headline" style="object-fit: fill;">
+        
+    }
+    </div>
+
+    <!-- Headline -->
+    <div class="text-center mb-3">
+        <span class="badge bg-@GetStatusColor(@Model.ArticleStatus.ToString()) px-3 py-2 mb-2 fs-6 text-uppercase"
+              style="letter-spacing: 0.05em;">
+            @SplitPascalCase(@Model.ArticleStatus.ToString()).ToUpper()
+        </span>        <h1 class="display-5 fw-bold">@Model.Headline</h1>
+    </div>
+
+    <!-- Summary -->
+    <div class="mb-5">
+        <p class="lead text-center">@Model.ContentSummary</p>
+    </div>
+
+    <!-- Full Content -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h3 class="card-title mb-3">Full Content</h3>
+            <div class="article-content">
+                @Html.Raw(Model.Content)
+            </div>
+        </div>
+    </div>
+
+    <!-- Meta Info -->
+    <div class="d-flex justify-content-between pb-5 pt-2 mx-5">
+        <ul class="list-unstyled">
+            <li>
+                <i class="bi bi-person-circle"></i> Author: @Model.Author.FirstName @Model.Author.LastName
+            </li>
+            <li>
+                <i class="bi bi-calendar"></i> @Model.DateStamp.ToString("MMMM dd, yyyy")
+            </li>
+        </ul>
+    </div>
+
+    <!-- Management Actions -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Manage Article</h5>
+        </div>
+
+        @* Will be controlled with permissons and to change them to inputs eaiser *@
+        <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
+            <form asp-action="SubmitForReview" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-send-check"></i> Submit for Review
+                </button>
+            </form>
+
+            <form asp-action="Publish" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Publish
+                </button>
+            </form>
+
+            <form asp-action="Archive" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-archive"></i> Archive
+                </button>
+            </form>
+
+            <form asp-action="SaveDraft" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Save as Draft
+                </button>
+            </form>
+            <form asp-action="Rejected" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-x-square"></i> Reject
+                </button>
+            </form>
+
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Edit
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
