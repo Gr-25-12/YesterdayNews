@@ -81,21 +81,5 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <!-- Toastr display logic -->
-    <script>
-        $(document).ready(function () {
-            @if (TempData["success"] != null)
-            {
-                    <text>toastr.success('@TempData["success"]');</text>
-            }
-            @if (TempData["error"] != null)
-            {
-                    <text>toastr.error('@TempData["error"]');</text>
-            }
-        });
-    </script>
-
-    @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>
