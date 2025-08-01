@@ -31,10 +31,40 @@ namespace YesterdayNews.Controllers
             if (ModelState.IsValid)
             {
                 _subscriptionTypeServices.Add(subscriptionType);
+            TempData["Success"] = "Subscription Type created successfully!";
                 return RedirectToAction("Index");
             }
             return View();
         }
+
+
+
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            var subscriptionType = _subscriptionTypeServices.GetOne(id);
+            if (subscriptionType == null)
+                return NotFound();
+
+            return View(subscriptionType);
+        }
+        [HttpPost]
+        public IActionResult Edit(SubscriptionType updatedSubscriptionType)
+        {
+
+            if (ModelState.IsValid)
+            {
+            TempData["Success"] = "Subscription Type updated successfully!";
+                _subscriptionTypeServices.EditSubscriptionType(updatedSubscriptionType);
+                return RedirectToAction("Index");
+
+            }
+
+            return View(updatedSubscriptionType);
+
+        }
+
+
 
 
 

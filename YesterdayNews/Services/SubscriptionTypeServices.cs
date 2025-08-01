@@ -30,6 +30,21 @@ namespace YesterdayNews.Services
             _db.SubscriptionTypes.Remove(type);
             _db.SaveChanges();
         }
+        public void EditSubscriptionType(SubscriptionType updatedSubscriptionType)
+        {
+            var subscriptionType = _db.SubscriptionTypes.FirstOrDefault(m => m.Id == updatedSubscriptionType.Id);
+            if (subscriptionType == null)
+                throw new Exception("Subscription type not found.");
+
+            subscriptionType.TypeName = updatedSubscriptionType.TypeName;
+            subscriptionType.Price = updatedSubscriptionType.Price;
+            subscriptionType.Description = updatedSubscriptionType.Description;
+            _db.SaveChanges();
+        }
+     
+
+
+
         public void Add(SubscriptionType subscriptionType)
         {
             _db.SubscriptionTypes.Add(subscriptionType);
