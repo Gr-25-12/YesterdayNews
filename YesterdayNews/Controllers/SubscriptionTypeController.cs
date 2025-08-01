@@ -31,6 +31,7 @@ namespace YesterdayNews.Controllers
             if (ModelState.IsValid)
             {
                 _subscriptionTypeServices.Add(subscriptionType);
+            TempData["Success"] = "Subscription Type created successfully!";
                 return RedirectToAction("Index");
             }
             return View();
@@ -48,11 +49,12 @@ namespace YesterdayNews.Controllers
             return View(subscriptionType);
         }
         [HttpPost]
-        public IActionResult Edit(Category updatedSubscriptionType)
+        public IActionResult Edit(SubscriptionType updatedSubscriptionType)
         {
 
             if (ModelState.IsValid)
             {
+            TempData["Success"] = "Subscription Type updated successfully!";
                 _subscriptionTypeServices.EditSubscriptionType(updatedSubscriptionType);
                 return RedirectToAction("Index");
 

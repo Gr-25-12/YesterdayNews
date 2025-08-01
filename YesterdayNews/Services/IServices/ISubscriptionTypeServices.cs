@@ -7,7 +7,7 @@ namespace YesterdayNews.Services.IServices
         List<SubscriptionType> GetAll();
         SubscriptionType GetOne(int id);
 
-        void EditSubscriptionType(Category updatedSubscriptionType);
+        void EditSubscriptionType(SubscriptionType updatedSubscriptionType);
         void Delete(int id);
         void Add(SubscriptionType subscriptionType);
     }
