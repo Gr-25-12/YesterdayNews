@@ -14,7 +14,7 @@ function loadDataTable() {
                 "data": 'price',
                 "width": "15%",
                 "render": function (data) {
-                    return 'Kr' + data.toFixed(2);
+                    return `${data.toFixed(2)} Kr`;
                 }
             },
             {
