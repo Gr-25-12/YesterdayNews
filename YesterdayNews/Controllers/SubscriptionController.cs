@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services;
@@ -10,10 +11,12 @@ namespace YesterdayNews.Controllers
     {
         private readonly ISubscriptionServices _subscriptionServices;
         private readonly ISubscriptionTypeServices _subscriptionTypeServices;
-        public SubscriptionController(ISubscriptionServices subscriptionServices, ISubscriptionTypeServices subscriptionTypeServices) 
+        private readonly UserManager<IdentityUser> _userManager;
+        public SubscriptionController(ISubscriptionServices subscriptionServices, ISubscriptionTypeServices subscriptionTypeServices, UserManager<IdentityUser> userManager)
         {
             _subscriptionServices = subscriptionServices;
             _subscriptionTypeServices = subscriptionTypeServices;
+            _userManager = userManager;
         }
         public IActionResult Index()
         {
@@ -23,9 +26,58 @@ namespace YesterdayNews.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            var model = new Subscription
+            {
+                Created = DateTime.Today,
+                UserId = null
+            };
+
             var types = _subscriptionTypeServices.GetAll();
-            ViewBag.SubscriptionTypeId = new SelectList(types, "Id", "Name");
-            return View();
+            ViewBag.SubscriptionTypes = types;
+            return View(model);
+        }
+        [HttpPost]
+        public IActionResult Create(Subscription subscription)
+        {
+            ModelState.Remove("User");
+            ModelState.Remove("SubscriptionType");
+            if (!ModelState.IsValid)
+            {
+                var types = _subscriptionTypeServices.GetAll();
+                ViewBag.SubscriptionTypes = types;
+                return View(subscription);
+            }
+
+            //Find and set all other to cancelled
+            var activeSubs = _subscriptionServices.GetAll()
+                      .Where(s => s.UserId == subscription.UserId && !s.IsDeleted);
+
+            foreach (var sub in activeSubs)
+            {
+                _subscriptionServices.Cancel(sub.Id);
+            }
+
+            _subscriptionServices.Add(subscription);
+            return RedirectToAction("Create");
+        }
+        [HttpGet]
+        public IActionResult Search(string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+                return Json(new List<object>());
+
+            var users = _userManager.Users
+                .OfType<User>()
+                .Where(u => u.FirstName.Contains(searchTerm) || u.LastName.Contains(searchTerm) || u.Email.Contains(searchTerm))
+                .Select(u => new
+                {
+                    id = u.Id,
+                    name = u.FirstName + " " + u.LastName
+                })
+                .Take(20)
+                .ToList();
+
+            return Json(users);
         }
     }
 }
