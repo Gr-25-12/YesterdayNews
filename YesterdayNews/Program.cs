@@ -33,8 +33,6 @@ public class Program
         builder.Services.AddScoped<IFileServices, FileServices>();
         builder.Services.AddScoped<IEmailSender, EmailSender>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
-
-        builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
 
        
