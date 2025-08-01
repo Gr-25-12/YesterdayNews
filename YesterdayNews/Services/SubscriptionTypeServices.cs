@@ -21,7 +21,6 @@ namespace YesterdayNews.Services
             var SubscriptionList = _db.SubscriptionTypes.FirstOrDefault(m => m.Id == id);
             return SubscriptionList;
         }
-
         public void Delete(int id)
         {
             var type = _db.SubscriptionTypes.FirstOrDefault(m => m.Id == id);
@@ -43,6 +42,12 @@ namespace YesterdayNews.Services
      
 
 
+
+        public void Add(SubscriptionType subscriptionType)
+        {
+            _db.SubscriptionTypes.Add(subscriptionType);
+            _db.SaveChanges();
+        }
 
     }
 }
