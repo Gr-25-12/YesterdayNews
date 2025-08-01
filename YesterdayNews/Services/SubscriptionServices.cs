@@ -35,12 +35,6 @@ namespace YesterdayNews.Services
 
         public Subscription GetOne(int id)
         {
-            var subscription = _db.Subscriptions.FirstOrDefault(s => s.Id == id);
-            return subscription;
-
-        }
-        public Subscription GetOneWithUserAndSubscriptionType(int id)
-        {
             var subscription = _db.Subscriptions.Include(u => u.User)
                                                 .Include(st => st.SubscriptionType)
                                                 .FirstOrDefault(s => s.Id == id);
@@ -73,12 +67,12 @@ namespace YesterdayNews.Services
             _db.SaveChanges();
         }
 
-        public void Delete(int id)
-        {
-            var subscription = _db.Subscriptions.FirstOrDefault(s => s.Id == id);
-            if (subscription == null) throw new Exception("Subscription not found");
-            _db.Remove(subscription);
-            _db.SaveChanges();
-        }
+        //public void Delete(int id)
+        //{
+        //    var subscription = _db.Subscriptions.FirstOrDefault(s => s.Id == id);
+        //    if (subscription == null) throw new Exception("Subscription not found");
+        //    _db.Remove(subscription);
+        //    _db.SaveChanges();
+        //}
     }
 }

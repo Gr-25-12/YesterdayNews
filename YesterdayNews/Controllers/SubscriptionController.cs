@@ -61,6 +61,30 @@ namespace YesterdayNews.Controllers
             return RedirectToAction("Create");
         }
         [HttpGet]
+        public IActionResult Update(int id)
+        {
+            var subscription = _subscriptionServices.GetOne(id);
+            if (subscription == null)
+                return NotFound();
+
+            var types = _subscriptionTypeServices.GetAll();
+            ViewBag.SubscriptionTypes = types;
+            return View(subscription);
+        }
+        [HttpPost]
+        public IActionResult Update(Subscription subscription)
+        {
+            if (ModelState.IsValid)
+            {
+                _subscriptionServices.Edit(subscription);
+                return RedirectToAction("Index");
+
+            }
+
+            return View(subscription);
+        }
+
+        [HttpGet]
         public IActionResult Search(string searchTerm)
         {
             if (string.IsNullOrEmpty(searchTerm))
