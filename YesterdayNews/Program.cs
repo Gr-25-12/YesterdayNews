@@ -29,7 +29,9 @@ public class Program
         builder.Services.AddRazorPages();
         builder.Services.AddControllersWithViews();
 
-        
+        builder.Services.AddScoped<IArticleServices, ArticleServices>();
+        builder.Services.AddScoped<IFileServices, FileServices>();
+        builder.Services.AddScoped<IEmailSender, EmailSender>();
 
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
