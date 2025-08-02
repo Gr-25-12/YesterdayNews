@@ -23,6 +23,20 @@ namespace YesterdayNews.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Create()
+        {
+            var model = new Subscription
+            {
+                Created = DateTime.Today,
+                UserId = null
+            };
+
+            var types = _subscriptionTypeServices.GetAll();
+            ViewBag.SubscriptionTypes = types;
+            return View(model);
+        }
+
         [HttpPost]
         public IActionResult Create(Subscription subscription)
         {
@@ -93,21 +107,6 @@ namespace YesterdayNews.Controllers
 
             return Json(new { data = subscriptionsList });
         }
-
-        [HttpGet]
-        public IActionResult Create()
-        {
-            var model = new Subscription
-            {
-                Created = DateTime.Today,
-                UserId = null
-            };
-
-            var types = _subscriptionTypeServices.GetAll();
-            ViewBag.SubscriptionTypes = types;
-            return View(model);
-        }
-    
 
         [HttpGet]
         public IActionResult Search(string searchTerm)
