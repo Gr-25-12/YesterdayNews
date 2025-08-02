@@ -34,6 +34,28 @@ namespace YesterdayNews.Services
             }
             return blobClient.Uri.ToString();
         }
+
+        public async Task DeleteFileFromContainer(string fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl))
+                return;
+
+            
+                string blobConnectionString = _configuration["AzureBlobStorage"];
+                BlobServiceClient blobServiceClient = new BlobServiceClient(blobConnectionString);
+                string containerName = _configuration["AzureBlobContainerName"];
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+                
+                Uri uri = new Uri(fileUrl);
+                string blobName = uri.Segments.Last();
+
+                BlobClient blobClient = containerClient.GetBlobClient(blobName);
+
+                await blobClient.DeleteIfExistsAsync();
+            
+           
+        }
     }
 }
 
