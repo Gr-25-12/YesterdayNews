@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
@@ -12,12 +12,12 @@ namespace YesterdayNews.Services
         {
             _db = db;
         }
-        //public List<Subscription> GetAll()
-        //{
-        //    return _db.Subscriptions.Include(u => u.User)
-        //                            .Include(st => st.SubscriptionType)
-        //                            .ToList();
-        //}
+        public List<Subscription> GetAll()
+        {
+            return _db.Subscriptions.Include(u => u.User)
+                                    .Include(st => st.SubscriptionType)
+                                    .ToList();
+        }
         //public List<Subscription> GetAllByCreated()
         //{
         //    return _db.Subscriptions.Include(u => u.User)
@@ -35,17 +35,11 @@ namespace YesterdayNews.Services
 
         public Subscription GetOne(int id)
         {
-            var subscription = _db.Subscriptions.FirstOrDefault(s => s.Id == id);
+            var subscription = _db.Subscriptions.Include(u => u.User)
+                                                .Include(st => st.SubscriptionType)
+                                                .FirstOrDefault(s => s.Id == id);
             return subscription;
-
         }
-        //public Subscription GetOneWithUserAndSubscriptionType(int id)
-        //{
-        //    var subscription = _db.Subscriptions.Include(u => u.User)
-        //                                        .Include(st => st.SubscriptionType)
-        //                                        .FirstOrDefault(s => s.Id == id);
-        //    return subscription;
-        //}
         public void Add(Subscription newSubscription)
         {
             _db.Subscriptions.Add(newSubscription);
