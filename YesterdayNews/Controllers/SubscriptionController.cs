@@ -23,39 +23,6 @@ namespace YesterdayNews.Controllers
             return View();
         }
 
-        #region API CALLS
-
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var subscriptionsList = _subscriptionServices.GetAllByExpires()
-                .Select(s => new
-                {
-                    s.Id,
-                    UserEmail = s.User.Email,
-                    s.Created,
-                    s.Expires,
-                    s.PaymentComplete,
-                    s.IsDeleted,
-                    TypeName = s.SubscriptionType.TypeName
-                });
-
-            return Json(new { data = subscriptionsList });
-        }
-
-        [HttpGet]
-        public IActionResult Create()
-        {
-            var model = new Subscription
-            {
-                Created = DateTime.Today,
-                UserId = null
-            };
-
-            var types = _subscriptionTypeServices.GetAll();
-            ViewBag.SubscriptionTypes = types;
-            return View(model);
-        }
         [HttpPost]
         public IActionResult Create(Subscription subscription)
         {
@@ -106,6 +73,41 @@ namespace YesterdayNews.Controllers
             ViewBag.SubscriptionTypes = types;
             return View(subscription);
         }
+
+        #region API CALLS
+
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var subscriptionsList = _subscriptionServices.GetAllByExpires()
+                .Select(s => new
+                {
+                    s.Id,
+                    UserEmail = s.User.Email,
+                    s.Created,
+                    s.Expires,
+                    s.PaymentComplete,
+                    s.IsDeleted,
+                    TypeName = s.SubscriptionType.TypeName
+                });
+
+            return Json(new { data = subscriptionsList });
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            var model = new Subscription
+            {
+                Created = DateTime.Today,
+                UserId = null
+            };
+
+            var types = _subscriptionTypeServices.GetAll();
+            ViewBag.SubscriptionTypes = types;
+            return View(model);
+        }
+    
 
         [HttpGet]
         public IActionResult Search(string searchTerm)
