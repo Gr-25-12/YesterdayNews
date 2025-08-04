@@ -34,8 +34,11 @@ public class Program
         builder.Services.AddScoped<IEmailSender, EmailSender>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
-
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
+
+       
+
+
 
 
 
