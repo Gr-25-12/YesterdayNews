@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Data;
-using YesterdayNews.Models.Db;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
@@ -34,6 +33,11 @@ public class Program
         builder.Services.AddScoped<IFileServices, FileServices>();
         builder.Services.AddScoped<IEmailSender, EmailSender>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
+        builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
+
+       
+
 
 
 

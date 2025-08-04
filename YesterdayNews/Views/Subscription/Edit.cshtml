@@ -1,0 +1,100 @@
+﻿@using System.Globalization
+@using YesterdayNews.Models.Db
+@model YesterdayNews.Models.Db.Subscription
+
+@{
+	ViewData["Title"] = "Edit";
+}
+
+
+<div class="row d-flex justify-content-center">
+	<div class="col-md-6">
+		<div class="text-center">
+			<h3>Edit Subscription</h3>
+			<hr />
+		</div>
+		<form asp-action="Edit">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group row">
+				<div class="col-md-6">
+					<label asp-for="Created">Subscription started</label>
+					<input asp-for="Created" type="date" id="createdDate" class="form-control" readonly />
+					<input type="hidden" asp-for="Created" id="Created" />
+				</div>
+				@if (Model.IsDeleted)
+				{
+					<div class="col-md-6">
+						<label>Subscription ends</label>
+						<input asp-for="Expires" type="date" id="Expires" class="form-control" readonly />
+						<span asp-validation-for="Expires" class="text-danger"></span>
+					</div>
+				}
+				else
+				{
+					<div class="col-md-6">
+						<label>Subscription ends</label>
+						<input asp-for="Expires" type="date" id="Expires" class="form-control" />
+						<span asp-validation-for="Expires" class="text-danger"></span>
+					</div>
+				}
+
+				<hr />
+			</div>
+			<div class="form-group">
+				<label><strong>User:</strong></label>
+				<p class="form-control-plaintext">
+					First Name: <strong>@Model.User?.FirstName</strong>
+					Last Name: <strong>@Model.User?.LastName</strong>
+					Email: <strong>@Model.User?.Email</strong>
+				</p>
+				<input type="hidden" asp-for="UserId" name="UserId" />
+			</div>
+			<div id="subscriptionPriceRow" style="display:block;">
+				<div class="d-flex align-items-center gap-3 border border-dark p-3 my-3">
+					Plan: <span id="planText" class="fw-bold"><strong>@Model.SubscriptionType.TypeName</strong></span>,
+					AccessLevel: <span id="accessLevelText" class="fw-bold"><strong>@Model.SubscriptionType.Description</strong></span>,
+					Price: <span id="priceText" class="fw-bold"><strong>@Model.SubscriptionType.Price.ToString("C", new CultureInfo("sv-SE"))</strong></span>
+				</div>
+			</div>
+			@if (!Model.IsDeleted)
+			{
+				<div class="form-group">
+					<label asp-for="SubscriptionTypeId" class="control-label"></label>
+					<select asp-for="SubscriptionTypeId" class="form-control" id="SubscriptionTypeId">
+						<option value="">-- Choose SubscriptionType --</option>
+						@foreach (var type in (List<SubscriptionType>)ViewBag.SubscriptionTypes)
+						{
+							<option value="@type.Id"
+									data-plan="@type.TypeName"
+									data-accesslevel="@type.Description"
+									data-price="@type.Price.ToString("C")"
+									selected="@(type.Id == Model.SubscriptionTypeId)">
+								@type.TypeName
+							</option>
+						}
+					</select>
+					<span asp-validation-for="SubscriptionTypeId" class="text-danger"></span>
+
+				</div>
+			}
+			@if (!Model.IsDeleted)
+			{
+				<div class="form-group text-end mt-3">
+					<input type="submit" value="Save Changes" class="btn btn-primary" />
+				</div>
+			}			
+		</form>
+		<div class="text-start">
+			<a asp-action="Index">Back to List</a>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+
+	<script src="~/js/subscription.js"></script>
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}
+

@@ -1,0 +1,77 @@
+﻿@using YesterdayNews.Models.Db
+@model YesterdayNews.Models.Db.Subscription
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<div class="row d-flex justify-content-center">
+    <div class="col-md-6">
+        <div class="text-center">
+            <h3>Create Subscription</h3>
+            <hr />
+        </div>
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label asp-for="Created">Subscription started</label>
+                    <input asp-for="Created" type="date" id="createdDate" class="form-control" />
+                    <span asp-validation-for="Created" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label>Subscription ends</label>
+                    <input id="expiresText" type="text" class="form-control" readonly />
+                    <input type="hidden" asp-for="Expires" id="Expires" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="UserId" class="control-label">User</label>
+                <<select asp-for="UserId" class="form-control" id="UserId"
+                         data-val="true"
+                         data-val-required="Choose a user before saving">
+                    <option value=""></option>
+                </select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubscriptionTypeId" class="control-label"></label>
+                <select asp-for="SubscriptionTypeId" class="form-control" id="SubscriptionTypeId">
+                    <option value="">-- Choose SubscriptionType --</option>
+                    @foreach (var type in (List<SubscriptionType>)ViewBag.SubscriptionTypes)
+                    {
+                        <option value="@type.Id" data-price="@type.Price" data-plan="@type.TypeName" data-accesslevel="@type.Description">@type.TypeName</option>
+                    }
+                </select>
+                <span asp-validation-for="SubscriptionTypeId" class="text-danger"></span>
+            </div>
+            <div id="subscriptionPriceRow" style="display:none;">
+                <div class="d-flex align-items-center gap-3 border border-dark p-3 my-3">
+                    Plan:<span id="planText" class="fw-bold">></span>,
+                    AccessLevel:<span id="accessLevelText" class="fw-bold">></span>,
+                    Price:<span id="priceText" class="fw-bold">></span>
+                </div>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="PaymentComplete" /> @Html.DisplayNameFor(model => model.PaymentComplete)
+                </label>
+            </div>
+            <div class="form-group text-end mt-3">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+        <div class="text-start">
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="~/js/subscription.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

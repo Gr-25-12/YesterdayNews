@@ -13,7 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     }
 
     public DbSet<Category> Categories { get; set; }
-    public DbSet<SubscriptionType> SubsriptionTypes { get; set; }
+    public DbSet<SubscriptionType> SubscriptionTypes { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Article> Articles { get; set; }
     public DbSet<User> Users { get; set; }

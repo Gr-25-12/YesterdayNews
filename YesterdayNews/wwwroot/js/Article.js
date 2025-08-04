@@ -1,7 +1,7 @@
 var dataTable;
 
 function loadDataTable(status) {
-    dataTable = $('#articlesTable').DataTable({
+    dataTable = $('#myDataTable').DataTable({
         "language": {
             "searchPlaceholder": "Search articles...", 
         },
@@ -77,31 +77,22 @@ function loadDataTable(status) {
         ],
     });
 }
-function Delete(url) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                success: function (data) {
-                    if (data.success) {
-                        dataTable.ajax.reload();
-                        toastr.success(data.message);
-                    } else {
-                        toastr.error(data.message);
-                    }
-                }
-            });
-        }
-    });
+function setupImagePreview() {
+    const input = document.getElementById('imageInput');
+    const preview = document.getElementById('imagePreview');
+
+    if (input) {
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width:100%; height:auto;" />`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 }
 function setupImagePreview() {
     const input = document.getElementById('imageInput');
