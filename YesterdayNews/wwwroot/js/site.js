@@ -81,7 +81,7 @@ document.querySelectorAll('.toggle-password').forEach(button => {
         }
     });
 });
-});
+
 
 function Delete(url) {
     Swal.fire({
