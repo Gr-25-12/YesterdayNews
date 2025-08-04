@@ -1,0 +1,31 @@
+﻿@using YesterdayNews.Models.Db;
+@model List<User>;
+
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Users List</h2>
+            </div>
+        </div>
+
+        <div class="col-12 text-end mb-2">
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> &nbsp; Create New User
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <table id="tblData" class="table table-bordered table-striped">
+            <tr>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    <script src="~/js/user.js"></script>
+    }
