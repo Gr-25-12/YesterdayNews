@@ -17,8 +17,8 @@ function loadDataTable(status) {
         },
         "columns": [
             { "title": "User Email", "data": "userEmail", "width": "15%" },
-            { "title": "Created", "data": "created", "width": "15%" },
-            { "title": "Expires", "data": "expires", "width": "10%" },
+            { "title": "Created", "data": "created", "width": "15%", "render": function (data) { return new Date(data).toLocaleDateString() } },
+            { "title": "Expires", "data": "expires", "width": "10%", "render": function (data) { return new Date(data).toLocaleDateString() } },
             { "title": "Payment Completed", "data": "paymentComplete", "width": "10%" },
             { "title": "Deleted", "data": "isDeleted", "width": "10%" },
             { "title": "Subscription Type", "data": "typeName", "width": "10%" },
