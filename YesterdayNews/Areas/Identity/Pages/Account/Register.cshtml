@@ -179,6 +179,8 @@
                                         <span asp-validation-for="Input.DateOfBirth" class="text-danger small"></span>
                                     </div>
 
+                                @if (!User.IsInRole(StaticConsts.Role_Admin))
+                                {
                                     <div class="mb-4">
                                         <label asp-for="Input.Password" class="form-label text-muted small">Password</label>
                                         <div class="input-group">
@@ -203,6 +205,26 @@
                                         </div>
                                         <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
                                     </div>
+                                }
+                                else
+                                {
+
+                                    <!-- Hidden fields to prevet model is invalid  -->
+                                    <input type="hidden" asp-for="Input.Password" value="Dummy123!" />
+                                    <input type="hidden" asp-for="Input.ConfirmPassword" value="Dummy123!" />
+
+                                }
+                                @if (User.IsInRole(StaticConsts.Role_Admin))
+                                {
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select">
+                                            <option disabled selected>--Role--</option>
+
+                                        </select>
+                                    </div>
+                                }
+                              
+
                                     @if (!User.IsInRole(StaticConsts.Role_Admin))
                                     {
 
@@ -219,17 +241,20 @@
                                             </button>
                                         </div>
                                     }
+                                @if (!User.IsInRole(StaticConsts.Role_Admin))
+                                {
 
                                     <div class="text-center small text-muted">
                                         By registering, you agree to our <a href="/privacy" class="text-decoration-none">Terms</a> and <a href="/privacy" class="text-decoration-none">Privacy Policy</a>
                                     </div>
+                                }
                                 </form>
                             </div>
 
                             @if (!User.IsInRole(StaticConsts.Role_Admin))
                             {
                                 <div class="col-lg-6 d-flex align-items-center justify-content-center">
-                                    <div class="p-4 text-center">
+                                    <div class="p-4 text-center w-100">
 
                                         <h5 class="fw-bold mb-3">Already have an account?</h5>
                                         <a href="/Identity/Account/Login" class="btn btn-outline-success text-primary rounded-pill px-4">
