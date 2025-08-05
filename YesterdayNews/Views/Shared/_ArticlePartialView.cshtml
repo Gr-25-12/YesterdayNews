@@ -28,10 +28,10 @@
         <div class="col-md-6 d-flex align-items-center">
             <!-- Category name with slanted line icon lIKE svt-->
             <div class="d-flex align-items-center">
-                <h3 class="text-left mb-0">@Model.Category?.Name.ToUpper()</h3>
                 <svg width="24" height="24" viewBox="0 0 24 24" class="me-2" style="transform: rotate(145deg);">
-                    <line x1="0" y1="24" x2="24" y2="0" stroke="currentColor" stroke-width="2" />
+                    <line x1="0" y1="20" x2="24" y2="0" stroke="currentColor" stroke-width="3" />
                 </svg>
+                <h3 class="text-left mb-0">@Model.Category?.Name.ToUpper()</h3>
             </div>
         </div>
         <div class="col-md-2">
@@ -114,6 +114,7 @@
         <!-- Like Button -->
         @if (User.IsInRole(StaticConsts.Role_Customer))
         {
+            //Using server side approach
             <div class="like-container">
 
                 <form method="post" asp-action="ToggleLike" asp-controller="Article" asp-route-id="@Model.Id" class="mb-0">
@@ -146,9 +147,7 @@
         </div>
 
         <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
-            @if (User.IsInRole(StaticConsts.Role_Journalist) || User.IsInRole(StaticConsts.Role_Admin)  && (Model.ArticleStatus.ToString() == StaticConsts.ArticleDraft
-           || Model.ArticleStatus.ToString() != StaticConsts.ArticlePendingReview
-            || Model.ArticleStatus.ToString() == StaticConsts.ArticleRejected))
+            @if ((User.IsInRole(StaticConsts.Role_Journalist) || User.IsInRole(StaticConsts.Role_Admin))  && Model.ArticleStatus.ToString() == StaticConsts.ArticleDraft)
             {
                 <form asp-action="SubmitForReview" asp-route-id="@Model.Id" method="post">
                     <button type="submit" class="btn btn-warning">
@@ -231,25 +230,4 @@
         }
 
     </div>
-}
-
-@section Scripts { 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const likeButtons = document.querySelectorAll('form[asp-action="ToggleLike"] button[type="submit"]');
-
-        likeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                
-                this.disabled = true;
-
-               
-                this.style.cursor = 'wait';
-
-                
-            });
-        });
-    });
-
-</script>
 }

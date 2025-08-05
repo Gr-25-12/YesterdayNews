@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
+using System.Net;
 using System.Security.Claims;
 using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
@@ -45,11 +47,24 @@ namespace YesterdayNews.Controllers
                 if (article == null)
                 {
                     TempData["error"] = "Article not found";
-                    return RedirectToAction("Index");
+                return RedirectToAction("Index");
                 }
 
+            // Check if view cookie exists
+                string cookieName = $"ArticleView_{id}";
+            if (!Request.Cookies.ContainsKey(cookieName))
+            {
+                
                 _articleServices.IncrementViews(id);
-                return View(article);
+                Response.Cookies.Append(cookieName, "1", new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(1),
+                    HttpOnly = true,
+                    Secure = true, 
+                    SameSite = SameSiteMode.Lax
+                });
+            }
+            return View(article);
             
             
         }
@@ -193,6 +208,7 @@ namespace YesterdayNews.Controllers
                 if (article != null && IsArticleValid(article))
                 {
                     _articleServices.Add(article);
+                    TempData["success"] = "Article created";
                     return RedirectToAction("Index");
                 }
 
@@ -201,6 +217,8 @@ namespace YesterdayNews.Controllers
             }
             catch (Exception ex)
             {
+                TempData["error"] = $"Article could not created! {ex.Message}";
+
                 return Json(new
                 {
                     success = false,
@@ -242,14 +260,23 @@ namespace YesterdayNews.Controllers
             if (newImageLink != null)
                 existing.ImageLink = newImageLink;
 
-            if (article.ArticleStatus == ArticleStatus.Published)
+            if (article.ArticleStatus == ArticleStatus.Published || article.ArticleStatus == ArticleStatus.Rejected)
+            {
+
                 existing.ArticleStatus = ArticleStatus.PendingReview;
+                existing.RejectionReason = null;
+            }
             else
+            {
+
                 existing.ArticleStatus = article.ArticleStatus;
+            }
 
             if (IsArticleValid(existing) == false)
             {
                 PopulateCategoryDropdownList(existing);
+                TempData["error"] = "Error occurred!";
+
                 return View(existing);
             }
             // Save to DB

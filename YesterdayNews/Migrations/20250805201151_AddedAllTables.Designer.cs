@@ -12,8 +12,8 @@ using YesterdayNews.Data;
 namespace YesterdayNews.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250805143100_addedRejectionMsg")]
-    partial class addedRejectionMsg
+    [Migration("20250805201151_AddedAllTables")]
+    partial class AddedAllTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
