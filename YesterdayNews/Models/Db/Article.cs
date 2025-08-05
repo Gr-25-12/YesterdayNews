@@ -56,6 +56,8 @@ namespace YesterdayNews.Models.Db
 
         [NotMapped]
         public bool IsLikedByCurrentUser { get; set; }
-       
+
+        
+        public string? RejectionReason { get; set; }
     }
 }

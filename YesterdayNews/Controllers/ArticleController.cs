@@ -379,7 +379,7 @@ namespace YesterdayNews.Controllers
 
         [HttpPost]
         [Authorize(Roles = StaticConsts.Role_Editor + "," + StaticConsts.Role_Admin)]
-        public IActionResult Reject(int id)
+        public IActionResult Reject(int id,string rejectionReason)
         {
             try
             {
@@ -387,6 +387,7 @@ namespace YesterdayNews.Controllers
                 if (article == null) return NotFound();
 
                 article.ArticleStatus = ArticleStatus.Rejected;
+                article.RejectionReason = rejectionReason;
                 _articleServices.Edit(article);
 
                 TempData["success"] = "Article rejected";

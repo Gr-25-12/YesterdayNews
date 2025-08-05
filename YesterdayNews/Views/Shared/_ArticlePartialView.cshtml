@@ -221,6 +221,15 @@
 
             }
         </div>
+
+        @if (Model.ArticleStatus.ToString() == StaticConsts.ArticleRejected && !string.IsNullOrEmpty(Model.RejectionReason))
+        {
+            <div class="alert alert-danger mt-3 text-center">
+                <h5>Rejection Reason:</h5>
+                <p>@Model.RejectionReason</p>
+            </div>
+        }
+
     </div>
 }
 
