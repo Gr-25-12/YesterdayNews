@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,9 +9,12 @@ using System.Security.Claims;
 using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
+using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
+    [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor + "," + StaticConsts.Role_Journalist)]
+
     public class ArticleController : Controller
     {
         private readonly IArticleServices _articleServices;

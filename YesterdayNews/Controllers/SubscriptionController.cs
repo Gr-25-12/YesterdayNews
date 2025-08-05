@@ -1,12 +1,16 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
+using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
+    [Authorize(Roles = StaticConsts.Role_Admin)]
+
     public class SubscriptionController : Controller
     {
         private readonly ISubscriptionServices _subscriptionServices;

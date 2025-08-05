@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
+using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
+    [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor)]
+
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
