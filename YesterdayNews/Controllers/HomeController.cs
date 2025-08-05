@@ -20,13 +20,7 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         var latest = _articleServices.GetAllAsArticleVM(0, 3);
-        var next10 = _articleServices.GetAllAsArticleVM(3, 10);
-        var model = new PageVM
-        {
-            LatestNews = latest,
-            Next10News = next10
-        };
-        return View(model);
+        return View(latest);
     }
     public IActionResult Details(int id)
     {

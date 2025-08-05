@@ -1,0 +1,18 @@
+﻿@model List<YesterdayNews.Models.ViewModels.ArticleVM>
+
+<article class="mb-4 border p-3 rounded shadow-sm">
+    <h5>Most viewed</h5>
+    <hr />
+    <ul class="list-unstyled">
+        @foreach (var article in Model)
+        {
+            <li>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="flex-grow-1 me-3 text-decoration-none">
+                        <p class="article-underline mb-0">@article.Linktext</p>
+                    </a>
+                </div>
+            </li>
+        }
+    </ul>
+</article>

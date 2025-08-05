@@ -1,5 +1,5 @@
 ﻿@using YesterdayNews.Models.ViewModels
-@model PageVM
+@model List<ArticleVM>
 
 @{
 	ViewData["Title"] = "Yesterday's News";
@@ -8,9 +8,10 @@
 <div class="container my-4">
 	<div class="row justify-content-center">
 		<div class="col-12 col-md-8 col-lg-6">
-			<h1 class="mb-4 text-start">Latest News</h1>
-			<hr />
-			@foreach (var article in Model.LatestNews)
+			<article class="mb-4 border p-3 rounded shadow-sm">
+				<h1 class="mb-4 text-start">Latest News</h1>
+			</article>
+			@foreach (var article in Model)
 			{
 				<a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="text-decoration-none text-dark" style="display:block;">
 					<article class="mb-4 border p-3 rounded shadow-sm">
@@ -26,20 +27,9 @@
 					</article>
 				</a>
 			}
-			<h2>Earlier this week</h2>
-			<hr />
-			<article class="mb-4 border p-3 rounded shadow-sm">
-				<ul class="list-unstyled">
-					@foreach (var article in Model.Next10News)
-					{
-						<li>
-							<a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id">
-								<p class="article-underline">@article.Linktext</p>
-							</a>
-						</li>
-					}
-				</ul>
-			</article>
+			@await Component.InvokeAsync("MostViewed")
+			@await Component.InvokeAsync("MostLiked")
+			@await Component.InvokeAsync("EarlierNews", new { articlesToSkip = Model.Count })
 		</div>
 	</div>
 </div>

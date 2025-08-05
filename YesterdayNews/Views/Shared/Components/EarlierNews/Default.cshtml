@@ -1,0 +1,21 @@
+﻿@model List<YesterdayNews.Models.ViewModels.ArticleVM>
+
+<article class="mb-4 border p-3 rounded shadow-sm">
+    <h2>Earlier this week</h2>
+    <hr />
+    <ul class="list-unstyled">
+        @foreach (var article in Model)
+        {
+            <li>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="flex-grow-1 me-3 text-decoration-none">
+                        <p class="article-underline mb-0">@article.Linktext</p>
+                    </a>
+                    <small class="text-muted time-ago mb-0" data-timestamp="@article.DateStamp.ToString("o")">
+                        @article.Category?.Name &bull; <span class="hours-ago"></span>
+                    </small>
+                </div>
+            </li>
+        }
+    </ul>
+</article>

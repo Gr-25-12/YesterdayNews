@@ -38,10 +38,48 @@ namespace YesterdayNews.Services
                        Headline = a.Headline,
                        Summary = a.ContentSummary,
                        ImageURL = a.ImageLink,
-                       Linktext = a.LinkText
+                       Linktext = a.LinkText,
+                       Category = a.Category,
+                       DateStamp = a.DateStamp
                    })
                    .ToList();
 
+        }
+        public List<ArticleVM> GetMostViewedArticleVM(int numberOfArticles)
+        {
+            return GetAll()
+                   .Where(a => a.ArticleStatus == ArticleStatus.Published)
+                   .OrderByDescending(a => a.Views)
+                   .Take(numberOfArticles)
+                   .Select(a => new ArticleVM
+                   {
+                       Id = a.Id,
+                       Headline = a.Headline,
+                       Summary = a.ContentSummary,
+                       ImageURL = a.ImageLink,
+                       Linktext = a.LinkText,
+                       Category = a.Category,
+                       DateStamp = a.DateStamp
+                   })
+                   .ToList();
+        }
+        public List<ArticleVM> GetMostLikedArticleVM(int numberOfArticles)
+        {
+            return GetAll()
+                   .Where(a => a.ArticleStatus == ArticleStatus.Published)
+                   .OrderByDescending(a => a.Likes)
+                   .Take(numberOfArticles)
+                   .Select(a => new ArticleVM
+                   {
+                       Id = a.Id,
+                       Headline = a.Headline,
+                       Summary = a.ContentSummary,
+                       ImageURL = a.ImageLink,
+                       Linktext = a.LinkText,
+                       Category = a.Category,
+                       DateStamp = a.DateStamp
+                   })
+                   .ToList();
         }
 
         public Article GetOne(int id)
