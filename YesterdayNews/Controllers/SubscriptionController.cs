@@ -145,6 +145,29 @@ namespace YesterdayNews.Controllers
         }
 
         #endregion
+
+        [HttpGet]
+        public IActionResult GetUserById(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest();
+
+            var user = _userManager.Users
+                .OfType<User>()
+                .Where(u => u.Id == id)
+                .Select(u => new
+                {
+                    firstName = u.FirstName,
+                    lastName = u.LastName,
+                    email = u.Email
+                })
+                .FirstOrDefault();
+
+            if (user == null)
+                return NotFound();
+
+            return Json(user);
+        }
     }
 }
 
