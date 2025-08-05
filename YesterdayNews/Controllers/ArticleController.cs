@@ -15,7 +15,7 @@ using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
-    //[Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor + "," + StaticConsts.Role_Journalist)]
+    [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor + "," + StaticConsts.Role_Journalist)]
 
     public class ArticleController : Controller
     {
