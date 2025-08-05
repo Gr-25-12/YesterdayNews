@@ -17,4 +17,18 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Article> Articles { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<UserArticleLike> UserArticleLikes { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<UserArticleLike>()
+            .HasOne(ual => ual.User)
+            .WithMany(u => u.LikedArticles)
+            .HasForeignKey(ual => ual.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+       
+    }
 }

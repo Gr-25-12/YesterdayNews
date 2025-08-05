@@ -31,8 +31,8 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        @if (!User.IsInRole(StaticConsts.Role_Customer))
-                        {
+                        @* @if (!User.IsInRole(StaticConsts.Role_Customer)) *@
+                        @* { *@
                            
                         <li class="nav-item dropdown ">
                             <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -56,7 +56,7 @@
                                 <li><a class="dropdown-item" asp-controller="User" asp-action="Index">User Management </a></li>
                             </ul>
                         </li>
-                        }
+                        @* } *@
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -84,6 +84,7 @@
             &copy; 2025 - YesterdayNews - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>

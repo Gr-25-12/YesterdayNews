@@ -13,7 +13,7 @@ using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
-    [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor + "," + StaticConsts.Role_Journalist)]
+    //[Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor + "," + StaticConsts.Role_Journalist)]
 
     public class ArticleController : Controller
     {
@@ -38,20 +38,48 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Details(int id)
         {
-            try
-            {
-                var article = _articleServices.GetById(id);
+            
+                var userId = _userManager.GetUserId(User);
+                var article = _articleServices.GetById(id, userId);
 
+                if (article == null)
+                {
+                    TempData["error"] = "Article not found";
+                    return RedirectToAction("Index");
+                }
+
+                _articleServices.IncrementViews(id);
                 return View(article);
-            }
-            catch (Exception ex)
-            {
-
-                TempData["error"] = $"{ex.Message}";
-                throw;
-            }
+            
+            
         }
 
+        [HttpPost]
+        public IActionResult ToggleLike(int id)
+        {
+            
+                if (!User.Identity.IsAuthenticated)
+                {
+                    TempData["error"] = "You must be logged in to like articles";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["error"] = "User not found";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                var result = _articleServices.ToggleLike(userId, id);
+                TempData["success"] = result ? "Article liked!" : "Article unliked!";
+
+                return RedirectToAction("Details", new { id });
+            
+           
+        }
+
+     
         #region API CALLS
 
         [HttpGet]
@@ -280,6 +308,117 @@ namespace YesterdayNews.Controllers
                 return true;
             }
             return false;
+        }
+
+        [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Editor + "," + StaticConsts.Role_Admin + "," + StaticConsts.Role_Journalist)]
+        public IActionResult SaveAsDraft(int id)
+        {
+            try
+            {
+                var article = _articleServices.GetById(id);
+                if (article == null) return NotFound();
+
+                article.ArticleStatus = ArticleStatus.Draft;
+                _articleServices.Edit(article);
+
+                TempData["success"] = "Article saved as draft successfully";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch
+            {
+                TempData["error"] = "Error saving as draft";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Journalist+ "," + StaticConsts.Role_Admin)]
+        public IActionResult SubmitForReview(int id)
+        {
+            try
+            {
+                var article = _articleServices.GetById(id);
+                if (article == null) return NotFound();
+
+                article.ArticleStatus = ArticleStatus.PendingReview;
+                _articleServices.Edit(article);
+
+                TempData["success"] = "Article submitted for review";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch
+            {
+                TempData["error"] = "Error submitting for review";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Editor + "," + StaticConsts.Role_Admin)]
+        public IActionResult Publish(int id)
+        {
+            try
+            {
+                var article = _articleServices.GetById(id);
+                if (article == null) return NotFound();
+
+                article.ArticleStatus = ArticleStatus.Published;
+                article.DateStamp = DateTime.Now;
+                _articleServices.Edit(article);
+
+                TempData["success"] = "Article published successfully";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch
+            {
+                TempData["error"] = "Error publishing article";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Editor + "," + StaticConsts.Role_Admin)]
+        public IActionResult Reject(int id)
+        {
+            try
+            {
+                var article = _articleServices.GetById(id);
+                if (article == null) return NotFound();
+
+                article.ArticleStatus = ArticleStatus.Rejected;
+                _articleServices.Edit(article);
+
+                TempData["success"] = "Article rejected";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch
+            {
+                TempData["error"] = "Error rejecting article";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Editor + "," + StaticConsts.Role_Admin)]
+        public IActionResult Archive(int id)
+        {
+            try
+            {
+                var article = _articleServices.GetById(id);
+                if (article == null) return NotFound();
+
+                article.ArticleStatus = ArticleStatus.Archived;
+                _articleServices.Edit(article);
+
+                TempData["success"] = "Article archived";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch
+            {
+                TempData["error"] = "Error archiving article";
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
     }
 }
