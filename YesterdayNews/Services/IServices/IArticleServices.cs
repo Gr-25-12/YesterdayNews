@@ -1,14 +1,15 @@
 using YesterdayNews.Models.Db;
+using YesterdayNews.Models.ViewModels;
 
 namespace YesterdayNews.Services.IServices
 {
     public interface IArticleServices
     {
         List<Article> GetAll();
+        List<ArticleVM> GetAllAsArticleVM(int articlesToSkip, int numberOfArticles);
         Article GetOne(int id);
         void Delete(int id);
         void Add(Article article);
-        Article GetById(int id);
         void Edit(Article existing);
     }
 }

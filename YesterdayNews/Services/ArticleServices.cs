@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
+using YesterdayNews.Models.ViewModels;
 using YesterdayNews.Services.IServices;
 
 namespace YesterdayNews.Services
@@ -24,11 +26,31 @@ namespace YesterdayNews.Services
                                .ToList();
                 
         }
+        public List<ArticleVM> GetAllAsArticleVM(int articlesToSkip, int numberOfArticles)
+        {
+            return GetAll()
+                   .Where(a => a.ArticleStatus == ArticleStatus.Published)
+                   .Skip(articlesToSkip)
+                   .Take(numberOfArticles)
+                   .Select(a => new ArticleVM
+                   {
+                       Id = a.Id,
+                       Headline = a.Headline,
+                       Summary = a.ContentSummary,
+                       ImageURL = a.ImageLink,
+                       Linktext = a.LinkText
+                   })
+                   .ToList();
+
+        }
 
         public Article GetOne(int id)
         {
             
-            var article = _db.Articles.FirstOrDefault(m => m.Id == id);
+            var article = _db.Articles
+                .Include(a => a.Author)
+                .Include(a => a.Category)
+                .FirstOrDefault(m => m.Id == id);
             return article;
         }
 
@@ -46,15 +68,6 @@ namespace YesterdayNews.Services
         {
             _db.Articles.Add(article);
             _db.SaveChanges(true);
-        }
-        public Article GetById(int id)
-        {
-            var article = _db.Articles
-                .Include(a => a.Author)
-                .Include(a => a.Category)
-                .FirstOrDefault(m => m.Id == id);
-
-            return article;
         }
 
         public void Edit(Article article)

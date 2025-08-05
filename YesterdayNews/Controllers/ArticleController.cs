@@ -36,7 +36,7 @@ namespace YesterdayNews.Controllers
         {
             try
             {
-                var article = _articleServices.GetById(id);
+                var article = _articleServices.GetOne(id);
 
                 return View(article);
             }
@@ -179,7 +179,7 @@ namespace YesterdayNews.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var article = _articleServices.GetById(id);
+            var article = _articleServices.GetOne(id);
             if (article == null)
             {
                 return NotFound();
@@ -194,7 +194,7 @@ namespace YesterdayNews.Controllers
         [ValidateAntiForgeryToken]
         public async Task <IActionResult> Edit(Article article, IFormFile imageFile)
         {
-            var existing = _articleServices.GetById(article.Id);
+            var existing = _articleServices.GetOne(article.Id);
             if (existing == null)
             {
                 return NotFound();

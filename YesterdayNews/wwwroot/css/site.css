@@ -241,6 +241,9 @@ a {
         background-color: var(--bs-secondary-bg-subtle);
         text-decoration: none;
     }
+        a:hover .article-underline {
+            text-decoration: underline;
+        }
 
 /* Utilities */
 .border-primary {

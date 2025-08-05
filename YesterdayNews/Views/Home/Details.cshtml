@@ -1,0 +1,42 @@
+﻿@model YesterdayNews.Models.Db.Article
+
+@{
+    ViewData["Title"] = Model.Headline;
+}
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <article class="mb-4 border p-3 rounded shadow-sm text-start">
+                <strong>@Model.Category?.Name</strong>
+            </article>
+            <article class="mb-4 border p-3 rounded shadow-sm text-center">
+
+                @if (!string.IsNullOrEmpty(Model.ImageLink))
+                {
+                    <img src="@Model.ImageLink" alt="@Model.Headline" class="img-fluid mb-3" />
+                }
+
+                <h1 class="mb-3">@Model.Headline</h1>
+
+                <div class="mb-2 text-muted">
+                    <small>
+                        By <strong>@Model.Author?.FullName</strong> |
+                        @Model.DateStamp.ToString("yyyy-MM-dd") |
+                        
+                    </small>
+                </div>
+
+                <div class="text-start my-4">
+                    @Html.Raw(Model.Content)
+                </div>
+
+                <div class="d-flex justify-content-between mt-4 text-muted">
+                    <small>👁️ @Model.Views views</small>
+                    <small>❤️ @Model.Likes likes</small>
+                </div>
+
+            </article>
+        </div>
+    </div>
+</div>
