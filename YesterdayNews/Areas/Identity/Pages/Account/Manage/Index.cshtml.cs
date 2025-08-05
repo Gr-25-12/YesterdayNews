@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using YesterdayNews.Models.Db;
+using YesterdayNews.Data;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
 {
@@ -16,13 +20,16 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         /// <summary>
@@ -55,6 +62,17 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            /// 
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
+
+            [Display(Name = "Date of Birth")]
+            [DataType(DataType.Date)]
+            public DateTime? DOB { get; set; }
+            
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
@@ -67,8 +85,13 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
 
             Username = userName;
 
+            var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == user.Id);
+
             Input = new InputModel
             {
+                FirstName = profile?.FirstName,
+                LastName = profile?.LastName,
+                DOB = profile?.DOB,
                 PhoneNumber = phoneNumber
             };
         }
@@ -109,7 +132,22 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
+            // Save profile data
+            var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == user.Id);
+            if (profile == null)
+            {
+                profile = new UserProfile
+                {
+                    UserId = user.Id
+                };
+                _context.UserProfiles.Add(profile);
+            }
 
+            profile.FirstName = Input.FirstName;
+            profile.LastName = Input.LastName;
+            profile.DOB = Input.DOB;
+
+            await _context.SaveChangesAsync();
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();

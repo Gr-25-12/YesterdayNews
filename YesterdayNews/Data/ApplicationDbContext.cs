@@ -17,4 +17,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Article> Articles { get; set; }
     public DbSet<User> Users { get; set; }
+
+    public DbSet<UserProfile> UserProfiles { get; set; }
+
 }
