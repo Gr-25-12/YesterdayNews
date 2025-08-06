@@ -1,13 +1,13 @@
-﻿@page
+﻿ @page
 @using YesterdayNews.Utils
 @model RegisterModel
 @{
     ViewData["Title"] = "Register";
 }
 
-@* <h1>@ViewData["Title"]</h1> *@
 
-<div class="card shadow border-0 mt-4">
+
+@* <div class="card shadow border-0 mt-4">
     <div class="card-header bg-secondary bg-gradient m-lg-0 py-0">
         <div class="row">
             <div class="col-md-12 text-center py-2">
@@ -48,11 +48,11 @@
                         </div>
                     } else
                     {
-                           
+
                             <!-- Hidden fields to prevet model is invalid  -->
                             <input type="hidden" asp-for="Input.Password" value="Dummy123!" />
                             <input type="hidden" asp-for="Input.ConfirmPassword" value="Dummy123!" />
-                        
+
                     }
                     <div class="row">
 
@@ -89,12 +89,17 @@
     </div>
     <div class="col-md-6 col-md-offset-2">
         <section>
-            
+
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) == 0)
                 {
                     <div>
-                        
+                                <p>
+                                    There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                                        article
+                                        about setting up this ASP.NET application to support logging in via external services
+                                    </a>.
+                                </p>
                     </div>
                 }
                 else
@@ -118,4 +123,184 @@
 </div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+} *@
+
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center align-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-primary py-4">
+                        <div class="text-center">
+                            <h2 class="text-white fw-bold mb-0">Create Your Account</h2>
+                            <p class="text-white-50 mb-0">Join our community today</p>
+                        </div>
+                    </div>
+                    <div class="card-body p-5">
+                        <div class="row">
+                                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                                    <div class="mb-4">
+                                        <label asp-for="Input.Email" class="form-label text-muted small">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                                            <input asp-for="Input.Email" class="form-control form-control-lg" autocomplete="username" placeholder="your@email.com" />
+                                        </div>
+                                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="Input.FirstName" class="form-label text-muted small">First Name</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                                <input asp-for="Input.FirstName" class="form-control form-control-lg" placeholder="First name" />
+                                            </div>
+                                            <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label asp-for="Input.LastName" class="form-label text-muted small">Last Name</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                                <input asp-for="Input.LastName" class="form-control form-control-lg" placeholder="Last name" />
+                                            </div>
+                                            <span asp-validation-for="Input.LastName" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label asp-for="Input.DateOfBirth" class="form-label text-muted small">Date of Birth</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-calendar"></i></span>
+                                            <input type="date" asp-for="Input.DateOfBirth" class="form-control form-control-lg" />
+                                        </div>
+                                        <span asp-validation-for="Input.DateOfBirth" class="text-danger small"></span>
+                                    </div>
+
+                                @if (!User.IsInRole(StaticConsts.Role_Admin))
+                                {
+                                    <div class="mb-4">
+                                        <label asp-for="Input.Password" class="form-label text-muted small">Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                            <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="new-password" placeholder="••••••••" />
+                                            <button class="btn btn-outline-secondary toggle-password" type="button">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-text small">Must be at least 6 characters</div>
+                                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label asp-for="Input.ConfirmPassword" class="form-label text-muted small">Confirm Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                            <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg" autocomplete="new-password" placeholder="••••••••" />
+                                            <button class="btn btn-outline-secondary toggle-password" type="button">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                                    </div>
+                                }
+                                else
+                                {
+
+                                    <!-- Hidden fields to prevet model is invalid  -->
+                                    <input type="hidden" asp-for="Input.Password" value="Dummy123!" />
+                                    <input type="hidden" asp-for="Input.ConfirmPassword" value="Dummy123!" />
+
+                                }
+                                @if (User.IsInRole(StaticConsts.Role_Admin))
+                                {
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select">
+                                            <option disabled selected>--Role--</option>
+
+                                        </select>
+                                    </div>
+                                }
+                              
+
+                                    @if (!User.IsInRole(StaticConsts.Role_Admin))
+                                    {
+
+                                        <div class="d-grid mb-4">
+                                            <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">
+                                                Register Now <i class="bi bi-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
+                                    }else
+                                    {
+                                        <div class="d-grid mb-4">
+                                            <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">
+                                                Create new user <i class="bi bi-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                @if (!User.IsInRole(StaticConsts.Role_Admin))
+                                {
+
+                                    <div class="text-center small text-muted">
+                                        By registering, you agree to our <a href="/privacy" class="text-decoration-none">Terms</a> and <a href="/privacy" class="text-decoration-none">Privacy Policy</a>
+                                    </div>
+                                }
+                                </form>
+                            </div>
+
+                            @if (!User.IsInRole(StaticConsts.Role_Admin))
+                            {
+                                <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                                    <div class="p-4 text-center w-100">
+
+                                        <h5 class="fw-bold mb-3">Already have an account?</h5>
+                                        <a href="/Identity/Account/Login" class="btn btn-outline-success text-primary rounded-pill px-4">
+                                            Sign In <i class="bi bi-box-arrow-in-right ms-2"></i>
+                                        </a>
+
+                                        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                                        {
+
+                                            <div class="mt-4">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <hr class="flex-grow-1">
+                                                    <span class="px-3 small text-muted">OR CONTINUE WITH</span>
+                                                    <hr class="flex-grow-1">
+                                                </div>
+                                                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        @foreach (var provider in Model.ExternalLogins!)
+                                                        {
+                                                            <button type="submit" class="btn btn-outline-secondary rounded-circle p-2" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                                                <i class="bi bi-@(provider.DisplayName.ToLower()) fs-5"></i>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        }    
+                                    </div>
+                                </div>
+                            } 
+                            
+                               
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+       
+    </script>
 }
