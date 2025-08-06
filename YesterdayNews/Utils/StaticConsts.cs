@@ -13,5 +13,9 @@
         public const string Role_Journalist = "Journalist";
         public const string Role_Admin = "Admin";
         public const string Role_Editor = "Editor";
+
+
+        public const int Cookie_Expires_IN = 7;
+
     }
 }

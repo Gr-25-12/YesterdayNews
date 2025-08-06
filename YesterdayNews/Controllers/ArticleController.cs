@@ -56,9 +56,9 @@ namespace YesterdayNews.Controllers
             {
                 
                 _articleServices.IncrementViews(id);
-                Response.Cookies.Append(cookieName, "1", new CookieOptions
+                Response.Cookies.Append(cookieName, "Viewed", new CookieOptions
                 {
-                    Expires = DateTime.Now.AddDays(1),
+                    Expires = DateTime.Now.AddDays(StaticConsts.Cookie_Expires_IN),
                     HttpOnly = true,
                     Secure = true, 
                     SameSite = SameSiteMode.Lax
