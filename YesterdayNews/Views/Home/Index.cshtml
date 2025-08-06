@@ -27,9 +27,10 @@
 					</article>
 				</a>
 			}
-			@await Component.InvokeAsync("MostViewed")
-			@await Component.InvokeAsync("MostLiked")
 			@await Component.InvokeAsync("EarlierNews", new { articlesToSkip = Model.Count })
+		</div>
+		<div class="col-12 col-md-4 col-lg-3">
+			@await Component.InvokeAsync("Sidebar")
 		</div>
 	</div>
 </div>
