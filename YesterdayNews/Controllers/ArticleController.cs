@@ -104,6 +104,10 @@ namespace YesterdayNews.Controllers
             IEnumerable<Article> articles = _articleServices
                 .GetAll();
 
+            if (User.IsInRole(StaticConsts.Role_Journalist))
+            {
+                articles = articles.Where(a => a.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier));
+            }
 
             switch (status)
             {
@@ -159,6 +163,10 @@ namespace YesterdayNews.Controllers
                     return Json(new { success = false, message = "Article not found!" });
                 }
 
+                if (User.IsInRole(StaticConsts.Role_Journalist))
+                {
+                    return Json(new { success = false, message = "You are not authorized to delete this article!" }); ;
+                }
 
                 if (!string.IsNullOrEmpty(articleToDelete.ImageLink))
                 {

@@ -138,7 +138,7 @@
 </div>
 
 <!-- Management Actions -->
-@if (!User.IsInRole(StaticConsts.Role_Customer))
+@if (!User.IsInRole(StaticConsts.Role_Customer) && Model.ArticleStatus.ToString() != StaticConsts.ArticleArchived)
 {
     
 <div class="card border-0 shadow-sm my-5">

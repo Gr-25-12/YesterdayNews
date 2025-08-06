@@ -21,6 +21,7 @@ namespace YesterdayNews.Services
 
         public List<Article> GetAll()
         {
+            
             return _db.Articles.Include(a => a.Author)
                                .Include(a => a.Category)
                                .OrderByDescending(a => a.DateStamp)
