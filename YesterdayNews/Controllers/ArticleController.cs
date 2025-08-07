@@ -201,7 +201,7 @@ namespace YesterdayNews.Controllers
                 if (newImageLink != null)
                     article.ImageLink = newImageLink;
 
-                article.DateStamp = DateTime.Now;
+                article.DateStamp = DateTime.UtcNow;
                 if (action == "draft")
                     article.ArticleStatus = ArticleStatus.Draft;
                 else if (action == "review")
