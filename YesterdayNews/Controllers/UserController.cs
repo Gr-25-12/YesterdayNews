@@ -106,14 +106,14 @@ namespace YesterdayNews.Controllers
 
                 }
 
-                if (userFromDb.LockoutEnd != null && userFromDb.LockoutEnd > DateTime.Now)
+                if (userFromDb.LockoutEnd != null && userFromDb.LockoutEnd > DateTime.UtcNow)
                 {
                     // user is currently locked
-                    userFromDb.LockoutEnd = DateTime.Now;
+                    userFromDb.LockoutEnd = DateTime.UtcNow;
                 }
                 else
                 {
-                    userFromDb.LockoutEnd = DateTime.Now.AddYears(100);
+                    userFromDb.LockoutEnd = DateTime.UtcNow.AddYears(100);
 
                 }
                 _db.SaveChanges();
