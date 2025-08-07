@@ -51,5 +51,13 @@ namespace YesterdayNews.Models.Db
         public Category Category { get; set; }
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
+
+        public ICollection<UserArticleLike> LikedByUsers { get; set; } = new List<UserArticleLike>();
+
+        [NotMapped]
+        public bool IsLikedByCurrentUser { get; set; }
+
+        
+        public string? RejectionReason { get; set; }
     }
 }

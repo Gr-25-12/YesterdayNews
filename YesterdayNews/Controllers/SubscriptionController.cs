@@ -1,12 +1,16 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
+using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
+    [Authorize(Roles = StaticConsts.Role_Admin)]
+
     public class SubscriptionController : Controller
     {
         private readonly ISubscriptionServices _subscriptionServices;
@@ -145,6 +149,29 @@ namespace YesterdayNews.Controllers
         }
 
         #endregion
+
+        [HttpGet]
+        public IActionResult GetUserById(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest();
+
+            var user = _userManager.Users
+                .OfType<User>()
+                .Where(u => u.Id == id)
+                .Select(u => new
+                {
+                    firstName = u.FirstName,
+                    lastName = u.LastName,
+                    email = u.Email
+                })
+                .FirstOrDefault();
+
+            if (user == null)
+                return NotFound();
+
+            return Json(user);
+        }
     }
 }
 

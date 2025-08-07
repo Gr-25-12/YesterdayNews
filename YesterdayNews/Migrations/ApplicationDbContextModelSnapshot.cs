@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using YesterdayNews.Data;
 
 #nullable disable
 
-namespace YesterdayNews.Data.Migrations
+namespace YesterdayNews.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250728182006_addedUserTable")]
-    partial class addedUserTable
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,12 +176,10 @@ namespace YesterdayNews.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -221,12 +216,10 @@ namespace YesterdayNews.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -234,6 +227,33 @@ namespace YesterdayNews.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("UserArticleLike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LikedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserArticleLikes");
                 });
 
             modelBuilder.Entity("YesterdayNews.Models.Db.Article", b =>
@@ -283,6 +303,9 @@ namespace YesterdayNews.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Views")
                         .HasColumnType("int");
@@ -373,7 +396,7 @@ namespace YesterdayNews.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SubsriptionTypes");
+                    b.ToTable("SubscriptionTypes");
                 });
 
             modelBuilder.Entity("YesterdayNews.Models.Db.User", b =>
@@ -447,6 +470,25 @@ namespace YesterdayNews.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("UserArticleLike", b =>
+                {
+                    b.HasOne("YesterdayNews.Models.Db.Article", "Article")
+                        .WithMany("LikedByUsers")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("YesterdayNews.Models.Db.User", "User")
+                        .WithMany("LikedArticles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("YesterdayNews.Models.Db.Article", b =>
                 {
                     b.HasOne("YesterdayNews.Models.Db.User", "Author")
@@ -485,6 +527,11 @@ namespace YesterdayNews.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("YesterdayNews.Models.Db.Article", b =>
+                {
+                    b.Navigation("LikedByUsers");
+                });
+
             modelBuilder.Entity("YesterdayNews.Models.Db.SubscriptionType", b =>
                 {
                     b.Navigation("Subscriptions");
@@ -493,6 +540,8 @@ namespace YesterdayNews.Data.Migrations
             modelBuilder.Entity("YesterdayNews.Models.Db.User", b =>
                 {
                     b.Navigation("AuthoredArticles");
+
+                    b.Navigation("LikedArticles");
 
                     b.Navigation("Subscriptions");
                 });
