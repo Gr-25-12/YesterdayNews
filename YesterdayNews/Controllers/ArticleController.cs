@@ -414,7 +414,7 @@ namespace YesterdayNews.Controllers
                 if (article == null) return NotFound();
 
                 article.ArticleStatus = ArticleStatus.Published;
-                article.DateStamp = DateTime.Now;
+                article.DateStamp = DateTime.UtcNow;
                 _articleServices.Edit(article);
 
                 TempData["success"] = "Article published successfully";

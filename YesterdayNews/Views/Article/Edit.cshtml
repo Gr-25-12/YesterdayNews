@@ -93,7 +93,7 @@
 							<span class="fw-bold">Likes:</span> @Model.Likes
 						</div>
 						<div class="mb-2">
-							<span class="fw-bold">Date created:</span> @Model.DateStamp.ToString("yyyy-MM-dd")
+							<span class="fw-bold">Date created:</span> @Model.DateStamp.ToLocalTime().ToString("yyyy-MM-dd")
 						</div>
 						<div class="mb-2">
 							<input type="hidden" asp-for="AuthorId" />
