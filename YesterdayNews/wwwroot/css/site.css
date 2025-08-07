@@ -21,6 +21,10 @@ body {
   margin-bottom: 60px;
 }
 
+p {
+    max-width: 100%;
+    word-wrap:break-word;
+}
 /*Remove the default labels*/
 .dt-search label,
 .dt-length label {

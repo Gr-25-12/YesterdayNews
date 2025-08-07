@@ -19,7 +19,7 @@
 					</div>
 				</div>
 				<div class="text-end">
-					<small class="text-muted time-ago mb-0" data-timestamp="@article.DateStamp.ToString("o")">
+					<small class="text-muted time-ago mb-0" data-timestamp="@article.DateStamp.ToLocalTime().ToString("o")">
 						@article.Category?.Name &bull; <span class="hours-ago"></span>
 					</small>
 				</div>

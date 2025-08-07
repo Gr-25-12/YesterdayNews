@@ -50,20 +50,6 @@ namespace YesterdayNews.Controllers
                 return RedirectToAction("Index");
                 }
 
-            // Check if view cookie exists
-                string cookieName = $"ArticleView_{id}";
-            if (!Request.Cookies.ContainsKey(cookieName))
-            {
-                
-                _articleServices.IncrementViews(id);
-                Response.Cookies.Append(cookieName, "Viewed", new CookieOptions
-                {
-                    Expires = DateTime.Now.AddDays(StaticConsts.Cookie_Expires_IN),
-                    HttpOnly = true,
-                    Secure = true, 
-                    SameSite = SameSiteMode.Lax
-                });
-            }
             return View(article);
             
             
@@ -414,7 +400,7 @@ namespace YesterdayNews.Controllers
                 if (article == null) return NotFound();
 
                 article.ArticleStatus = ArticleStatus.Published;
-                article.DateStamp = DateTime.Now;
+                article.DateStamp = DateTime.UtcNow;
                 _articleServices.Edit(article);
 
                 TempData["success"] = "Article published successfully";
