@@ -266,7 +266,11 @@ namespace YesterdayNews.Controllers
             existing.AuthorId = article.AuthorId;
             string newImageLink = await UploadImage(article, imageFile);
             if (newImageLink != null)
+            {
+                _fileServices.DeleteFileFromContainer(existing.ImageLink);
                 existing.ImageLink = newImageLink;
+            }
+                
 
             if (article.ArticleStatus == ArticleStatus.Published || article.ArticleStatus == ArticleStatus.Rejected)
             {
@@ -289,7 +293,6 @@ namespace YesterdayNews.Controllers
             }
             // Save to DB
             _articleServices.Edit(existing);
-            _fileServices.DeleteFileFromContainer(article.ImageLink);
             TempData["success"] = "Article updated successfully!";
             return RedirectToAction("Index");
         }

@@ -28,15 +28,22 @@
             </div>
             <div class="form-group">
                 <label for="UserId" class="control-label">User</label>
-                <<select asp-for="UserId" class="form-control" id="UserId"
+                <select asp-for="UserId" class="form-control" id="UserId"
                          data-val="true"
                          data-val-required="Choose a user before saving">
                     <option value=""></option>
                 </select>
                 <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
+            <div id="UserDisplay" style="display:none;">
+                <p class="form-control-plaintext d-flex align-items-center gap-3 border border-dark p-3 my-3">
+                    First Name: <strong>@Model.User?.FirstName</strong>
+                    Last Name: <strong>@Model.User?.LastName</strong>
+                    Email: <strong>@Model.User?.Email</strong>
+                </p>
+            </div>
             <div class="form-group">
-                <label asp-for="SubscriptionTypeId" class="control-label"></label>
+                <label for="SubscriptionTypeId" class="control-label">Subscription Type</label>
                 <select asp-for="SubscriptionTypeId" class="form-control" id="SubscriptionTypeId">
                     <option value="">-- Choose SubscriptionType --</option>
                     @foreach (var type in (List<SubscriptionType>)ViewBag.SubscriptionTypes)
