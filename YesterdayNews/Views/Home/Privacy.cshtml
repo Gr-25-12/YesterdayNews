@@ -1,6 +1,79 @@
 ﻿@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container py-5">
+    <header class="text-center mb-5">
+        <h1 class="display-3 fw-bold">
+            @ViewData["Title"]
+            <span class="text-muted fs-6">(The Fine Print No One Reads)</span>
+        </h1>
+        <div class="my-3">
+            <span class="fs-1">👀</span>
+            <span class="fs-1 mx-3">📝</span>
+            <span class="fs-1">🍪</span>
+        </div>
+    </header>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">What We Collect 🕵️‍♂️</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">• Your hopes and dreams and hopfully your money 😁(Just kidding... huh)</li>
+                        <li class="mb-2">• Every cookie you've ever eaten 🍪 (Okay, just the digital ones)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h2 class="h4 mb-0">How We Protect It 🛡️</h2>
+                </div>
+                <div class="card-body">
+                    <p>We guard your data like a dragon guards its treasure... but less fire-breathing.</p>
+                    <div class="alert alert-info">
+                        <span class="fw-bold">⚠️ Reality Check:</span> No system is 100% secure,
+                        but we scaffoled all the identity files 🤝.
+                        <br />
+                        <span class="fw-bold text-danger">💀 If something happened :</span> Blame Microsoft 
+                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25" height="25" viewBox="0 0 48 48">
+                            <path fill="#ff5722" d="M6 6H22V22H6z" transform="rotate(-180 14 14)"></path>
+                            <path fill="#4caf50" d="M26 6H42V22H26z" transform="rotate(-180 34 14)"></path>
+                            <path fill="#ffc107" d="M26 26H42V42H26z" transform="rotate(-180 34 34)"></path>
+                            <path fill="#03a9f4" d="M6 26H22V42H6z" transform="rotate(-180 14 34)"></path>
+                        </svg>.
+                        <br />
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h2 class="h4 mb-0">Third-Party Sharing 🤝</h2>
+                </div>
+                <div class="card-body">
+                    <p>We don't sell your data because:</p>
+                    <ol>
+                        <li class="mb-2"> That's unethical 👎</li>
+                        <li class="mb-2"> We're too busy fixing bugs 🐞</li>
+                        <li>Our lawyer said no ⚖️</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <button class="btn btn-outline-primary btn-lg" onclick="window.print()">
+                    <span class="me-2">🖨️</span> Print This (For Maximum Legality)
+                </button>
+                <p class="text-muted mt-3 small">
+                    Last Updated: Never | Version: ♾️♾️
+                    
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

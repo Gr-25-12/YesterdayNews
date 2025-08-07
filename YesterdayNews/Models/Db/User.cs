@@ -24,6 +24,9 @@ namespace YesterdayNews.Models.Db
         public ICollection<Article> AuthoredArticles { get; set; } = new List<Article>();
         public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
 
+        // Mapping the likedArticles to the User
+        public ICollection<UserArticleLike> LikedArticles { get; set; } = new List<UserArticleLike>();
+
         [NotMapped]
         public string Role { get; set; }
 
