@@ -21,6 +21,10 @@ body {
   margin-bottom: 60px;
 }
 
+p {
+    max-width: 100%;
+    word-wrap:break-word;
+}
 /*Remove the default labels*/
 .dt-search label,
 .dt-length label {
@@ -241,6 +245,9 @@ a {
         background-color: var(--bs-secondary-bg-subtle);
         text-decoration: none;
     }
+        a:hover .article-underline {
+            text-decoration: underline;
+        }
 
 /* Utilities */
 .border-primary {

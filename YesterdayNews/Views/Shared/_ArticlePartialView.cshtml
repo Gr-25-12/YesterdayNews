@@ -91,7 +91,7 @@
             <i class="bi bi-person-circle"></i> Author: @Model.Author.FirstName @Model.Author.LastName
         </li>
         <li>
-            <i class="bi bi-calendar"></i> @Model.DateStamp.ToString("MMMM dd, yyyy")
+            <i class="bi bi-calendar"></i> @Model.DateStamp.ToLocalTime().ToString("MMMM dd, yyyy")
         </li>
     </ul>
 
