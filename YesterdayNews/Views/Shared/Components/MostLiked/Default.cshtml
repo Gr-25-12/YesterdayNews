@@ -1,14 +1,14 @@
 ﻿
 @model List<YesterdayNews.Models.ViewModels.ArticleVM>
 
-<article class="mb-4 border p-3 rounded shadow-sm">
+<article class="mb-4 border p-3 pb-0 rounded shadow-sm">
     <h5>Most Liked</h5>
-    <hr />
     <ul class="list-unstyled">
         @for (int i = 0; i < Model.Count; i++)
         {
             var article = Model[i];
-            <li class="mb-2">
+            <hr class="my-2" />
+            <li class="mb-0">
                 <div class="d-flex">
                     <div class="flex-shrink-0 d-flex align-items-start">
                         <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3 mt-1" style="width: 30px; height: 30px; font-size: 0.9rem;">
@@ -17,7 +17,7 @@
                     </div>
                     <div class="flex-grow-1">
                         <a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="text-decoration-none">
-                            <p class="article-underline mb-0 fw-bold">@article.Linktext</p>
+                            <p class="article-underline mb-0 fw-bold text-break">@article.Linktext</p>
                         </a>
                     </div>
                 </div>
