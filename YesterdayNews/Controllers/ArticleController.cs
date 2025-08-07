@@ -165,7 +165,19 @@ namespace YesterdayNews.Controllers
 
                 if (User.IsInRole(StaticConsts.Role_Journalist))
                 {
-                    return Json(new { success = false, message = "You are not authorized to delete this article!" }); ;
+
+                    bool isDeletableStatus = articleToDelete.ArticleStatus.ToString() == StaticConsts.ArticleDraft ||
+                                    articleToDelete.ArticleStatus.ToString() == StaticConsts.ArticleRejected;
+
+                    if (!isDeletableStatus)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Journalists can only delete Draft or Rejected articles!"
+                        });
+                    }
+
                 }
 
                 if (!string.IsNullOrEmpty(articleToDelete.ImageLink))
