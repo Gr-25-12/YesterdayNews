@@ -5,7 +5,6 @@ using YesterdayNews.Data;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
-
 namespace YesterdayNews;
 
 public class Program
@@ -38,7 +37,12 @@ public class Program
         builder.Services.AddScoped<ILikeService, LikeService>();
 
 
-
+        builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+         {
+             googleOptions.ClientId = builder.Configuration.GetSection("Google:ClientId").Get<string>()!;
+             
+             googleOptions.ClientSecret = builder.Configuration.GetSection("Google:ClientSecret").Get<string>()!;
+         });
 
 
 
