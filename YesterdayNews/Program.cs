@@ -43,7 +43,11 @@ public class Program
              
              googleOptions.ClientSecret = builder.Configuration.GetSection("Google:ClientSecret").Get<string>()!;
          });
-
+        builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
+        {
+            facebookOptions.AppId = builder.Configuration.GetSection("Facebook:AppId").Get<string>()!;
+            facebookOptions.AppSecret = builder.Configuration.GetSection("Facebook:AppSecret").Get<string>()!;
+        });
 
 
 
