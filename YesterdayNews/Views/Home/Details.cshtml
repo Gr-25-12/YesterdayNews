@@ -1,0 +1,14 @@
+﻿@model YesterdayNews.Models.Db.Article;
+
+@{
+    ViewData["Title"] = Model.Headline;
+}
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            @await Html.PartialAsync("_ArticlePartialView", Model)
+            @await Component.InvokeAsync("EarlierNews", new { articlesToSkip = 3 })
+        </div>
+    </div>
+</div>
