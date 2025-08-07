@@ -24,12 +24,10 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
-            ApplicationDbContext context)
+            SignInManager<IdentityUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            //_context = context;
         }
 
         /// <summary>
