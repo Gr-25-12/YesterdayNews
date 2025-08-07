@@ -54,7 +54,7 @@ function Delete(url) {
         text: "If Payment is confirmed, refund will be issued for the customer!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
+        confirmButtonColor: "#3A2512",
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes, cancel subscription!"
     }).then((result) => {

@@ -55,20 +55,22 @@ function loadDataTable(status) {
             },
             {
                 "data": "id",
-                "render": function (data) {
+                "render": function (data, type, row) {
                     return `
-                        <div class="btn-group" role="group">
-                        <a href="/Article/Details/${data}" class="btn btn-secondary btn-sm mx-1">
-                                <i class="bi bi-list px-2"></i>Details
-                            </a>
-                            <a href="/Article/Edit/${data}" class="btn btn-primary btn-sm mx-1">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
-                            <a onclick="Delete('/Article/Delete/${data}')" class="btn btn-danger btn-sm mx-1">
-                                <i class="bi bi-trash-fill"></i> Delete
-                            </a>
-                        </div>
-                    `;
+            <div class="btn-group" role="group">
+                <a href="/Article/Details/${data}" class="btn btn-secondary btn-sm mx-1">
+                    <i class="bi bi-list px-2"></i> Details
+                </a>
+                
+                <a onclick="handleEditClick(${data}, '${row.articleStatus}')" class="btn btn-primary btn-sm mx-1">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </a>
+                
+                <a onclick="Delete('/Article/Delete/${data}')" class="btn btn-danger btn-sm mx-1">
+                    <i class="bi bi-trash-fill"></i> Delete
+                </a>
+            </div>
+        `;
                 },
                 "width": "20%",
                 "orderable": false,
@@ -110,6 +112,22 @@ function setupImagePreview() {
             }
         });
     }
+}
+
+function handleEditClick(articleId, articleStatus) {
+    
+    if (articleStatus === "Archived") {
+        Swal.fire({
+            icon: 'error',
+            title: 'Ooops...',
+            text: 'This article has been archived and cannot be edited.',
+            confirmButtonColor: '#3A2512'
+        });
+        return false; 
+    }
+
+   
+    window.location.href = `/Article/Edit/${articleId}`;
 }
 
 $(document).ready(function () {
