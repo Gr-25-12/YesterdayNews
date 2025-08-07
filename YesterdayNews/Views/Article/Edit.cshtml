@@ -5,7 +5,7 @@
 }
 
 <div class="mt-3 d-flex justify-content-end align-content-end">
-    <a asp-action="Index" class="btn btn-outline-secondary">
+    <a asp-action="Index" class="btn btn-outline-secondary border-1 border-secondary">
         <i class="bi bi-arrow-left me-1"></i>Back to List
     </a>
 </div>
@@ -13,7 +13,7 @@
     <div class="card-header bg-primary bg-gradient ml-0 py-3">
         <div class="row">
             <div class="col-12 text-center">
-                <h2 class="text-white py-2">Edit Article</h2>
+                <h2 class="text-white py-2">Edit Article <span class="h4">#@Model.Id</span> </h2>
             </div>
         </div>
     </div>
@@ -25,8 +25,13 @@
             <div class="col-md-8">
                 <div class="mb-3">
                     <label class="form-label fw-bold">Current Status</label>
-                    <input type="text" class="form-control" value="@Model.ArticleStatus.ToString()" readonly />
+                    <input type="text" class="form-control" value="@Model.ArticleStatus.ToString()" readonly  disabled/>
                     <input type="hidden" asp-for="ArticleStatus" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="CategoryId" class="form-label fw-bold">Category</label>
+                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
                 </div>
 
                 <div class="mb-3">
@@ -36,7 +41,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="LinkText" class="form-label fw-bold"></label>
+                    <label asp-for="LinkText" class="form-label fw-bold">Link Text</label>
                     <input asp-for="LinkText" class="form-control" />
                     <span asp-validation-for="LinkText" class="text-danger small"></span>
                 </div>
@@ -53,11 +58,7 @@
                     <span asp-validation-for="Content" class="text-danger small"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="CategoryId" class="form-label fw-bold"></label>
-                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
-                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
-                </div>
+               
             </div>
 
             <div class="col-md-4">
@@ -73,7 +74,7 @@
                         <div id="imagePreview" class="text-center mt-3 p-2 border rounded">
                             @if (!string.IsNullOrEmpty(Model?.ImageLink))
                             {
-                                <img src="@Model.ImageLink" alt="Current Image" class="img-fluid rounded" style="max-height: 200px;" />
+                                <img src="@Model.ImageLink" alt="Current Image" class="img-fluid rounded" style="max-height: 200px; max-width: 200px;" />
                             }
                             else
                             {
@@ -97,7 +98,7 @@
                         <div class="mb-2">
                             <input type="hidden" asp-for="AuthorId" />
                             <input type="hidden" asp-for="Author" />
-                            <span class="fw-bold">Author:</span> @Model.Author.FirstName @Model.Author.LastName
+                            <span class="fw-bold">Author:</span> @Model.Author.FullName
                         </div>
                     </div>
                 </div>
