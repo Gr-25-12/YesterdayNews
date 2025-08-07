@@ -20,7 +20,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
@@ -29,7 +29,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _context = context;
+            //_context = context;
         }
 
         /// <summary>
@@ -63,18 +63,23 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             /// 
+            [Required]
+            
             [Display(Name = "First Name")]
             public string FirstName { get; set; }
 
+            [Required]
+            
             [Display(Name = "Last Name")]
+
             public string LastName { get; set; }
 
-            [Display(Name = "Date of Birth")]
             [DataType(DataType.Date)]
-            public DateTime? DOB { get; set; }
-            
+            [Display(Name = "Date of Birth")]
+            public DateOnly? DateOfBirth { get; set; }
+
             [Phone]
-            [Display(Name = "Phone number")]
+            [Display(Name = "Phone Number")]
             public string PhoneNumber { get; set; }
         }
 
@@ -82,16 +87,20 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
+            var appUser = user as User;
+            var firstName = appUser.FirstName;
+            var lastName = appUser.LastName;
+            var email = appUser.Email;
+            var dateOfBirth = appUser.DateOfBirth;
             Username = userName;
 
-            var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == user.Id);
+            
 
             Input = new InputModel
             {
-                FirstName = profile?.FirstName,
-                LastName = profile?.LastName,
-                DOB = profile?.DOB,
+                FirstName = firstName,
+                LastName = lastName,
+                DateOfBirth = dateOfBirth,
                 PhoneNumber = phoneNumber
             };
         }
@@ -132,22 +141,22 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
-            // Save profile data
-            var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == user.Id);
-            if (profile == null)
+            var appUser = user as User;
+            if (appUser != null && Input.FirstName != appUser.FirstName)
             {
-                profile = new UserProfile
+                appUser.FirstName = Input.FirstName;
+                appUser.LastName = Input.LastName;
+                appUser.DateOfBirth = Input.DateOfBirth;
+                var updateResult = await _userManager.UpdateAsync(appUser);
+                if (!updateResult.Succeeded)
                 {
-                    UserId = user.Id
-                };
-                _context.UserProfiles.Add(profile);
+                    StatusMessage = "Unexpected error when trying to update first name.";
+                    TempData["error"] = "Cannot update now!";
+                    return RedirectToPage();
+                }
             }
 
-            profile.FirstName = Input.FirstName;
-            profile.LastName = Input.LastName;
-            profile.DOB = Input.DOB;
-
-            await _context.SaveChangesAsync();
+          
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
