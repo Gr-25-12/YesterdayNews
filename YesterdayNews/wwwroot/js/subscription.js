@@ -54,7 +54,7 @@ function Delete(url) {
         text: "If Payment is confirmed, refund will be issued for the customer!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
+        confirmButtonColor: "#3A2512",
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes, cancel subscription!"
     }).then((result) => {
@@ -81,7 +81,6 @@ function userSelect() {
     const $userSelect = $('#UserId');
     if ($userSelect.length === 0) return;
 
-    console.log("UserId select found:", $('#UserId').length);
     $userSelect.select2({
         placeholder: "Search for a user",
         minimumInputLength: 2,
@@ -102,6 +101,19 @@ function userSelect() {
             },
             cache: true
         }
+    });
+
+    $userSelect.on('select2:select', function (e) {
+        const userId = e.params.data.id;
+
+        $.get('/Subscription/GetUserById', { id: userId }, function (user) {
+            if (user) {
+                $('#UserDisplay').show();
+                $('#UserDisplay strong').eq(0).text(user.firstName);
+                $('#UserDisplay strong').eq(1).text(user.lastName);
+                $('#UserDisplay strong').eq(2).text(user.email);
+            }
+        });
     });
 }
 
@@ -148,7 +160,7 @@ function setupPriceDisplay() {
 
 $(document).ready(function () {
     loadDataTable();
-
+    
     createdInput = document.getElementById("createdDate");
     expiresText = document.getElementById("expiresText");
 
@@ -157,7 +169,6 @@ $(document).ready(function () {
         window.addEventListener("load", updateExpiresText);
         updateExpiresText()
     }
-
     userSelect();
     setupPriceDisplay();
 });

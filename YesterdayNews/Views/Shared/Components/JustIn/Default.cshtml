@@ -1,0 +1,15 @@
+﻿@model List<YesterdayNews.Models.ViewModels.ArticleVM>
+@* JustIn View Component *@
+@foreach (var article in Model)
+{
+	<div class="d-flex align-items-center justify-content-start">
+		<article class="rounded-pill bg-danger text-white d-flex mb-3 border p-2 shadow-sm">
+				<p class="fw-bold fs-5 mb-0">JUST IN</p>
+		</article>
+		<div class="ms-3 mb-3">
+			<a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id">
+				<p class="article-underline fw-bold fs-4 mb-0">@article.Linktext</p>
+			</a>
+		</div>
+	</div>
+}

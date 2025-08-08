@@ -55,13 +55,15 @@ document.addEventListener('DOMContentLoaded', function () {
         document.addEventListener('turbolinks:click', showGlobalLoader);
         document.addEventListener('turbolinks:render', hideGlobalLoader);
     }
-
+   
     // For forms submissions
     document.addEventListener('submit', function (e) {
         const form = e.target;
         if (form.method.toLowerCase() === 'get') return;
         showGlobalLoader();
     });
+
+    showHoursAgo();
 });
 
 
@@ -89,7 +91,7 @@ function Delete(url) {
         text: "You won't be able to revert this!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
+        confirmButtonColor: '#3A2512',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
@@ -106,6 +108,18 @@ function Delete(url) {
                     }
                 }
             });
+        }
+    });
+}
+function showHoursAgo(selector = '.time-ago') {
+    document.querySelectorAll(selector).forEach(el => {
+        const timestamp = new Date(el.dataset.timestamp);
+        const now = new Date();
+        const diffMs = now - timestamp;
+        const diffHours = Math.floor(diffMs / 1000 / 60 / 60);
+        const span = el.querySelector('.hours-ago');
+        if (span) {
+            span.textContent = `${diffHours} h ago`;
         }
     });
 }
