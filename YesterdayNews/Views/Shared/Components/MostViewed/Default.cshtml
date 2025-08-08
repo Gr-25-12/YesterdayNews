@@ -1,19 +1,19 @@
 ﻿@model List<YesterdayNews.Models.ViewModels.ArticleVM>
 @* MostViewed View Component *@
 <article class="mb-4 border p-3 pb-0 rounded shadow-sm">
-    <h5>Most Read</h5>
-    <ul class="list-unstyled">
+    <h5 class="text-secondary">Most Read</h5>
+    <ul class="list-unstyled mb-2">
         @foreach (var article in Model)
         {
             <hr class="my-2" />
+            <a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="flex-grow-1 text-decoration-none d-block">
             <li class="mb-0">
                 <div class="d-flex align-items-center">
                 <img src="@article.ImageURL" alt="Thumbnail" class="me-3 rounded" style="width: 60px; height: 60px; object-fit: cover;" />
-                    <a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="flex-grow-1 me-3 text-decoration-none">
-                        <p class="article-underline mb-0 fw-bold">@article.Linktext</p>
-                    </a>
+                      <p class="article-underline mb-0 fw-bold">@article.Linktext</p>
                 </div>
             </li>
+            </a>
         }
     </ul>
 </article>

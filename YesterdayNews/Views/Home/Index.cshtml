@@ -9,9 +9,10 @@
 	<div class="row justify-content-center">
 		<div class="col-12 col-md-7 col-lg-8">
 			@await Component.InvokeAsync("JustIn")
-			<article class="mb-4 border p-3 rounded shadow-sm">
-				<h1 class="mb-4 text-start">Latest News</h1>
-			</article>
+			<div class="mb-0 p-1 pb-0  w-auto d-inline-block text-secondary">
+				<h1 class="mb-0 text-start">Latest News</h1>
+				<hr />
+			</div>
 			@foreach (var article in Model)
 			{
 				<a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="text-decoration-none text-dark" style="display:block;">

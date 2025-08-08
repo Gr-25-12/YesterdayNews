@@ -40,9 +40,7 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Details(int id)
         {
-            
-                var userId = _userManager.GetUserId(User);
-                var article = _articleServices.GetById(id, userId);
+                var article = _articleServices.GetById(id);
 
                 if (article == null)
                 {
@@ -119,7 +117,7 @@ namespace YesterdayNews.Controllers
         {
             try
             {
-                var articleToDelete = _articleServices.GetOne(id);
+                var articleToDelete = _articleServices.GetById(id);
                 if (articleToDelete == null)
                 {
                     TempData["error"] = "Article not found!";
@@ -212,7 +210,7 @@ namespace YesterdayNews.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var article = _articleServices.GetOne(id);
+            var article = _articleServices.GetById(id);
             if (article == null)
             {
                 return NotFound();
@@ -227,7 +225,7 @@ namespace YesterdayNews.Controllers
         [ValidateAntiForgeryToken]
         public async Task <IActionResult> Edit(Article article, IFormFile imageFile)
         {
-            var existing = _articleServices.GetOne(article.Id);
+            var existing = _articleServices.GetById(article.Id);
             if (existing == null)
             {
                 return NotFound();

@@ -1,0 +1,31 @@
+﻿@using YesterdayNews.Models.ViewModels
+@model List<ArticleVM>
+
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-7 col-lg-8">
+            <h2 class="mb-5">Search Results for "@Context.Request.Query["query"]"</h2>
+
+            @if (Model == null || !Model.Any())
+            {
+                <p>No articles found.</p>
+            }
+            else
+            {
+                <div class="list-group list-unstyled">
+                    @foreach (var article in Model)
+                    {
+                        <partial name="_ArticleListItemPartial" model="article" />
+                    }
+                </div>
+            }
+        </div>
+        <div class="col-12 col-md-5 col-lg-4">
+            @await Component.InvokeAsync("Sidebar")
+        </div>
+    </div>
+</div>
