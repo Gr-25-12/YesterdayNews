@@ -1,0 +1,12 @@
+﻿@model YesterdayNews.Models.Api.Weather
+
+<h2>Weather Forecast</h2>
+
+<p>City: @Model.City</p>
+<p>Summary: @Model.Summary</p>
+<p>Temperature (C): @Model.TemperatureC</p>
+<p>Temperature (F): @Model.TemperatureF</p>
+<p>Humidity: @Model.Humidity</p>
+<p>Wind Speed: @Model.WindSpeed</p>
+<p>Date: @Model.Date.ToShortDateString()</p>
+<p><img src="@Model.Icon?.Url" alt="Weather icon" /></p>
