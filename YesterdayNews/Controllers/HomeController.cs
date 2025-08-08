@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using YesterdayNews.Models;
 using YesterdayNews.Models.ViewModels;
@@ -50,6 +51,11 @@ public class HomeController : Controller
     public IActionResult Privacy()
     {
         return View();
+    }
+    public IActionResult Search(string query)
+    {
+        var results = _articleServices.GetAllAsArticleVM(query);
+        return View(results);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

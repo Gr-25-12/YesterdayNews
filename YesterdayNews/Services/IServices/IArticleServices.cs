@@ -7,6 +7,7 @@ namespace YesterdayNews.Services.IServices
     {
         List<Article> GetAll();
         List<ArticleVM> GetAllAsArticleVM(int articlesToSkip, int numberOfArticles);
+        List<ArticleVM> GetAllAsArticleVM(string query);
         List<ArticleVM> GetMostViewedArticleVM(int numberOfArticles);
         List<ArticleVM> GetMostLikedArticleVM(int numberOfArticles);
         Article GetOne(int id);

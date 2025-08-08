@@ -49,6 +49,28 @@ namespace YesterdayNews.Services
                    .ToList();
 
         }
+        public List<ArticleVM> GetAllAsArticleVM(string query)
+        {
+            return _db.Articles
+                .Include(a => a.Author)
+                .Include(a => a.Category)
+                .Where(a => a.Headline.Contains(query) ||
+                            a.ContentSummary.Contains(query) ||
+                            a.Content.Contains(query)
+                )
+                .Select(a => new ArticleVM
+                {
+                    Id = a.Id,
+                    Headline = a.Headline,
+                    Summary = a.ContentSummary,
+                    ImageURL = a.ImageLink,
+                    Linktext = a.LinkText,
+                    Category = a.Category,
+                    DateStamp = a.DateStamp
+                })
+                .OrderByDescending(a => a.DateStamp)
+                .ToList();
+        }
         public List<ArticleVM> GetMostViewedArticleVM(int numberOfArticles)
         {
             return GetAll()
