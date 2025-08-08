@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using YesterdayNews.Models;
+using YesterdayNews.Models.Db;
 using YesterdayNews.Models.ViewModels;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
@@ -12,10 +15,13 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IArticleServices _articleServices;
-    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices)
+    private readonly UserManager<IdentityUser> _userManager;
+
+    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, UserManager<IdentityUser> userManager)
     {
         _logger = logger;
         _articleServices = articleServices;
+        _userManager = userManager;
     }
 
     public IActionResult Index()
@@ -25,7 +31,9 @@ public class HomeController : Controller
     }
     public IActionResult Details(int id)
     {
-        var article = _articleServices.GetOne(id);
+        var userId = _userManager.GetUserId(User);
+
+        var article = _articleServices.GetById(id, userId);
         if (article == null)
             return NotFound();
 
@@ -45,6 +53,32 @@ public class HomeController : Controller
         }
 
         return View(article);
+    }
+
+
+    [HttpPost]
+    public IActionResult ToggleLike(int id)
+    {
+
+        if (!User.Identity.IsAuthenticated)
+        {
+            TempData["error"] = "You must be logged in to like articles";
+            return RedirectToAction("Details", new { id });
+        }
+
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["error"] = "User not found";
+            return RedirectToAction("Details",  new { id });
+        }
+
+        var result = _articleServices.ToggleLike(userId, id);
+        TempData["success"] = result ? "Article liked!" : "Article unliked!";
+
+        return RedirectToAction("Details",  new { id });
+
+
     }
 
     public IActionResult Privacy()

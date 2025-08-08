@@ -55,30 +55,7 @@ namespace YesterdayNews.Controllers
             
         }
 
-        [HttpPost]
-        public IActionResult ToggleLike(int id)
-        {
-            
-                if (!User.Identity.IsAuthenticated)
-                {
-                    TempData["error"] = "You must be logged in to like articles";
-                    return RedirectToAction("Details", new { id });
-                }
-
-                var userId = _userManager.GetUserId(User);
-                if (string.IsNullOrEmpty(userId))
-                {
-                    TempData["error"] = "User not found";
-                    return RedirectToAction("Details", new { id });
-                }
-
-                var result = _articleServices.ToggleLike(userId, id);
-                TempData["success"] = result ? "Article liked!" : "Article unliked!";
-
-                return RedirectToAction("Details", new { id });
-            
-           
-        }
+        
 
      
         #region API CALLS
