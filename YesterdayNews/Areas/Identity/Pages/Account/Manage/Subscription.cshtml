@@ -1,0 +1,25 @@
+﻿@page
+@model YesterdayNews.Areas.Identity.Pages.Account.Manage.SubscriptionModel
+@using YesterdayNews.Models.Db
+
+@{
+    ViewData["Title"] = "Subscription";
+}
+
+<h3>@ViewData["Title"]</h3>
+<hr />
+
+@if (Model.CurrentSubscription != null)
+{
+    <div>
+        <p><strong>Plan:</strong> @Model.CurrentSubscription.SubscriptionType?.TypeName</p>
+        <p><strong>Payment Complete:</strong> @(Model.CurrentSubscription.PaymentComplete ? "Yes" : "No")</p>
+        <p><strong>Created:</strong> @Model.CurrentSubscription.Created.ToShortDateString()</p>
+        <p><strong>Expires:</strong> @Model.CurrentSubscription.Expires?.ToShortDateString()</p>
+    </div>
+}
+else
+{
+    <p>You are not currently subscribed.</p>
+}
+<p>Current page: @ViewContext.RouteData.Values["page"]</p>
