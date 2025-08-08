@@ -14,8 +14,7 @@
 
             <div class="form-group">
                 <label asp-for="Username" class="form-label"></label>
-                <input asp-for="Username" class="form-control" /> @* placeholder="Please choose your username." disabled /> *@
-                
+                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled readonly /> 
             </div>
             <br>
             <div class="form-group">
@@ -41,6 +40,7 @@
                 <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
+            <br>
             <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
         </form>
     </div>
