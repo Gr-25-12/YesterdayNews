@@ -40,9 +40,7 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Details(int id)
         {
-            
-                var userId = _userManager.GetUserId(User);
-                var article = _articleServices.GetById(id, userId);
+                var article = _articleServices.GetById(id);
 
                 if (article == null)
                 {

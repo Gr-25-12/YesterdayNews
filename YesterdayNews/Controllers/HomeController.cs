@@ -16,12 +16,14 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IArticleServices _articleServices;
+    private readonly ILikeService _likeServices;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, UserManager<IdentityUser> userManager)
+    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices ,UserManager<IdentityUser> userManager)
     {
         _logger = logger;
         _articleServices = articleServices;
+        _likeServices = likeServices;
         _userManager = userManager;
     }
 
@@ -32,9 +34,7 @@ public class HomeController : Controller
     }
     public IActionResult Details(int id)
     {
-        var userId = _userManager.GetUserId(User);
-
-        var article = _articleServices.GetById(id, userId);
+        var article = _articleServices.GetById(id);
         if (article == null)
             return NotFound();
 
@@ -52,7 +52,8 @@ public class HomeController : Controller
                 SameSite = SameSiteMode.Lax
             });
         }
-
+        var userId = _userManager.GetUserId(User);
+        article.IsLikedByCurrentUser = _articleServices.IsArticleLikedByUser(article, userId);
         return View(article);
     }
 
@@ -74,7 +75,7 @@ public class HomeController : Controller
             return RedirectToAction("Details",  new { id });
         }
 
-        var result = _articleServices.ToggleLike(userId, id);
+        var result = _likeServices.ToggleLike(userId, id);
         TempData["success"] = result ? "Article liked!" : "Article unliked!";
 
         return RedirectToAction("Details",  new { id });
