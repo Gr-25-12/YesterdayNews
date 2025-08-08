@@ -26,7 +26,7 @@ public class HomeController : Controller
     }
     public IActionResult Details(int id)
     {
-        var article = _articleServices.GetOne(id);
+        var article = _articleServices.GetById(id);
         if (article == null)
             return NotFound();
 

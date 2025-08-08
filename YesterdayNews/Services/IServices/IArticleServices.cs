@@ -10,7 +10,6 @@ namespace YesterdayNews.Services.IServices
         List<ArticleVM> GetAllAsArticleVM(string query);
         List<ArticleVM> GetMostViewedArticleVM(int numberOfArticles);
         List<ArticleVM> GetMostLikedArticleVM(int numberOfArticles);
-        Article GetOne(int id);
         void Delete(int id);
         void Add(Article article);
         void Edit(Article existing);

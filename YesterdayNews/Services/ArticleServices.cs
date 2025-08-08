@@ -56,7 +56,10 @@ namespace YesterdayNews.Services
                 .Include(a => a.Category)
                 .Where(a => a.Headline.Contains(query) ||
                             a.ContentSummary.Contains(query) ||
-                            a.Content.Contains(query)
+                            a.Content.Contains(query) ||
+                            a.Category.Name.Contains(query) ||
+                            a.Author.FirstName.Contains(query) ||
+                            a.Author.LastName.Contains(query)    
                 )
                 .Select(a => new ArticleVM
                 {
@@ -106,16 +109,6 @@ namespace YesterdayNews.Services
                        DateStamp = a.DateStamp
                    })
                    .ToList();
-        }
-
-        public Article GetOne(int id)
-        {
-            
-            var article = _db.Articles
-                .Include(a => a.Author)
-                .Include(a => a.Category)
-                .FirstOrDefault(m => m.Id == id);
-            return article;
         }
 
         public void Delete(int id)
