@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Data;
-
+using YesterdayNews.Services;
+using YesterdayNews.Services.IServices;
+using YesterdayNews.Utils;
 namespace YesterdayNews;
 
 public class Program
@@ -13,12 +16,40 @@ public class Program
         // Add services to the container.
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
-        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+        builder.Services.ConfigureApplicationCookie(options => {
+            options.LoginPath = $"/Identity/Account/Login";
+            options.LogoutPath = $"/Identity/Account/Logout";
+            options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+        });
+        builder.Services.AddRazorPages();
         builder.Services.AddControllersWithViews();
+
+        builder.Services.AddScoped<IArticleServices, ArticleServices>();
+        builder.Services.AddScoped<IFileServices, FileServices>();
+        builder.Services.AddScoped<IEmailSender, EmailSender>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
+        builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
+        builder.Services.AddScoped<ILikeService, LikeService>();
+
+
+        builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+         {
+             googleOptions.ClientId = builder.Configuration.GetSection("Google:ClientId").Get<string>()!;
+             
+             googleOptions.ClientSecret = builder.Configuration.GetSection("Google:ClientSecret").Get<string>()!;
+         });
+        builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
+        {
+            facebookOptions.AppId = builder.Configuration.GetSection("Facebook:AppId").Get<string>()!;
+            facebookOptions.AppSecret = builder.Configuration.GetSection("Facebook:AppSecret").Get<string>()!;
+        });
+
+
 
         var app = builder.Build();
 
@@ -38,7 +69,7 @@ public class Program
         app.UseStaticFiles();
 
         app.UseRouting();
-
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllerRoute(
