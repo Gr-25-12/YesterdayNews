@@ -1,0 +1,135 @@
+﻿@model YesterdayNews.Models.Db.Article
+
+@{
+	ViewData["Title"] = "Edit";
+}
+
+<div class="mt-3 d-flex justify-content-end align-content-end">
+	<a asp-action="Index" class="btn btn-outline-secondary border-1 border-secondary">
+		<i class="bi bi-arrow-left me-1"></i>Back to List
+	</a>
+</div>
+<div class="card shadow border-0 mt-4">
+	<div class="card-header bg-primary bg-gradient ml-0 py-3">
+		<div class="row">
+			<div class="col-12 text-center">
+				<h2 class="text-white py-2">Edit Article <span class="h4">#@Model.Id</span> </h2>
+			</div>
+		</div>
+	</div>
+	<div class="card-body p-4">
+
+		<form asp-action="Edit" method="post" enctype="multipart/form-data" class="row g-3">
+			<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+			<div class="col-md-8">
+				<div class="mb-3">
+					<label class="form-label fw-bold">Current Status</label>
+					<input type="text" class="form-control" value="@Model.ArticleStatus.ToString()" readonly disabled />
+					<input type="hidden" asp-for="ArticleStatus" />
+				</div>
+				<div class="mb-3">
+					<label asp-for="CategoryId" class="form-label fw-bold">Category</label>
+					<select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+					<span asp-validation-for="CategoryId" class="text-danger small"></span>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="Headline" class="form-label fw-bold"></label>
+					<input asp-for="Headline" class="form-control form-control-lg" />
+					<span asp-validation-for="Headline" class="text-danger small"></span>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="LinkText" class="form-label fw-bold">Link Text</label>
+					<input asp-for="LinkText" class="form-control" />
+					<span asp-validation-for="LinkText" class="text-danger small"></span>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="ContentSummary" class="form-label fw-bold"></label>
+					<textarea asp-for="ContentSummary" class="form-control" rows="4"></textarea>
+					<span asp-validation-for="ContentSummary" class="text-danger small"></span>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="Content" class="form-label fw-bold"></label>
+					<textarea asp-for="Content" class="form-control" rows="12"></textarea>
+					<span asp-validation-for="Content" class="text-danger small"></span>
+				</div>
+
+
+			</div>
+
+			<div class="col-md-4">
+				<div class="card mb-4 border-0 shadow-sm">
+					<div class="card-body">
+						<div class="mb-3">
+							<label asp-for="ImageFile" class="form-label fw-bold d-block">Article Image</label>
+							<input asp-for="ImageFile" type="file" class="form-control" id="imageInput" />
+							<input type="hidden" asp-for="ImageLink" />
+							<span asp-validation-for="ImageLink" class="text-danger small"></span>
+						</div>
+
+						<div id="imagePreview" class="text-center mt-3 p-2 border rounded">
+							@if (!string.IsNullOrEmpty(Model?.ImageLink))
+							{
+								<img src="@Model.ImageLink" alt="Current Image" class="img-fluid rounded" style="max-height: 200px; max-width: 200px;" />
+							}
+							else
+							{
+								<div class="text-muted p-4">No image selected</div>
+							}
+						</div>
+					</div>
+				</div>
+
+				<div class="card border-0 shadow-sm">
+					<div class="card-body">
+						<div class="mb-2">
+							<span class="fw-bold">Views:</span> @Model.Views
+						</div>
+						<div class="mb-2">
+							<span class="fw-bold">Likes:</span> @Model.Likes
+						</div>
+						<div class="mb-2">
+							<span class="fw-bold">Date created:</span> @Model.DateStamp.ToLocalTime().ToString("yyyy-MM-dd")
+						</div>
+						<div class="mb-2">
+							<input type="hidden" asp-for="AuthorId" />
+							<input type="hidden" asp-for="Author" />
+							<span class="fw-bold">Author:</span> @Model.Author.FullName
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-center">
+					@if (Model.ArticleStatus != YesterdayNews.Models.Db.ArticleStatus.Archived)
+					{
+						<button type="submit" class="btn btn-primary px-4 py-2">
+							<i class="bi bi-save me-2"></i>Save Changes
+						</button>
+					}
+					else
+					{
+						<div class="card-body border rounded text-center">
+							<p class="text-danger color fw-bold fs-2 p-4">Can't edit Archived articles</p>
+						</div>
+					}
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+
+
+@section Scripts {
+	@{
+		<script src="~/js/article.js"></script>
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}
+

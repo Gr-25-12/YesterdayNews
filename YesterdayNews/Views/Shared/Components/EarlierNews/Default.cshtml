@@ -1,0 +1,12 @@
+﻿@model List<YesterdayNews.Models.ViewModels.ArticleVM>
+@* EarlierNews View Component *@
+<article class="mb-4 border p-3 pb-0 rounded shadow-sm">
+	<h2 class="text-secondary">Earlier this week</h2>
+	<ul class="list-unstyled mb-2">
+		@foreach (var article in Model)
+		{
+			<hr class="my-2" />
+			<partial name="_ArticleListItemPartial" model="article" />
+		}
+	</ul>
+</article>

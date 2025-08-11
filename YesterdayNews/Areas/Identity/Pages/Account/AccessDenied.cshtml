@@ -1,0 +1,28 @@
+﻿@page
+@model AccessDeniedModel
+@{
+    ViewData["Title"] = "Access denied";
+}
+
+<header class="text-center">
+    <h1 class="text-danger">@ViewData["Title"]</h1>
+    <p class="text-Primary">You do not have access to this resource.</p>
+</header>
+<header class="text-center p-5 bg-secondary-subtle rounded-3 mt-5">
+    <div class="mb-4">
+        <span class="display-1">🔐</span>
+        <span class="display-1">🙅</span>
+        <span class="display-1">🤦</span>
+    </div>
+    <h1 class="text-danger fw-bold mb-3">
+        @ViewData["Title"] <span class="text-primary">(aka Nopeville)</span>
+    </h1>
+    <p class="lead text-muted">
+        You're still welcome though 😎.
+    </p>
+    <div class="mt-4">
+        <button class="btn btn-primary btn-lg" onclick="history.back()">
+            <span class="me-2">👈</span> Retreat Like a Reasonable Person
+        </button>
+    </div>
+</header>
