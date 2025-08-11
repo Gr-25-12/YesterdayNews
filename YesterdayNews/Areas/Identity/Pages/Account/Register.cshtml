@@ -153,7 +153,7 @@
                                                         <hr class="flex-grow-1">
                                                     </div>
                                                     <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                                                        <div class="d-flex flex-column gap-2">
+                                                        <div class="d-flex flex-column gap-2 w-100">
                                                             <!-- Changed to column layout -->
                                                             @foreach (var provider in Model.ExternalLogins!)
                                                             {

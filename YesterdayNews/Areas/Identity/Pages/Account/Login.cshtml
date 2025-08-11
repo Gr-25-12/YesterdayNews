@@ -95,11 +95,11 @@
                                                     </div>
                                                 </div>
                                                 <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                                                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                                    <div class="d-flex justify-content-center gap-3 flex-wrap w-100">
                                                         @foreach (var provider in Model.ExternalLogins!)
                                                         {
                                                             <button type="submit"
-                                                                    class="btn btn-outline-secondary d-flex align-items-center justify-content-center py-3 px-5 "
+                                                                    class="btn btn-outline-secondary d-flex align-items-center justify-content-center py-3 px-5 w-100"
                                                                     name="provider"
                                                                     value="@provider.Name"
                                                                     title="Log in using your @provider.DisplayName account">
