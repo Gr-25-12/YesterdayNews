@@ -1,4 +1,4 @@
-﻿@using YesterdayNews.Utils
+﻿ @using YesterdayNews.Utils
 @using YesterdayNews.Models
 @using System.Text.RegularExpressions
 @model YesterdayNews.Models.Db.Article
@@ -13,14 +13,21 @@
     {
         return status switch
         {
-            StaticConsts.ArticleDraft => "secondary",
-            StaticConsts.ArticlePendingReview => "warning",
-            StaticConsts.ArticlePublished => "success",
-            StaticConsts.ArticleRejected => "danger",
-            StaticConsts.ArticleArchived => "dark",
-            _ => "primary"
-        };
-    }
+        StaticConsts.ArticleDraft => "secondary",
+        StaticConsts.ArticlePendingReview => "warning",
+        StaticConsts.ArticlePublished => "success",
+        StaticConsts.ArticleRejected => "danger",
+        StaticConsts.ArticleArchived => "dark",
+        _ => "primary"
+    };
+}
+}
+
+@{
+    var isLoggedIn = User.Identity.IsAuthenticated;
+    var isCustomer = isLoggedIn && User.IsInRole(StaticConsts.Role_Customer);
+    var hasFullAccess = ViewBag.HasAccess == true && isLoggedIn;
+    var showStatusBadge = !User.IsInRole(StaticConsts.Role_Customer) && isLoggedIn;
 }
 
 <div class="container-fluid">
@@ -35,28 +42,20 @@
             </div>
         </div>
     </div>
-    </div>
+</div>
 
 <div class="d-flex justify-content-center m-4 position-relative">
     <div class="ratio ratio-16x9" style="max-width: 550px;">
-        @if (!string.IsNullOrEmpty(Model.ImageLink))
-        {
-            <img src="@Model.ImageLink"
-            class="object-fit-cover rounded shadow-sm border-top border-4 border-primary"
-            alt="@Model.Headline">
-        }
-        else
-        {
-            <img src="~/Placeholder.png"
-            class="object-fit-cover rounded shadow-sm border-top border-4 border-primary"
-            alt="@Model.Headline">
-        }
+
+        <img src="@(Model.ImageLink ?? "~/Placeholder.png")"
+             class="object-fit-cover rounded shadow-sm border-top border-4 border-primary"
+             alt="@Model.Headline">
     </div>
-    @if (!User.IsInRole(StaticConsts.Role_Customer) && User.Identity.IsAuthenticated)
+    @if (!isCustomer && isLoggedIn)
     {
 
         <span class="badge bg-@GetStatusColor(@Model.ArticleStatus.ToString()) px-2 px-md-3 py-1 py-md-2 fs-6 text-uppercase position-absolute"
-        style="top: 1rem; right: calc(50% - 275px + 1rem); transform: translateX(50%); z-index: 10; letter-spacing: 0.05em;">
+              style="top: 1rem; right: calc(50% - 275px + 1rem); transform: translateX(50%); z-index: 10; letter-spacing: 0.05em;">
             @SplitPascalCase(@Model.ArticleStatus.ToString()).ToUpper()
         </span>
     }
@@ -67,69 +66,84 @@
     <h1 class="display-5 fw-bold">@Model.Headline</h1>
 </div>
 
-
-
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
-
-        <div class="article-content">
-            @Html.Raw(Model.Content)
-        </div>
-    </div>
-</div>
-
-<!-- Meta Info -->
-<div class="d-flex justify-content-between pb-5 pt-2 mx-5">
-    <ul class="list-unstyled">
-        <li>
-            <i class="bi bi-person-circle"></i> Author: @Model.Author.FirstName @Model.Author.LastName
-        </li>
-        <li>
-            <i class="bi bi-calendar"></i> @Model.DateStamp.ToLocalTime().ToString("MMMM dd, yyyy")
-        </li>
-    </ul>
-
-    <div class="d-flex align-items-center gap-3">
-        <!-- Views Counter -->
-        <div class="text-muted">
-            <i class="bi bi-eye-fill"></i>
-            <span id="viewsCount">@Model.Views</span> views
-        </div>
-
-        <!-- Like Button -->
-        @if (User.IsInRole(StaticConsts.Role_Customer))
-        {
-            //Using server side approach
-            <div class="like-container">
-
-                <form method="post" asp-action="ToggleLike" asp-controller="Home" asp-route-id="@Model.Id" class="mb-0">
-                    <button type="submit" class="btn btn-sm btn-outline-light border-0 position-relative">
-                        <i class="bi @(Model.IsLikedByCurrentUser ? "bi-heart-fill text-danger" : "bi-heart")"></i>
-                        <span id="likesCount">@Model.Likes</span>
-                    </button>
-                </form>
-                <div id="likeMessage" class="text-success small mt-1" style="display: none;"></div>
-            </div>
-        }
-        else
-        {
-            @if (User.IsInRole(StaticConsts.Role_Customer))
+        <div class="article-content position-relative">
+            @if (hasFullAccess)
             {
-
-                <div class="text-muted">
-                    <i class="bi bi-heart"></i>
-                    <span>@Model.Likes</span> likes
-                    <small class="d-block">Login to like</small>
-                </div>
+                @Html.Raw(Model.Content)
             }
             else
             {
-                <div class="text-muted">
-                    <i class="bi bi-heart"></i>
-                    <span>@Model.Likes</span> likes
+                var plainText = Regex.Replace(Model.Content ?? "", "<.*?>", string.Empty);
+                int halfLength = plainText.Length / 2;
+                var preview = plainText.Substring(0, halfLength);
+
+                <div class="position-relative preview-container">
+                    <div class="blurred-text">
+                        @preview
+                    </div>
+                    <div class="blur-overlay d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subscribeModal">
+                            Subscribe to Read More
+                        </button>
+                    </div>
                 </div>
             }
-        }
+
+            <!-- Meta Info -->
+            <div class="card-footer">
+
+            <div class="d-flex justify-content-between justify-content-center my-2">
+                <ul class="list-unstyled">
+                    <li class="fw-semibold mb-1">
+                        <i class="bi bi-person-circle"></i> Author: @Model.Author.FullName
+                    </li>
+                    <li>
+                        <i class="bi bi-calendar"></i> @Model.DateStamp.ToLocalTime().ToString("MMMM dd, yyyy")
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                   
+                    <div class="text-muted">
+                        <i class="bi bi-eye-fill"></i>
+                        <span class="fw-bold" id="viewsCount">@Model.Views</span> views
+                    </div>
+
+                   
+                    @if (isCustomer && hasFullAccess)
+                    {
+                        <div class="like-container">
+                            <form method="post" asp-action="ToggleLike" asp-controller="Home" asp-route-id="@Model.Id" class="mb-0">
+                                <button type="submit" class="btn btn-sm btn-outline-light border-0 position-relative">
+                                    <i class="bi @(Model.IsLikedByCurrentUser ? "bi-heart-fill text-danger" : "bi-heart")"></i>
+                                    <span id="likesCount">@Model.Likes</span>
+                                </button>
+                            </form>
+                            <div id="likeMessage" class="text-success small mt-1" style="display: none;"></div>
+                        </div>
+                    }
+                    else if (!isLoggedIn)
+                    {
+                        <div class="text-muted">
+                            <i class="bi bi-heart"></i>
+                            <span>@Model.Likes</span> likes
+                            <small class="d-block">Login to like</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted">
+                            <i class="bi bi-heart"></i>
+                            <span>@Model.Likes</span> likes
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        </div>
+
     </div>
 </div>
 

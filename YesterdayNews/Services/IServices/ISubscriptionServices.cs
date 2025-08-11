@@ -37,5 +37,6 @@ namespace YesterdayNews.Services.IServices
         /// </summary>
         /// <param name="id"></param>
         void Cancel(int id);
+        public bool HasActiveSubscription(string userId);
     }
 }

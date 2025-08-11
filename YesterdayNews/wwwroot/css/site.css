@@ -371,3 +371,23 @@ form-control::placeholder,
     border-color: var(--bs-primary) !important;
     color: #fff !important;
 }
+
+/*Modal for subscriptions */
+.blurred-text {
+    filter: blur(1px);
+}
+
+.blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 170%;
+    background: rgba(255,255,255,0.5);
+    z-index: 2;
+}
+
+.preview-container {
+    max-height: 30vh;
+    overflow: hidden;
+}

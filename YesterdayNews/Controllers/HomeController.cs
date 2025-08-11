@@ -17,14 +17,16 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly IArticleServices _articleServices;
     private readonly ILikeService _likeServices;
+    private readonly ISubscriptionServices _subscriptionServices;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices ,UserManager<IdentityUser> userManager)
+    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices ,UserManager<IdentityUser> userManager , ISubscriptionServices subscriptionServices)
     {
         _logger = logger;
         _articleServices = articleServices;
         _likeServices = likeServices;
         _userManager = userManager;
+        _subscriptionServices = subscriptionServices;
     }
 
     public IActionResult Index()
@@ -54,6 +56,16 @@ public class HomeController : Controller
         }
         var userId = _userManager.GetUserId(User);
         article.IsLikedByCurrentUser = _articleServices.IsArticleLikedByUser(article, userId);
+
+        bool hasAccess = true;
+        if (User.IsInRole(StaticConsts.Role_Customer))
+        {
+            
+            hasAccess = _subscriptionServices.HasActiveSubscription(userId);
+        }
+
+        ViewBag.HasAccess = hasAccess;
+
         return View(article);
     }
 

@@ -18,13 +18,6 @@ namespace YesterdayNews.Services
                                     .Include(st => st.SubscriptionType)
                                     .ToList();
         }
-        //public List<Subscription> GetAllByCreated()
-        //{
-        //    return _db.Subscriptions.Include(u => u.User)
-        //                            .Include(st => st.SubscriptionType)
-        //                            .OrderByDescending(a => a.Created)
-        //                            .ToList();
-        //}
         public List<Subscription> GetAllByExpires()
         {
             return _db.Subscriptions.Include(u => u.User)
@@ -67,12 +60,15 @@ namespace YesterdayNews.Services
             _db.SaveChanges();
         }
 
-        //public void Delete(int id)
-        //{
-        //    var subscription = _db.Subscriptions.FirstOrDefault(s => s.Id == id);
-        //    if (subscription == null) throw new Exception("Subscription not found");
-        //    _db.Remove(subscription);
-        //    _db.SaveChanges();
-        //}
+        public bool HasActiveSubscription(string userId)
+        {
+            var sub = _db.Subscriptions
+                .Where(s => s.UserId == userId && !s.IsDeleted && s.PaymentComplete && s.Expires > DateTime.UtcNow)
+                .FirstOrDefault();
+
+            return sub != null;
+        }
+
+
     }
 }

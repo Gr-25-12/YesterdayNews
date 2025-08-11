@@ -172,6 +172,14 @@ namespace YesterdayNews.Controllers
 
             return Json(user);
         }
+
+        public bool HasActiveSubscription(string userId)
+        {
+            var sub =_subscriptionServices.HasActiveSubscription(userId);
+
+            return sub != null;
+        }
+
     }
 }
 
