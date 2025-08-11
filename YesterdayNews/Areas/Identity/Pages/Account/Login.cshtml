@@ -88,7 +88,7 @@
                                         }
                                         else
                                         {
-                                            <div>
+                                            <div class="mt-2">
                                                 <div class="d-flex justify-content-center mb-4">
                                                     <div class="py-2 px-4 bg-light rounded-pill shadow-sm">
                                                         <span class="fw-medium text-muted">OR SIGN IN WITH</span>
@@ -99,14 +99,23 @@
                                                         @foreach (var provider in Model.ExternalLogins!)
                                                         {
                                                             <button type="submit"
-                                                                    class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                                                    style="width: 60px; height: 60px; padding: 0;"
+                                                                    class="btn btn-outline-secondary d-flex align-items-center justify-content-center py-3 px-5 "
                                                                     name="provider"
                                                                     value="@provider.Name"
                                                                     title="Log in using your @provider.DisplayName account">
-                                                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/@(provider.DisplayName.ToLower())/@(provider.DisplayName.ToLower())-original.svg"
-                                                                     alt="@provider.DisplayName"
-                                                                     style="width: 32px; height: 32px;" />
+                                                                <div class="d-flex align-items-center gap-3">
+                                                                    @if (provider.DisplayName == "Microsoft")
+                                                                    {
+                                                                        <i class="fab fa-microsoft" style="font-size: 24px; color: #00a1f1;"></i>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/@(provider.DisplayName.ToLower())/@(provider.DisplayName.ToLower())-original.svg"
+                                                                             alt="@provider.DisplayName"
+                                                                             style="width: 24px; height: 24px;" />
+                                                                    }
+                                                                    <span class="fw-medium">Sign in with @provider.DisplayName</span>
+                                                                </div>
                                                             </button>
                                                         }
                                                     </div>
