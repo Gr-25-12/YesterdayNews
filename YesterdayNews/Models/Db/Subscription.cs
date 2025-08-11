@@ -32,14 +32,10 @@ namespace YesterdayNews.Models.Db
         public SubscriptionType SubscriptionType { get; set; }
 
 
-        [NotMapped]
-        public string Status => PaymentComplete ? "Active" : "Pending";
+        
 
-        [NotMapped]
-        public DateTime StartDate => Created;
 
-        [NotMapped]
-        public DateTime? EndDate => Expires;
+     
 
 
     }

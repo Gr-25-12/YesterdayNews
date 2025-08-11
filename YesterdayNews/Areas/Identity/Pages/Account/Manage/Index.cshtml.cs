@@ -87,7 +87,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
             var appUser = user as User;
             var firstName = appUser.FirstName;
             var lastName = appUser.LastName;
-            var email = appUser.Email;
+            
             var dateOfBirth = appUser.DateOfBirth;
             Username = userName;
 
@@ -139,7 +139,10 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
                 }
             }
             var appUser = user as User;
-            if (appUser != null && Input.FirstName != appUser.FirstName)
+            if (appUser != null && 
+                (Input.FirstName != appUser.FirstName  ||
+                Input.LastName != appUser.LastName ||
+                Input.DateOfBirth != appUser.DateOfBirth))
             {
                 appUser.FirstName = Input.FirstName;
                 appUser.LastName = Input.LastName;
@@ -147,7 +150,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
                 var updateResult = await _userManager.UpdateAsync(appUser);
                 if (!updateResult.Succeeded)
                 {
-                    StatusMessage = "Unexpected error when trying to update first name.";
+                    StatusMessage = "Unexpected error when trying to update user info.";
                     TempData["error"] = "Cannot update now!";
                     return RedirectToPage();
                 }
