@@ -1,7 +1,6 @@
-﻿using YesterdayNews.Data;
-using YesterdayNews.Models.Db;
-using YesterdayNews.Services.IServices;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using YesterdayNews.Data;
+
 
 namespace YesterdayNews.Services
 {
@@ -14,54 +13,47 @@ namespace YesterdayNews.Services
             _db = db;
         }
 
+        public UserArticleLike GetUserLikeFromDB(string userId, int articleId)
+        {
+            var like = _db.UserArticleLikes
+                .Include(l => l.Article)
+                .Include(l => l.User)
+                .FirstOrDefault(x => x.UserId == userId && x.ArticleId == articleId);
+            return like;
+        }
+
         public bool ToggleLike(string userId, int articleId)
         {
-            
-                var existingLike = _db.UserArticleLikes
-                    .FirstOrDefault(x => x.UserId == userId && x.ArticleId == articleId);
+            var like = GetUserLikeFromDB(userId, articleId);
 
-                if (existingLike != null)
+            if (like != null)
+            {
+                _db.UserArticleLikes.Remove(like);
+                like.Article.Likes--;
+                _db.SaveChanges();
+                return false;
+            }
+            else
+            {
+                var newLike = new UserArticleLike
                 {
-                    // Unlike - remove the like
-                    _db.UserArticleLikes.Remove(existingLike);
-                    _db.SaveChanges();
-                    return false; 
-                }
-                else
-                {
-                    // Like - add new like
-                    var newLike = new UserArticleLike
-                    {
-                        UserId = userId,
-                        ArticleId = articleId,
-                        LikedAt = DateTime.UtcNow
-                    };
-                    _db.UserArticleLikes.Add(newLike);
-                    _db.SaveChanges();
-                    return true; 
-                }
-           
+                    UserId = userId,
+                    ArticleId = articleId,
+                    LikedAt = DateTime.UtcNow
+                };
+                _db.UserArticleLikes.Add(newLike);
+                var article = _db.Articles.FirstOrDefault(m => m.Id == articleId);
+                article.Likes++;
+                _db.SaveChanges();
+                return true;
+            }
+
         }
 
-        public int GetLikeCount(int articleId)
-        {
-            
-                return _db.UserArticleLikes
-                    .Count(x => x.ArticleId == articleId);
-            
-           
-        }
-
-        public bool IsArticleLikedByUser(string userId, int articleId)
-        {
-            
-                if (string.IsNullOrEmpty(userId))
-                    return false;
-
-                return _db.UserArticleLikes
-                    .Any(x => x.UserId == userId && x.ArticleId == articleId);
-          
-        }
-
+        //public int GetLikeCount(int articleId)
+        //{
+        //        return _db.UserArticleLikes
+        //            .Count(x => x.ArticleId == articleId);
+        //}
     }
 }

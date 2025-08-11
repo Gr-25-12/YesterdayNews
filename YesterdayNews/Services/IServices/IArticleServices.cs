@@ -7,16 +7,15 @@ namespace YesterdayNews.Services.IServices
     {
         List<Article> GetAll();
         List<ArticleVM> GetAllAsArticleVM(int articlesToSkip, int numberOfArticles);
+        List<ArticleVM> GetAllAsArticleVM(string query);
         List<ArticleVM> GetMostViewedArticleVM(int numberOfArticles);
         List<ArticleVM> GetMostLikedArticleVM(int numberOfArticles);
-        Article GetOne(int id);
         void Delete(int id);
         void Add(Article article);
         void Edit(Article existing);
 
-        Article GetById(int id, string currentUserId = null);
-        bool ToggleLike(string userId, int articleId);
-        int GetLikeCount(int articleId);
+        Article GetById(int id);
         void IncrementViews(int articleId);
+        bool IsArticleLikedByUser(Article article, string userId);
     }
 }
