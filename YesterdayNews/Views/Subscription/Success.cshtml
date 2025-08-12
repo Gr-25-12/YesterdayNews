@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Subscription Success";
-    Layout = "_Layout"; // Use your layout file
+    Layout = "_Layout"; 
 }
 
 <div class="container my-5">
@@ -18,31 +18,29 @@
                             </svg>
                         </div>
                         <h2 class="text-success mb-3">Thank You for Subscribing!</h2>
-                        <p class="lead">Your subscription has been successfully activated.</p>
-                        <p>You now have access to all premium features. A confirmation email has been sent to your registered address.</p>
+                        <p class="lead">Your wallet might be crying, but your news feed is about to get <span class="fw-bold">FANCY</span>!</p>
                     </div>
 
                     <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
                         <a href="/" class="btn btn-primary btn-lg px-4 gap-3">
-                            <i class="bi bi-house-door me-2"></i>Go to Home
+                            <i class="bi bi-newspaper me-2"></i>Show Me the News!
                         </a>
-                        <a href="/Account/Manage" class="btn btn-outline-secondary btn-lg px-4">
+                        <a href="/Identity/Account/Manage" class="btn btn-outline-secondary border-1 border-dark btn-lg px-4">
                             <i class="bi bi-person-circle me-2"></i>My Account
                         </a>
                     </div>
                 </div>
                 <div class="card-footer text-muted text-center py-3">
-                    <p class="small mb-0">Need help? <a href="/Contact">Contact our support team</a></p>
+                    <p class="small mb-0">Need help? <a href="">Sorry we don't have support team yet 😁</a></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-@section Styles {
     <style>
         .icon-success {
-            animation: bounceIn 1s;
+            animation: bounceIn 3s;
         }
 
         @@keyframes bounceIn {
@@ -61,13 +59,4 @@
             }
         }
 
-        .card {
-            transition: all 0.3s ease;
-        }
-
-            .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            }
     </style>
-}
