@@ -27,9 +27,10 @@ public class HomeController : Controller
         _userManager = userManager;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(int categoryId = 0)
     {
-        var latest = _articleServices.GetAllAsArticleVM(0, 3);
+        var latest = _articleServices.GetAllAsArticleVM(0, 3, categoryId);
+        ViewData["SelectedCategory"] = categoryId;
         return View(latest);
     }
     public IActionResult Details(int id)

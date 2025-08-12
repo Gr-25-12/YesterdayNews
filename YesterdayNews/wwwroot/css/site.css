@@ -222,6 +222,14 @@ body {
     .nav-link:focus {
         color: var(--bs-primary);
     }
+.navbar-dark .nav-link:hover,
+.navbar-dark .nav-link:focus {
+    background-color: var(--bs-secondary) !important;
+    color: var(--bs-alert-color) !important;
+}
+/*.navbar-dark .nav-link.active {
+    background-color: var(--bs-secondary) !important;
+}*/
 
 .nav-pills .nav-link.active {
     background-color: var(--bs-primary);

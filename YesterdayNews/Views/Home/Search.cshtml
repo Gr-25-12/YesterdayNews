@@ -8,6 +8,14 @@
 <div class="container my-4">
     <div class="row justify-content-center">
         <div class="col-12 col-md-7 col-lg-8">
+            <div class="m-2 mb-4 p-1 d-none d-lg-flex  bg-primary rounded">
+                <form asp-controller="Home" asp-action="Search" method="get" class="d-flex w-100">
+                    <input type="text" name="query" class="form-control me-2" placeholder="Search news..." />
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
             <h2 class="mb-5">Search Results for "@Context.Request.Query["query"]"</h2>
 
             @if (Model == null || !Model.Any())
