@@ -10,9 +10,9 @@ namespace YesterdayNews.Components
         {
             _articleServices = articleServices;
         }
-        public IViewComponentResult Invoke()
+        public IViewComponentResult Invoke(int categoryId = 0)
         {
-            var articles = _articleServices.GetAllAsArticleVM(0,3);
+            var articles = _articleServices.GetAllAsArticleVM(0,3, categoryId);
             var recentArticles = articles
                 .Where(a => a.DateStamp >= DateTime.UtcNow.AddMinutes(-60))
                 .ToList();

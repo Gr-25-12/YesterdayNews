@@ -16,24 +16,21 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IArticleServices _articleServices;
-    private readonly ICategoryService _categoryService;
     private readonly ILikeService _likeServices;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ICategoryService categoryService , ILikeService likeServices ,UserManager<IdentityUser> userManager)
+    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices ,UserManager<IdentityUser> userManager)
     {
         _logger = logger;
         _articleServices = articleServices;
-        _categoryService = categoryService;
         _likeServices = likeServices;
         _userManager = userManager;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(int categoryId = 0)
     {
-        var latest = _articleServices.GetAllAsArticleVM(0, 3);
-        var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
-        ViewData["Categories"] = categories;
+        var latest = _articleServices.GetAllAsArticleVM(0, 3, categoryId);
+        ViewData["SelectedCategory"] = categoryId;
         return View(latest);
     }
     public IActionResult Details(int id)
@@ -94,8 +91,6 @@ public class HomeController : Controller
     public IActionResult Search(string query)
     {
         var results = _articleServices.GetAllAsArticleVM(query);
-        var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
-        ViewData["Categories"] = categories;
         return View(results);
     }
 

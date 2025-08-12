@@ -1,4 +1,12 @@
 @using YesterdayNews.Models.Db
+@using YesterdayNews.Services.IServices
+
+
+@inject ICategoryService _categoryService
+
+@{
+	var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,10 +57,11 @@
 					<li class="nav-item d-lg-none">
 						<a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
 					</li>
-					@foreach (var category in (List<Category>)ViewData["Categories"])
+					@foreach (var category in categories)
 					{
 						<li class="nav-item d-lg-none">
-							<a class="nav-link" asp-controller="Home" asp-action="Index" asp-route-id="@category.Id">
+							<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active" : "")"
+							   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
 								@category.Name
 							</a>
 						</li>
@@ -60,7 +69,7 @@
 					@if (User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist))
 					{
 
-						<li class="nav-item dropdown d-lg-none">
+						<li class="nav-item dropdown bg-white w-100 m-0">
 							<a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 								Content management
 							</a>
@@ -97,10 +106,11 @@
 					<li class="nav-item">
 						<a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
 					</li>
-					@foreach (var category in (List<Category>)ViewData["Categories"])
+					@foreach (var category in categories)
 					{
 						<li class="nav-item">
-							<a class="nav-link" asp-controller="Home" asp-action="Index" asp-route-id="@category.Id">
+							<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active" : "")"
+							   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
 								@category.Name
 							</a>
 						</li>
