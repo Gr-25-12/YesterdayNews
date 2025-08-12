@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using YesterdayNews.Data;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
@@ -49,6 +50,7 @@ public class Program
             facebookOptions.AppSecret = builder.Configuration.GetSection("Facebook:AppSecret").Get<string>()!;
         });
 
+        StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
         var app = builder.Build();

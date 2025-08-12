@@ -28,6 +28,7 @@
     var isCustomer = isLoggedIn && User.IsInRole(StaticConsts.Role_Customer);
     var hasFullAccess = ViewBag.HasAccess == true && isLoggedIn;
     var showStatusBadge = !User.IsInRole(StaticConsts.Role_Customer) && isLoggedIn;
+    var IsAdminOrJounalistOrEditor = User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist);
 }
 
 <div class="container-fluid">
@@ -70,7 +71,7 @@
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body mb-5">
         <div class="article-content position-relative">
-            @if (hasFullAccess)
+            @if (hasFullAccess || IsAdminOrJounalistOrEditor)
             {
                 @Html.Raw(Model.Content)
             }

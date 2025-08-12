@@ -70,5 +70,14 @@ namespace YesterdayNews.Services
         }
 
 
+        public Subscription getSelcetedPlan(int planId, string userId)
+        {
+
+            return _db.Subscriptions
+                .FirstOrDefault(s => s.UserId == userId && !s.IsDeleted && s.Expires > DateTime.UtcNow);
+
+        }
+
+
     }
 }
