@@ -56,6 +56,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 form.addEventListener('submit', async function (e) {
                     e.preventDefault();
 
+                    // handle the not logged-in user case
+                    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (!tokenInput) {
+                        
+                        window.location.href = '/Identity/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                        return;
+                    }
+
                     const button = this.querySelector('button[type="submit"]');
                     const buttonText = button.querySelector('.button-text');
                     const spinner = button.querySelector('.loading-spinner');
@@ -74,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                             }
                         });
-
+                       
                         if (response.redirected) {
                             window.location.href = response.url;
                         } else {

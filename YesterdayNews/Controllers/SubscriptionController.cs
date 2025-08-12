@@ -10,7 +10,7 @@ using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
-    //[Authorize(Roles = StaticConsts.Role_Admin)]
+    
 
     public class SubscriptionController : Controller
     {
@@ -25,11 +25,12 @@ namespace YesterdayNews.Controllers
             _userManager = userManager;
             _stripe = stripe;
         }
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult Index()
         {
             return View();
         }
-
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         [HttpGet]
         public IActionResult Create()
         {
@@ -43,8 +44,9 @@ namespace YesterdayNews.Controllers
             ViewBag.SubscriptionTypes = types;
             return View(model);
         }
-
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult Create(Subscription subscription)
         {
             ModelState.Remove("User");
@@ -69,6 +71,7 @@ namespace YesterdayNews.Controllers
             return RedirectToAction("Index");
         }
         [HttpGet]
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult Edit(int id)
         {
             var subscription = _subscriptionServices.GetOne(id);
@@ -80,6 +83,7 @@ namespace YesterdayNews.Controllers
             return View(subscription);
         }
         [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult Edit(Subscription subscription)
         {
             ModelState.Remove("User");
@@ -116,6 +120,7 @@ namespace YesterdayNews.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Search(string searchTerm)
         {
             if (string.IsNullOrEmpty(searchTerm))
@@ -136,6 +141,7 @@ namespace YesterdayNews.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Customer)] // will be used by the customer to cancel their subscription
         public IActionResult Delete(int id)
         {
             var subscriptionToBeDeleted = _subscriptionServices.GetOne(id);
@@ -154,6 +160,7 @@ namespace YesterdayNews.Controllers
         #endregion
 
         [HttpGet]
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult GetUserById(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -176,18 +183,23 @@ namespace YesterdayNews.Controllers
             return Json(user);
         }
 
-        public bool HasActiveSubscription(string userId)
-        {
-            var sub = _subscriptionServices.HasActiveSubscription(userId);
-
-            return sub != null;
-        }
         [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Customer)]
         public IActionResult SubscribeNow(int planId)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
             var email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new
+                {
+                    success = false,
+                    redirectUrl = $"/Identity/Account/Login?ReturnUrl={Uri.EscapeDataString(Request.Path)}"
+                });
+            }
+
 
             var plan = _subscriptionTypeServices.GetOne(planId);
             if (plan == null)
@@ -207,6 +219,7 @@ namespace YesterdayNews.Controllers
         }
 
         [HttpGet("subscriptions/success")]
+        [AllowAnonymous]
         public IActionResult Success(string session_id)
         {
             var session = _stripe.GetSession(session_id);
@@ -246,7 +259,7 @@ namespace YesterdayNews.Controllers
                 _subscriptionServices.Add(subscription);
 
                 TempData["Success"] = "Subscription activated successfully!";
-                // logic to send the emails 
+                // logic to send the emails will be handled later
                 return View("Success");
             }
 
