@@ -13,7 +13,7 @@
 {
     <div>
         <p><strong>Plan:</strong> @Model.CurrentSubscription.SubscriptionType?.TypeName</p>
-        <p><strong>Payment Complete:</strong> @(Model.CurrentSubscription.PaymentComplete ? "Yes" : "No")</p>
+        @* <p><strong>Payment Complete:</strong> @(Model.CurrentSubscription.PaymentComplete ? "Yes" : "No")</p> *@
         <p><strong>Created:</strong> @Model.CurrentSubscription.Created.ToShortDateString()</p>
         <p><strong>Expires:</strong> @Model.CurrentSubscription.Expires?.ToShortDateString()</p>
     </div>
@@ -33,9 +33,11 @@
         <thead>
             <tr>
                 <th>Plan</th>
-                <th>Payment Status</th>
+                @* <th>Payment Status</th> *@
                 <th>Start Date</th>
                 <th>Expiry Date</th>
+                <th></th>
+
             </tr>
         </thead>
         <tbody>
@@ -43,9 +45,10 @@
             {
                 <tr>
                     <td>@history.SubscriptionType?.TypeName</td>
-                    <td>@(history.PaymentComplete ? "Paid" : "Pending")</td>
+                   @*  <td>@(history.PaymentComplete ? "Paid" : "Pending")</td> *@
                     <td>@history.Created.ToShortDateString()</td>
                     <td>@history.Expires?.ToShortDateString()</td>
+                    <td><span class="badge bg-info">Expired</span></td>
                 </tr>
             }
         </tbody>
