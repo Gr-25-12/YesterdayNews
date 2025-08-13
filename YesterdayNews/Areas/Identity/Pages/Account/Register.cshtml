@@ -153,18 +153,29 @@
                                                         <hr class="flex-grow-1">
                                                     </div>
                                                     <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                                                        <div class="d-flex justify-content-center gap-2">
+                                                        <div class="d-flex flex-column gap-2 w-100">
+                                                            <!-- Changed to column layout -->
                                                             @foreach (var provider in Model.ExternalLogins!)
                                                             {
                                                                 <button type="submit"
-                                                                        class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                                                        style="width: 60px; height: 60px; padding: 0;"
+                                                                        class="btn btn-outline-secondary d-flex align-items-center justify-content-center py-3"
+                                                                        style="border-radius: 12px;"
                                                                         name="provider"
                                                                         value="@provider.Name"
                                                                         title="Log in using your @provider.DisplayName account">
-                                                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/@(provider.DisplayName.ToLower())/@(provider.DisplayName.ToLower())-original.svg"
-                                                                         alt="@provider.DisplayName"
-                                                                         style="width: 32px; height: 32px;" />
+                                                                    <div class="d-flex align-items-center gap-3">
+                                                                        @if (provider.DisplayName == "Microsoft")
+                                                                        {
+                                                                            <i class="fab fa-microsoft" style="font-size: 24px; color: #00a1f1;"></i>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/@(provider.DisplayName.ToLower())/@(provider.DisplayName.ToLower())-original.svg"
+                                                                                 alt="@provider.DisplayName"
+                                                                                 style="width: 24px; height: 24px;" />
+                                                                        }
+                                                                        <span class="fw-medium">Sign in with @provider.DisplayName</span>
+                                                                    </div>
                                                                 </button>
                                                             }
                                                         </div>

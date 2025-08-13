@@ -51,6 +51,12 @@ public class Program
             facebookOptions.AppSecret = builder.Configuration.GetSection("Facebook:AppSecret").Get<string>()!;
         });
 
+        builder.Services.AddAuthentication().AddMicrosoftAccount(microSoftOptions =>
+        {
+            microSoftOptions.ClientId = builder.Configuration.GetSection("Microsoft:ClientId").Get<string>()!;
+            microSoftOptions.ClientSecret = builder.Configuration.GetSection("Microsoft:ClientSecret").Get<string>()!;
+
+        });
         StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
