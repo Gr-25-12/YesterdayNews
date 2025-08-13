@@ -428,3 +428,49 @@ description-container {
     margin-top: 5px; 
 }
 
+.wobble-hover {
+    animation: subtleWobble 8s infinite;
+    transform-origin: center;
+}
+
+@keyframes subtleWobble {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+
+    2% {
+        transform: rotate(-1deg);
+    }
+
+    4% {
+        transform: rotate(1deg);
+    }
+
+    6% {
+        transform: rotate(0deg);
+    }
+
+    98% {
+        transform: rotate(0deg);
+    }
+    /* Long pause between wobbles */
+}
+
+/* Optional: Add hover effect */
+.wobble-hover:hover {
+    animation: excitedWobble 0.5s infinite;
+}
+
+@keyframes excitedWobble {
+    0%, 100% {
+        transform: rotate(-2deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #9c1c2b 100%);
+}

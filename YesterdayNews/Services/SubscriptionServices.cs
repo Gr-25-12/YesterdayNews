@@ -63,7 +63,10 @@ namespace YesterdayNews.Services
         public bool HasActiveSubscription(string userId)
         {
             var sub = _db.Subscriptions
-                .Where(s => s.UserId == userId && !s.IsDeleted && s.PaymentComplete && s.Expires > DateTime.UtcNow)
+                .Where(s => s.UserId == userId
+                //&& !s.IsDeleted 
+                && s.PaymentComplete
+                && s.Expires > DateTime.UtcNow)
                 .FirstOrDefault();
 
             return sub != null;

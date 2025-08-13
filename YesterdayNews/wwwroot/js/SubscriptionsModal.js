@@ -1,4 +1,4 @@
-
+﻿
 document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById('subscribeModal');
 
@@ -14,9 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="row g-4 justify-content-center">
                     ${plans.map((plan, index) => `
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <div class="card h-100 border-0 shadow-lg position-relative overflow-hidden rounded-4 subscription-card">
-                                ${index === 1 ? '<div class="popular-badge position-absolute top-0 end-0 bg-warning text-dark px-3 py-1 rounded-start-3 fw-bold small"><i class="bi bi-star-fill me-1"></i>POPULAR</div>' : ''}
-                                
+                            <div class="card h-100 border-0 shadow-lg position-relative overflow-hidden rounded-4 subscription-card">                                
                                 <div class="card-header text-center py-4 border-0" style="background: linear-gradient(135deg, #3A2512 0%, #b39086 100%);">
                                     <h4 class="text-white mb-0 fw-bold text-uppercase letter-spacing-1 fs-5">${plan.typeName}</h4>
                                 </div>
