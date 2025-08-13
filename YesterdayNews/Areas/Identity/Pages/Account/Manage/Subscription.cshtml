@@ -36,11 +36,37 @@
         <div class="card-header @cardHeaderClass">
             <h5 class="mb-0">Current Subscription</h5>
         </div>
-        <div class="card-body">
+      @*   <div class="card-body">
             <p class="mb-1"><strong>Plan:</strong> @Model.CurrentSubscription.SubscriptionType?.TypeName</p>
             <p class="mb-1"><strong>Created:</strong> @Model.CurrentSubscription.Created.ToShortDateString()</p>
             <p class="mb-1"><strong>Expires:</strong> @Model.CurrentSubscription.Expires?.ToShortDateString()</p>
-        </div>
+        </div> *@
+
+        <div class="card-body">
+    <p class="mb-1"><strong>Plan:</strong> @Model.CurrentSubscription.SubscriptionType?.TypeName</p>
+    <p class="mb-1"><strong>Created:</strong> @Model.CurrentSubscription.Created.ToShortDateString()</p>
+    <p class="mb-1">
+        <strong>Expires:</strong> @Model.CurrentSubscription.Expires?.ToShortDateString()
+
+        @* Show days left if subscription is still active *@
+        @{
+            var daysLeft = (Model.CurrentSubscription.Expires - DateTime.UtcNow)?.Days ?? 0;
+            if (daysLeft > 0)
+            {
+                <span class="badge bg-secondary ms-2">@daysLeft days left</span>
+            }
+            else if (daysLeft == 0)
+            {
+                <span class="badge bg-danger ms-2">Expires today</span>
+            }
+            else
+            {
+                <span class="badge bg-danger ms-2">Expired</span>
+            }
+        }
+    </p>
+</div>
+
         <div class="card-footer bg-light">
             <a class="btn btn-warning me-2" asp-page="./UpdatePlan" asp-route-id="@Model.CurrentSubscription.Id">
                 <i class="bi bi-arrow-repeat"></i> Update Plan
