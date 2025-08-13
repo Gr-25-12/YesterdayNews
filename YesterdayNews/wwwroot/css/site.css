@@ -405,3 +405,18 @@ form-control::placeholder,
     z-index: 2;
     padding: 3rem 1rem;
 }
+
+/*Long description in tables*/
+description-container {
+    max-width: 100%; 
+    word-wrap: break-word;
+}
+
+.short-text, .full-text {
+    white-space: pre-line;
+}
+
+.full-text {
+    margin-top: 5px; 
+}
+

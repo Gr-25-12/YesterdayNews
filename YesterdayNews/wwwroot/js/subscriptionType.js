@@ -15,21 +15,28 @@ function loadDataTable() {
         },
         "columns": [
             { "data": 'typeName', "width": "20%" },
-            { "data": 'description', "width": "30%" },
+            {
+                "data": 'description', "width": "30%", "render": function (data) {
+                    // Show first 50 chars with a "Show More" toggle
+                    return `
+            <div class="description-cell">
+                <span class="short-text">${data.length > 50 ? data.slice(0, 50) + '...' : data}</span>
+                ${data.length > 50 ?
+                            `<span class="full-text d-none">${data}</span>
+                     <a href="#" class="toggle-description ms-2 text-info underline">Show More</a>`
+                            : ''
+                        }
+            </div>
+        `;
+                }
+             },
             {
                 "data": 'price',
                 "width": "15%",
                 "render": function (data) {
                     return `${data.toFixed(2)} Kr`;
                 }
-            },
-            {
-                "data": 'subscriptions',
-                "width": "15%",
-                "render": function (data) {
-                    return data ? data.length : 0;
-                }
-            },
+            },        
             {
                 "data": 'id',
                 "width": "20%",
@@ -54,4 +61,11 @@ function loadDataTable() {
 
 $(document).ready(function () {
     loadDataTable();
+});
+
+$(document).on('click', '.toggle-description', function (e) {
+    e.preventDefault();
+    const $cell = $(this).closest('.description-cell');
+    $cell.find('.short-text, .full-text').toggleClass('d-none');
+    $(this).text($(this).text() === 'Show More' ? 'Show Less' : 'Show More');
 });

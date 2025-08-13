@@ -1,16 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using YesterdayNews.Models.Db;
-using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
-    
+
 
     public class SubscriptionController : Controller
     {
@@ -30,6 +28,7 @@ namespace YesterdayNews.Controllers
         {
             return View();
         }
+
         [Authorize(Roles = StaticConsts.Role_Admin)]
         [HttpGet]
         public IActionResult Create()
@@ -44,9 +43,9 @@ namespace YesterdayNews.Controllers
             ViewBag.SubscriptionTypes = types;
             return View(model);
         }
+
         [Authorize(Roles = StaticConsts.Role_Admin)]
         [HttpPost]
-        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult Create(Subscription subscription)
         {
             ModelState.Remove("User");
@@ -70,8 +69,9 @@ namespace YesterdayNews.Controllers
             _subscriptionServices.Add(subscription);
             return RedirectToAction("Index");
         }
-        [HttpGet]
+
         [Authorize(Roles = StaticConsts.Role_Admin)]
+        [HttpGet]
         public IActionResult Edit(int id)
         {
             var subscription = _subscriptionServices.GetOne(id);
@@ -82,8 +82,8 @@ namespace YesterdayNews.Controllers
             ViewBag.SubscriptionTypes = types;
             return View(subscription);
         }
-        [HttpPost]
         [Authorize(Roles = StaticConsts.Role_Admin)]
+        [HttpPost]
         public IActionResult Edit(Subscription subscription)
         {
             ModelState.Remove("User");
@@ -102,6 +102,7 @@ namespace YesterdayNews.Controllers
         #region API CALLS
 
         [HttpGet]
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult GetAll()
         {
             var subscriptionsList = _subscriptionServices.GetAllByExpires()
@@ -161,6 +162,7 @@ namespace YesterdayNews.Controllers
 
         [HttpGet]
         [Authorize(Roles = StaticConsts.Role_Admin)]
+
         public IActionResult GetUserById(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
