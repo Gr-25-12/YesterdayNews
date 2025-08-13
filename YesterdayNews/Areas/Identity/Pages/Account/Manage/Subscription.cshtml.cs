@@ -20,6 +20,25 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
             _context = context;
         }
 
+        //public async Task<IActionResult> OnGetAsync()
+        //{
+        //    var user = await _userManager.GetUserAsync(User);
+        //    if (user == null)
+        //    {
+        //        return NotFound("User not found.");
+        //    }
+
+        //    var subscription = await _context.Subscriptions
+        //        .Include(s => s.SubscriptionType)
+        //        .FirstOrDefaultAsync(s => s.UserId == user.Id);
+
+        //    CurrentSubscription = subscription;
+
+        //    return Page();
+        //}
+
+        public List<Subscription> SubscriptionHistory { get; set; } = new();
+
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -28,15 +47,22 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
                 return NotFound("User not found.");
             }
 
-            var subscription = await _context.Subscriptions
+            // Current active subscription
+            CurrentSubscription = await _context.Subscriptions
                 .Include(s => s.SubscriptionType)
-                .FirstOrDefaultAsync(s => s.UserId == user.Id);
+                .FirstOrDefaultAsync(s => s.UserId == user.Id &&
+                                          s.Expires >= DateTime.UtcNow &&
+                                          !s.IsDeleted);
 
-            CurrentSubscription = subscription;
+            // All subscription history
+            SubscriptionHistory = await _context.Subscriptions
+                .Include(s => s.SubscriptionType)
+                .Where(s => s.UserId == user.Id)
+                .OrderByDescending(s => s.Created)
+                .ToListAsync();
 
             return Page();
         }
-
 
     }
 }

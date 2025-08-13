@@ -17,9 +17,44 @@
         <p><strong>Created:</strong> @Model.CurrentSubscription.Created.ToShortDateString()</p>
         <p><strong>Expires:</strong> @Model.CurrentSubscription.Expires?.ToShortDateString()</p>
     </div>
+
+    <div class="mt-3">
+        <a class="btn btn-warning" asp-page="./UpdatePlan" asp-route-id="@Model.CurrentSubscription.Id">
+            <i class="bi bi-arrow-repeat"></i> Update Plan
+        </a>
+        <a class="btn btn-danger" asp-page="./CancelSubscription" asp-route-id="@Model.CurrentSubscription.Id">
+            <i class="bi bi-x-circle"></i> Cancel Subscription
+        </a>
+    </div>
+
+    <hr />
+    <h5>Subscription History</h5>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Plan</th>
+                <th>Payment Status</th>
+                <th>Start Date</th>
+                <th>Expiry Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var history in Model.SubscriptionHistory)
+            {
+                <tr>
+                    <td>@history.SubscriptionType?.TypeName</td>
+                    <td>@(history.PaymentComplete ? "Paid" : "Pending")</td>
+                    <td>@history.Created.ToShortDateString()</td>
+                    <td>@history.Expires?.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 else
 {
-    <p>You are not currently subscribed.</p>
+    <div class="alert alert-info">
+        You are not currently subscribed.<br />
+        <a class="btn btn-primary mt-3" asp-page="./Subscribe">Subscribe Now</a>
+    </div>
 }
-@* <p>Current page: @ViewContext.RouteData.Values["page"]</p> *@
