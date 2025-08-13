@@ -54,10 +54,11 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
                                           s.Expires >= DateTime.UtcNow &&
                                           !s.IsDeleted);
 
-            // All subscription history
+            // All subscription history EXCEPT current active subscription
             SubscriptionHistory = await _context.Subscriptions
                 .Include(s => s.SubscriptionType)
-                .Where(s => s.UserId == user.Id)
+                .Where(s => s.UserId == user.Id &&
+                             (CurrentSubscription == null || s.Id != CurrentSubscription.Id))
                 .OrderByDescending(s => s.Created)
                 .ToListAsync();
 
