@@ -9,7 +9,6 @@ namespace YesterdayNews.Services.IServices
         Task<string> UpdateRatesAndPrices();
         Task<List<UsStock>> GetNasdaqStockList();
         Task<List<UsStock>> GetNyseStockList();
-        Task<List<string>> GetSP500Index();
         Task<StockQuote> GetStockQuote(string tickerSymbol);
         Task<string> GetForexQuotes(string exchangeName);
         Task<string> GetCryptoQuotes(string exchangeName);
