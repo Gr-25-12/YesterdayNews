@@ -1,4 +1,5 @@
 ﻿@inject SignInManager<IdentityUser> SignInManager
+@using YesterdayNews.Utils
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
@@ -10,21 +11,21 @@
     <div class="card-body p-0">
         <div class="list-group list-group-flush">
             <a class="list-group-item list-group-item-action @ManageNavPages.IndexNavClass(ViewContext)"
-               id="profile" asp-page="./Index">
+            id="profile" asp-page="./Index">
                 <i class="bi bi-person me-2"></i>Profile
             </a>
             <a class="list-group-item list-group-item-action @ManageNavPages.EmailNavClass(ViewContext)"
-               id="email" asp-page="./Email">
+            id="email" asp-page="./Email">
                 <i class="bi bi-envelope me-2"></i>Email
             </a>
             <a class="list-group-item list-group-item-action @ManageNavPages.ChangePasswordNavClass(ViewContext)"
-               id="change-password" asp-page="./ChangePassword">
+            id="change-password" asp-page="./ChangePassword">
                 <i class="bi bi-shield-lock me-2"></i>Password
             </a>
             @if (hasExternalLogins)
             {
                 <a class="list-group-item list-group-item-action @ManageNavPages.ExternalLoginsNavClass(ViewContext)"
-                   id="external-login" asp-page="./ExternalLogins">
+                id="external-login" asp-page="./ExternalLogins">
                     <i class="bi bi-box-arrow-in-right me-2"></i>External Logins
                 </a>
             }
@@ -32,14 +33,19 @@
             @*    id="two-factor" asp-page="./TwoFactorAuthentication"> *@
             @*     <i class="bi bi-phone me-2"></i>Two-Factor Auth *@
             @* </a> *@
+            @if (User.IsInRole(StaticConsts.Role_Customer))
+            {
             <a class="list-group-item list-group-item-action @ManageNavPages.PersonalDataNavClass(ViewContext)"
-               id="personal-data" asp-page="./PersonalData">
+            id="personal-data" asp-page="./PersonalData">
                 <i class="bi bi-database me-2"></i>Personal Data
             </a>
+            
+                
             <a class="list-group-item list-group-item-action @ManageNavPages.SubscriptionNavClass(ViewContext)"
                id="subscription" asp-page="./Subscription">
                 <i class="bi bi-credit-card me-2"></i>Subscription
             </a>
+            }
         </div>
     </div>
 </div>

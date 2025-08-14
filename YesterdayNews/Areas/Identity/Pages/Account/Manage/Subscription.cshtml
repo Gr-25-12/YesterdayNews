@@ -13,32 +13,47 @@
 
     @if (Model.CurrentSubscription != null)
     {
-        <!-- Current Subscription Card -->
+        <!-- Current/Most Recent Subscription Card -->
         <div class="card border-0 shadow-sm mb-4">
             @{
                 var now = DateTime.UtcNow;
-                var daysLeft = (Model.CurrentSubscription.Expires - now)?.Days ?? 0;
+                var timeSpanLeft = Model.CurrentSubscription.Expires - now;
+                var daysLeft = timeSpanLeft?.Days ?? 0;
+                var totalHoursLeft = timeSpanLeft?.TotalHours ?? 0;
+
                 var cardHeaderClass = "bg-primary";
                 var statusBadgeClass = "bg-primary";
                 var statusText = "Active";
+                var textColorClass = "text-white";
+                var isActive = Model.CurrentSubscription.Expires >= now;
 
-                if (daysLeft <= 0)
+                if (!isActive)
                 {
-                    cardHeaderClass = "bg-danger";
+                    
+                    cardHeaderClass = "bg-primary border-2";
                     statusBadgeClass = "bg-danger";
+                    textColorClass = "text-primary";
                     statusText = "Expired";
+                }
+                else if (totalHoursLeft <= 24) 
+                {
+                    cardHeaderClass = "bg-warning text-dark";
+                    statusBadgeClass = "bg-warning text-dark";
+                    textColorClass = "text-primary";
+                    statusText = "Expires in one day";
                 }
                 else if (daysLeft <= 7)
                 {
                     cardHeaderClass = "bg-warning text-dark";
                     statusBadgeClass = "bg-warning text-dark";
+                    textColorClass = "text-white";
                     statusText = "Expiring Soon";
                 }
             }
 
-            <div class="card-header @cardHeaderClass text-white">
+            <div class="card-header @cardHeaderClass @textColorClass">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Current Plan</h5>
+                    <h5 class="mb-0">@(isActive ? "Current Plan" : "Most Recent Plan")</h5>
                     <span class="badge @statusBadgeClass">@statusText</span>
                 </div>
             </div>
@@ -52,63 +67,86 @@
                     <div class="col-md-6">
                         <p class="mb-2"><i class="bi bi-calendar-x me-2"></i> <strong>Expires:</strong> @Model.CurrentSubscription.Expires?.ToShortDateString()</p>
                         <p class="mb-0">
-                            <i class="bi bi-clock me-2"></i> <strong>Remaining:</strong>
-                            @if (daysLeft > 0)
+                            <i class="bi bi-clock me-2"></i> <strong>@(isActive ? "Remaining:" : "Expired:")</strong>
+                            @if (isActive && daysLeft > 0)
                             {
                                 <span>@daysLeft day@(daysLeft != 1 ? "s" : "")</span>
                             }
+                            else if (!isActive)
+                            {
+                                <span>@Math.Abs(daysLeft) day@(Math.Abs(daysLeft) != 1 ? "s" : "") ago</span>
+                            }
                             else
                             {
-                                <span>Expired</span>
+                                <span>Expiring in one day</span>
                             }
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="card-footer bg-light border-0">
+            <div class="card-footer border-1">
                 <div class="d-flex gap-2">
-                    <a class="btn btn-primary" asp-page="./UpdatePlan" asp-route-id="@Model.CurrentSubscription.Id">
-                        <i class="bi bi-arrow-repeat me-2"></i>Change Plan
-                    </a>
-                    <a class="btn btn-outline-danger" asp-page="./CancelSubscription" asp-route-id="@Model.CurrentSubscription.Id">
-                        <i class="bi bi-x-circle me-2"></i>Cancel
-                    </a>
+                    @if (isActive)
+                    {
+                        <a class="btn btn-primary" role="button"  data-bs-toggle="modal" data-bs-target="#subscribeModal">
+                            <i class="bi bi-arrow-repeat me-2"></i>Change Plan
+                        </a>
+                        // to be discussed
+                       @*  <a asp-controller="Subscription" asp-action="Delete" asp-route-id="@Model.CurrentSubscription.Id" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle me-2"></i>Cancel 
+                         </a> *@
+                       
+                    }
+                    else
+                    {
+                        <a role="button" class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#subscribeModal">
+                            <i class="bi bi-plus-circle me-2"></i>Renew Subscription
+                        </a>
+                    }
                 </div>
             </div>
         </div>
 
-        <!-- Subscription History -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">Subscription History</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th><i class="bi bi-card-heading me-2"></i>Plan</th>
-                                <th><i class="bi bi-calendar-plus me-2"></i>Start Date</th>
-                                <th><i class="bi bi-calendar-x me-2"></i>End Date</th>
-                                <th><i class="bi bi-info-circle me-2"></i>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var history in Model.SubscriptionHistory)
-                            {
+        @if (Model.SubscriptionHistory.Any())
+        {
+            <!-- Subscription History -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Previous Subscriptions</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>@history.SubscriptionType?.TypeName</td>
-                                    <td>@history.Created.ToShortDateString()</td>
-                                    <td>@history.Expires?.ToShortDateString()</td>
-                                    <td><span class="badge bg-secondary">Expired</span></td>
+                                    <th><i class="bi bi-card-heading me-2"></i>Plan</th>
+                                    <th><i class="bi bi-calendar-plus me-2"></i>Start Date</th>
+                                    <th><i class="bi bi-calendar-x me-2"></i>End Date</th>
+                                    <th><i class="bi bi-info-circle me-2"></i>Status</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var history in Model.SubscriptionHistory)
+                                {
+                                    <tr>
+                                        <td>@history.SubscriptionType?.TypeName</td>
+                                        <td>@history.Created.ToShortDateString()</td>
+                                        <td>@history.Expires?.ToShortDateString()</td>
+                                        <td>
+                                            @{
+                                                var historyStatus = history.Expires >= DateTime.UtcNow ? "Expired" : "Expired";
+                                            }
+                                            <span class="badge bg-secondary">@historyStatus</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     }
     else
     {
@@ -116,12 +154,12 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-5">
                 <i class="bi bi-credit-card-2-front fs-1 text-muted mb-3"></i>
-                <h3 class="h4 mb-3">No Active Subscription</h3>
-                <p class="text-muted mb-4">You don't have an active subscription plan</p>
+                <h3 class="h4 mb-3">No Subscription Found</h3>
+                <p class="text-muted mb-4">You haven't subscribed to any plan yet</p>
                 <a role="button" class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#subscribeModal">
                     <i class="bi bi-plus-circle me-2"></i>Subscribe Now
                 </a>
             </div>
         </div>
     }
-</div>
+</div><script src="~/js/subscription.js"></script>
