@@ -380,9 +380,27 @@ form-control::placeholder,
     color: #fff !important;
 }
 
-/*Modal for subscriptions */
+
+/*subscrtption modal*/
+
+.clear-content {
+    z-index: 1;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.blurred-section {
+    position: relative;
+    max-height: 40vh;
+    overflow: hidden;
+}
+
 .blurred-text {
-    filter: blur(1px);
+    filter: blur(2px);
+    opacity: 0.7;
+    line-height: 1.6;
+    font-size: 1rem;
+    padding: 3rem 1rem;
 }
 
 .blur-overlay {
@@ -390,12 +408,69 @@ form-control::placeholder,
     top: 0;
     left: 0;
     width: 100%;
-    height: 170%;
-    background: rgba(255,255,255,0.5);
+    height: 100%;
+    background: linear-gradient( to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.95) 100%);
     z-index: 2;
+    padding: 3rem 1rem;
 }
 
-.preview-container {
-    max-height: 30vh;
-    overflow: hidden;
+/*Long description in tables*/
+description-container {
+    max-width: 100%; 
+    word-wrap: break-word;
+}
+
+.short-text, .full-text {
+    white-space: pre-line;
+}
+
+.full-text {
+    margin-top: 5px; 
+}
+
+.wobble-hover {
+    animation: subtleWobble 8s infinite;
+    transform-origin: center;
+}
+
+@keyframes subtleWobble {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+
+    2% {
+        transform: rotate(-1deg);
+    }
+
+    4% {
+        transform: rotate(1deg);
+    }
+
+    6% {
+        transform: rotate(0deg);
+    }
+
+    98% {
+        transform: rotate(0deg);
+    }
+    /* Long pause between wobbles */
+}
+
+/* Optional: Add hover effect */
+.wobble-hover:hover {
+    animation: excitedWobble 0.5s infinite;
+}
+
+@keyframes excitedWobble {
+    0%, 100% {
+        transform: rotate(-2deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #9c1c2b 100%);
 }
