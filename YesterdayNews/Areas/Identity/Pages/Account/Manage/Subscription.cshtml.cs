@@ -51,8 +51,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
             CurrentSubscription = await _context.Subscriptions
                 .Include(s => s.SubscriptionType)
                 .FirstOrDefaultAsync(s => s.UserId == user.Id &&
-                                          s.Expires >= DateTime.UtcNow &&
-                                          !s.IsDeleted);
+                                          s.Expires >= DateTime.UtcNow); 
 
             // All subscription history EXCEPT current active subscription
             SubscriptionHistory = await _context.Subscriptions
