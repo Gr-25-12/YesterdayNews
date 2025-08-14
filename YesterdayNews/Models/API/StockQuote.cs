@@ -11,7 +11,7 @@ namespace YesterdayNews.Models.API
         [JsonPropertyName("l")] public decimal DailyLow { get; set; }
         [JsonPropertyName("o")] public decimal OpeningPrice { get; set; }
         [JsonPropertyName("pc")] public decimal ClosingPrice { get; set; }
-        [JsonPropertyName("t")] private long TimeStamp { get; set; }
+        [JsonPropertyName("t")] public long TimeStamp { private get; set; }
 
         public DateTime DateTime => DateTimeOffset.FromUnixTimeSeconds(TimeStamp).UtcDateTime;
     }

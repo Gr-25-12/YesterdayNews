@@ -1,0 +1,40 @@
+﻿@model YesterdayNews.Models.ViewModels.MarketsVM
+@* Markets View Component *@
+<article class="mb-4 border p-3 pb-0 rounded shadow-sm">
+    <h5 class="text-secondary">Markets</h5>
+    <hr class="my-2" />
+    <ul class="list-unstyled mb-2">
+        @for (int i = 0; i < Model.StockInfo.Count; i++)
+        {
+            var symbol = Model.StockInfo.Keys.ElementAt(i);
+            var stock = Model.StockInfo[symbol];
+            var quote = Model.StockPrices.ContainsKey(symbol) ? Model.StockPrices[symbol] : null;
+            if (quote == null) continue;
+
+            var changeClass = quote.PercentageChange >= 0 ? "text-success" : "text-danger";
+            <li class="mb-0">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <small>
+                            <p class="mb-0 fw-bold text-break">
+                                @stock.Description (@symbol)
+                                Price: @quote.CurrentPrice
+                                <span class="@changeClass"> (@quote.PercentageChange.ToString("0.##")%)</span>
+                            </p>
+                        </small>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+</article>
+
+<style>
+    .up {
+        color: green;
+    }
+
+    .down {
+        color: red;
+    }
+</style>

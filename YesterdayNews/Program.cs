@@ -58,6 +58,7 @@ public class Program
 
         });
 
+        builder.Services.AddHostedService<FinnhubWebsocketService>();
 
         var app = builder.Build();
 

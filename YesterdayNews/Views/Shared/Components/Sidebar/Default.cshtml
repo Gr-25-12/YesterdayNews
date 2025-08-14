@@ -1,4 +1,15 @@
-﻿<aside>
+﻿@using YesterdayNews.Services.IServices
+@inject ICategoryService _categoryService
+<aside>
+	@{
+		var categoryId = ViewData["SelectedCategory"] ?? 0;
+		var category = _categoryService.GetOne((int)categoryId);
+	}
+
+	@if (category?.Name == "Economy")
+	{
+		@await Component.InvokeAsync("Markets")
+	}
 	@await Component.InvokeAsync("MostViewed")
 	@await Component.InvokeAsync("MostLiked")
 </aside>
