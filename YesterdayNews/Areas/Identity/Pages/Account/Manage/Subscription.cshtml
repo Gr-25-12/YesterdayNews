@@ -1,0 +1,117 @@
+﻿@page
+@model YesterdayNews.Areas.Identity.Pages.Account.Manage.SubscriptionModel
+@using YesterdayNews.Models.Db
+
+@{
+    ViewData["Title"] = "Subscription";
+
+    string cardHeaderClass = "bg-primary text-white"; // default
+    string updateButtonClass = "btn btn-warning"; // default
+    if (Model.CurrentSubscription != null)
+    {
+        var now = DateTime.UtcNow;
+        var daysUntilExpiry = (Model.CurrentSubscription.Expires - now)?.TotalDays ?? 0;
+
+        if (daysUntilExpiry <= 0)
+        {
+            cardHeaderClass = "bg-danger text-white"; // Expired
+        }
+        else if (daysUntilExpiry <= 30)
+        {
+            cardHeaderClass = "bg-warning text-dark"; // Expiring soon
+        }
+        else
+        {
+            cardHeaderClass = "bg-success text-white"; // Active
+        }
+    }
+}
+
+<h3>@ViewData["Title"]</h3>
+<hr />
+
+@if (Model.CurrentSubscription != null)
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header @cardHeaderClass">
+            <h5 class="mb-0">Current Subscription</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-1"><strong>Plan:</strong> @Model.CurrentSubscription.SubscriptionType?.TypeName</p>
+            <p class="mb-1"><strong>Created:</strong> @Model.CurrentSubscription.Created.ToShortDateString()</p>
+            <p class="mb-1">
+                <strong>Expires:</strong> @Model.CurrentSubscription.Expires?.ToShortDateString()
+
+                @* Days left badge with dynamic color *@
+                @{
+                    var daysLeft = (Model.CurrentSubscription.Expires - DateTime.UtcNow)?.Days ?? 0;
+                    string badgeClass;
+
+                    if (daysLeft > 7)
+                    {
+                        badgeClass = "bg-success"; // Green
+                    }
+                    else if (daysLeft > 0)
+                    {
+                        badgeClass = "bg-warning text-dark"; // Yellow
+                    }
+                    else
+                    {
+                        badgeClass = "bg-danger"; // Red
+                    }
+
+                    if (daysLeft > 0)
+                    {
+                        <span class="badge @badgeClass ms-2">@daysLeft days left</span>
+                    }
+                    else if (daysLeft == 0)
+                    {
+                        <span class="badge bg-danger ms-2">Expires today</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger ms-2">Expired</span>
+                    }
+                }
+            </p>
+        </div>
+        <div class="card-footer bg-light">
+            <a class="btn btn-warning me-2" asp-page="./UpdatePlan" asp-route-id="@Model.CurrentSubscription.Id">
+                <i class="bi bi-arrow-repeat"></i> Update Plan
+            </a>
+            <a class="btn btn-danger" asp-page="./CancelSubscription" asp-route-id="@Model.CurrentSubscription.Id">
+                <i class="bi bi-x-circle"></i> Cancel Subscription
+            </a>
+        </div>
+    </div>
+
+    <h5>Subscription History</h5>
+    <table class="table table-striped table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Plan</th>
+                <th>Start Date</th>
+                <th>Expiry Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var history in Model.SubscriptionHistory)
+            {
+                <tr>
+                    <td>@history.SubscriptionType?.TypeName</td>
+                    <td>@history.Created.ToShortDateString()</td>
+                    <td>@history.Expires?.ToShortDateString()</td>
+                    <td><span class="badge bg-info fs-5">Expired</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+        You are not currently subscribed.<br />
+        <a class="btn btn-primary mt-3" asp-page="./Subscribe">Subscribe Now</a>
+    </div>
+}
