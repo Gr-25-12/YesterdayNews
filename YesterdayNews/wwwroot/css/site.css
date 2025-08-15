@@ -474,3 +474,14 @@ description-container {
 .bg-gradient-danger {
     background: linear-gradient(135deg, #dc3545 0%, #9c1c2b 100%);
 }
+
+/*Remove padding and adjust colors */
+.hover-bg-secondary:hover {
+    background-color: var(--bs-secondary) !important;
+}
+
+
+.navbar-nav .nav-link {
+    padding: 0.75rem 1.5rem;
+}
+
