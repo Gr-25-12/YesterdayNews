@@ -32,7 +32,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
             // Get all subscriptions for this user, ordered by creation date (most recent first)
             var allSubscriptions = await _context.Subscriptions
                 .Include(s => s.SubscriptionType)
-                .Where(s => s.UserId == user.Id && !s.IsDeleted)
+                .Where(s => s.UserId == user.Id )
                 .OrderByDescending(s => s.Created)
                 .ToListAsync();
 

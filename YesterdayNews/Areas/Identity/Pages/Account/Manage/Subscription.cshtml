@@ -13,7 +13,6 @@
 
     @if (Model.CurrentSubscription != null)
     {
-        <!-- Current/Most Recent Subscription Card -->
         <div class="card border-0 shadow-sm mb-4">
             @{
                 var now = DateTime.UtcNow;
@@ -25,28 +24,37 @@
                 var statusBadgeClass = "bg-primary";
                 var statusText = "Active";
                 var textColorClass = "text-white";
-                var isActive = Model.CurrentSubscription.Expires >= now;
+
+
+                var isActive = Model.CurrentSubscription.Expires > now;
+                var isDeleted = Model.CurrentSubscription.IsDeleted;
 
                 if (!isActive)
                 {
-                    
-                    cardHeaderClass = "bg-primary border-2";
+                    cardHeaderClass = "bg-light border-2";
                     statusBadgeClass = "bg-danger";
-                    textColorClass = "text-primary";
+                    textColorClass = "text-dark";
                     statusText = "Expired";
+                }
+                else if (isDeleted)
+                {
+                    cardHeaderClass = "bg-light border-2";
+                    statusBadgeClass = "bg-danger";
+                    textColorClass = "text-dark";
+                    statusText = "Deleted by Admin but it has no affect 🤝";
                 }
                 else if (totalHoursLeft <= 24) 
                 {
-                    cardHeaderClass = "bg-warning text-dark";
+                    cardHeaderClass = "bg-warning";
                     statusBadgeClass = "bg-warning text-dark";
-                    textColorClass = "text-primary";
-                    statusText = "Expires in one day";
+                    textColorClass = "text-dark";
+                    statusText = "Expires Today";
                 }
-                else if (daysLeft <= 7)
+                else if (daysLeft <= 7) 
                 {
-                    cardHeaderClass = "bg-warning text-dark";
+                    cardHeaderClass = "bg-warning";
                     statusBadgeClass = "bg-warning text-dark";
-                    textColorClass = "text-white";
+                    textColorClass = "text-dark";
                     statusText = "Expiring Soon";
                 }
             }
@@ -68,17 +76,39 @@
                         <p class="mb-2"><i class="bi bi-calendar-x me-2"></i> <strong>Expires:</strong> @Model.CurrentSubscription.Expires?.ToShortDateString()</p>
                         <p class="mb-0">
                             <i class="bi bi-clock me-2"></i> <strong>@(isActive ? "Remaining:" : "Expired:")</strong>
-                            @if (isActive && daysLeft > 0)
+                            @if (isActive)
                             {
-                                <span>@daysLeft day@(daysLeft != 1 ? "s" : "")</span>
-                            }
-                            else if (!isActive)
-                            {
-                                <span>@Math.Abs(daysLeft) day@(Math.Abs(daysLeft) != 1 ? "s" : "") ago</span>
+                                @if (totalHoursLeft < 1)
+                                {
+                                    <span class="text-danger">Less than 1 hour</span>
+                                }
+                                else if (totalHoursLeft <= 24)
+                                {
+                                    <span class="text-warning">@((int)totalHoursLeft) hour@((int)totalHoursLeft != 1 ? "s" : "")</span>
+                                }
+                                else if (daysLeft > 0)
+                                {
+                                    <span>@daysLeft day@(daysLeft != 1 ? "s" : "")</span>
+                                }
+                                else
+                                {
+                                    <span>Less than 1 day</span>
+                                }
                             }
                             else
                             {
-                                <span>Expiring in one day</span>
+                                
+                                    var daysAgo = Math.Abs((int)(now - Model.CurrentSubscription.Expires.Value).TotalDays);
+                                    if (daysAgo == 0)
+                                    {
+                                        var hoursAgo = Math.Abs((int)(now - Model.CurrentSubscription.Expires.Value).TotalHours);
+                                        <span>@hoursAgo hour@(hoursAgo != 1 ? "s" : "") ago</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@daysAgo day@(daysAgo != 1 ? "s" : "") ago</span>
+                                    }
+                                
                             }
                         </p>
                     </div>
@@ -89,14 +119,12 @@
                 <div class="d-flex gap-2">
                     @if (isActive)
                     {
-                        <a class="btn btn-primary" role="button"  data-bs-toggle="modal" data-bs-target="#subscribeModal">
+                        <button class="btn btn-primary" type="button" onclick="showFeatureUnavailable('Change Plan')">
                             <i class="bi bi-arrow-repeat me-2"></i>Change Plan
-                        </a>
-                        // to be discussed
-                       @*  <a asp-controller="Subscription" asp-action="Delete" asp-route-id="@Model.CurrentSubscription.Id" class="btn btn-outline-danger">
-                            <i class="bi bi-x-circle me-2"></i>Cancel 
-                         </a> *@
-                       
+                        </button>
+                        <button class="btn btn-outline-danger" type="button" onclick="showFeatureUnavailable('Cancel Subscription')">
+                            <i class="bi bi-trash me-2"></i>Cancel Subscription
+                        </button>
                     }
                     else
                     {
@@ -117,7 +145,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table mb-0 text-left">
                             <thead class="table-light">
                                 <tr>
                                     <th><i class="bi bi-card-heading me-2"></i>Plan</th>
@@ -135,9 +163,12 @@
                                         <td>@history.Expires?.ToShortDateString()</td>
                                         <td>
                                             @{
-                                                var historyStatus = history.Expires >= DateTime.UtcNow ? "Expired" : "Expired";
+                                                
+                                                var historyIsActive = history.Expires > DateTime.UtcNow;
+                                                var historyStatus = historyIsActive ? "Active" : "Expired";
+                                                var historyBadgeClass = historyIsActive ? "bg-success" : "bg-secondary";
                                             }
-                                            <span class="badge bg-secondary">@historyStatus</span>
+                                            <span class="badge @historyBadgeClass fs-6">@historyStatus</span>
                                         </td>
                                     </tr>
                                 }
@@ -150,7 +181,7 @@
     }
     else
     {
-        <!-- No Subscription State -->
+       
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-5">
                 <i class="bi bi-credit-card-2-front fs-1 text-muted mb-3"></i>
@@ -162,4 +193,17 @@
             </div>
         </div>
     }
-</div><script src="~/js/subscription.js"></script>
+</div>
+<script src="~/js/subscription.js"></script>
+
+<script>
+    function showFeatureUnavailable(featureName) {
+        Swal.fire({
+            title: 'Feature Coming Soon!',
+            text: `${featureName} feature is not available yet.We might work on it! 😉`,
+            icon: 'info',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#3085d6'
+        });
+    }
+</script>
