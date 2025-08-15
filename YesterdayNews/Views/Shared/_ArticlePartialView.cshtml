@@ -28,13 +28,14 @@
     var isCustomer = isLoggedIn && User.IsInRole(StaticConsts.Role_Customer);
     var hasFullAccess = ViewBag.HasAccess == true && isLoggedIn;
     var showStatusBadge = !User.IsInRole(StaticConsts.Role_Customer) && isLoggedIn;
+    var IsAdminOrJounalistOrEditor = User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist);
 }
 
 <div class="container-fluid">
-    <div class="d-flex justify-content-around align-content-center shadow-sm border-0 mt-2 py-2">
-        <div class="col-md-6 d-flex align-items-center">
+    <div class="d-flex justify-content-between align-content-lg-start shadow-sm border-0 mt-2 py-2">
+        <div class="col-md-6 d-flex align-items-start">
             <!-- Category name with slanted line icon lIKE svt-->
-            <div class="d-flex align-items-center">
+            <div class="d-flex ">
                 <svg width="24" height="24" viewBox="0 0 24 24" class="me-2" style="transform: rotate(145deg);">
                     <line x1="0" y1="20" x2="24" y2="0" stroke="currentColor" stroke-width="3" />
                 </svg>
@@ -54,8 +55,9 @@
     @if (!isCustomer && isLoggedIn)
     {
 
-        <span class="badge bg-@GetStatusColor(@Model.ArticleStatus.ToString()) px-2 px-md-3 py-1 py-md-2 fs-6 text-uppercase position-absolute"
-              style="top: 1rem; right: calc(50% - 275px + 1rem); transform: translateX(50%); z-index: 10; letter-spacing: 0.05em;">
+        <span class="badge bg-@GetStatusColor(@Model.ArticleStatus.ToString())
+                         px-2 px-md-3 py-1 py-md-2 fs-6 text-uppercase position-absolute"
+              style="top: 1rem; right: 1rem; letter-spacing: 0.05em;">
             @SplitPascalCase(@Model.ArticleStatus.ToString()).ToUpper()
         </span>
     }
@@ -67,83 +69,108 @@
 </div>
 
 <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
+    <div class="card-body mb-5">
         <div class="article-content position-relative">
-            @if (hasFullAccess)
+            @if (hasFullAccess || IsAdminOrJounalistOrEditor)
             {
                 @Html.Raw(Model.Content)
             }
             else
             {
                 var plainText = Regex.Replace(Model.Content ?? "", "<.*?>", string.Empty);
-                int halfLength = plainText.Length / 2;
-                var preview = plainText.Substring(0, halfLength);
+                int previewLength = (int)(plainText.Length * 0.2); // Show first 20%
+                var preview = plainText.Substring(0, Math.Min(previewLength, plainText.Length));
+                var remaining = plainText.Substring(Math.Min(previewLength, plainText.Length));
 
                 <div class="position-relative preview-container">
-                    <div class="blurred-text">
+                    <div class="clear-content mb-3">
                         @preview
                     </div>
-                    <div class="blur-overlay d-flex justify-content-center align-items-center">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subscribeModal">
-                            Subscribe to Read More
-                        </button>
+
+                    <div class="blurred-section position-relative p-5">
+                        <div class="blurred-text">
+                            @remaining
+                        </div>
+                        <div class="blur-overlay d-flex justify-content-center align-items-center">
+                            <div class="text-center">
+                                <h5 class="text-dark mb-3">Continue Reading</h5>
+                                <button type="button" class="btn btn-primary btn-lg px-4 py-3" data-bs-toggle="modal" data-bs-target="#subscribeModal">
+                                    <i class="bi bi-unlock-fill me-2"></i>
+                                    Subscribe to Read More
+                                </button>
+                                <p class="text-muted small mt-2 mb-0">Get full access to all articles</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             }
 
             <!-- Meta Info -->
-            <div class="card-footer">
+        </div>
 
-            <div class="d-flex justify-content-between justify-content-center my-2">
-                <ul class="list-unstyled">
-                    <li class="fw-semibold mb-1">
-                        <i class="bi bi-person-circle"></i> Author: @Model.Author.FullName
-                    </li>
-                    <li>
-                        <i class="bi bi-calendar"></i> @Model.DateStamp.ToLocalTime().ToString("MMMM dd, yyyy")
-                    </li>
-                </ul>
+    </div>
+    <div class="card-footer border-0 bg-light">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-lg-6">
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-person-circle me-2 text-muted"></i>
+                        <span class="fw-semibold text-truncate" style="max-width: 250px;" title="@Model.Author.FullName">
+                            @Model.Author.FullName
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar me-2 text-muted"></i>
+                        <span class="text-muted">@Model.DateStamp.ToLocalTime().ToString("MMMM dd, yyyy")</span>
+                    </div>
+                </div>
+            </div>
 
-                <div class="d-flex align-items-center gap-3">
-                   
-                    <div class="text-muted">
-                        <i class="bi bi-eye-fill"></i>
-                        <span class="fw-bold" id="viewsCount">@Model.Views</span> views
+
+            <div class="col-12 col-lg-6">
+                <div class="d-flex justify-content-start justify-content-lg-end align-items-center gap-4">
+                    <div class="d-flex align-items-center text-muted">
+                        <i class="bi bi-eye-fill me-2"></i>
+                        <span class="fw-bold" id="viewsCount">@Model.Views</span>
+                        <span class="ms-1">views</span>
                     </div>
 
-                   
+                    <!-- Likes -->
                     @if (isCustomer && hasFullAccess)
                     {
-                        <div class="like-container">
+                        <div class="like-container position-relative">
                             <form method="post" asp-action="ToggleLike" asp-controller="Home" asp-route-id="@Model.Id" class="mb-0">
-                                <button type="submit" class="btn btn-sm btn-outline-light border-0 position-relative">
-                                    <i class="bi @(Model.IsLikedByCurrentUser ? "bi-heart-fill text-danger" : "bi-heart")"></i>
+                                <button type="submit" class="btn btn-sm btn-outline-light border-0 p-0 d-flex align-items-center">
+                                    <i class="bi @(Model.IsLikedByCurrentUser ? "bi-heart-fill text-danger" : "bi-heart") me-2"></i>
                                     <span id="likesCount">@Model.Likes</span>
+                                    <span class="ms-1">likes</span>
                                 </button>
                             </form>
-                            <div id="likeMessage" class="text-success small mt-1" style="display: none;"></div>
+                            <div id="likeMessage" class="text-success small mt-1 position-absolute" style="display: none;"></div>
                         </div>
                     }
                     else if (!isLoggedIn)
                     {
-                        <div class="text-muted">
-                            <i class="bi bi-heart"></i>
-                            <span>@Model.Likes</span> likes
-                            <small class="d-block">Login to like</small>
+                        <div class="d-flex flex-column align-items-start align-items-lg-end">
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="bi bi-heart me-2"></i>
+                                <span>@Model.Likes</span>
+                                <span class="ms-1">likes</span>
+                            </div>
+                            <small class="text-muted">Login to like</small>
                         </div>
                     }
                     else
                     {
-                        <div class="text-muted">
-                            <i class="bi bi-heart"></i>
-                            <span>@Model.Likes</span> likes
+                        <div class="d-flex align-items-center text-muted">
+                            <i class="bi bi-heart me-2"></i>
+                            <span>@Model.Likes</span>
+                            <span class="ms-1">likes</span>
                         </div>
                     }
                 </div>
             </div>
         </div>
-        </div>
-
     </div>
-</div>
 
+</div>

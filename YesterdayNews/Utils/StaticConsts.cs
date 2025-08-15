@@ -17,5 +17,11 @@
 
         public const int Cookie_Expires_IN = 7;
 
+
+        public const string SubscriptionType_Monthly = "Monthly";
+        public const string SubscriptionType_Yearly = "Yearly";
+        public const string SubscriptionType_Quarterly = "Quarterly";
+        public const string SubscriptionType_Weekly = "Weekly";
+
     }
 }

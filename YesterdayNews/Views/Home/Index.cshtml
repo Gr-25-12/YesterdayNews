@@ -23,7 +23,7 @@
 						<h2 class="article-underline">@article.Headline</h2>
 						@if (!string.IsNullOrEmpty(article.Summary))
 						{
-							<p>@article.Summary...</p>
+							<p>@Html.Raw(article.Summary)...</p>
 						}
 					</article>
 				</a>

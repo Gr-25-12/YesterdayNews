@@ -5,7 +5,7 @@
 }
 
 <div class="container my-4">
-    <div class="row justify-content-center">
+    <div class="row justify-content-between">
         <div class="col-12 col-md-7 col-lg-8">
             @await Html.PartialAsync("_ArticlePartialView", Model)
             @await Component.InvokeAsync("EarlierNews", new { articlesToSkip = 3 })
@@ -17,20 +17,3 @@
 </div>
 
 
-<div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="subscribeModalLabel">Choose Your Subscription Plan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="subscriptionPlans">
-                    <div class="text-center py-5 text-muted">
-                        Loading plans...
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>

@@ -124,40 +124,8 @@ function showHoursAgo(selector = '.time-ago') {
     });
 }
 
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const modal = document.getElementById('subscribeModal'); 
-
-    modal.addEventListener('show.bs.modal', async function () {
-        try {
-            const res = await fetch('/SubscriptionType/GetAll');
-            const result = await res.json();
-            const plans = result.data; 
-
-            const container = document.getElementById("subscriptionPlans");
-           
-
-            container.innerHTML = plans.map(plan => `
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">${plan.typeName}</h5>
-                            <p>${plan.description}</p>
-                            <h6 class="text-primary">${plan.price}</h6>
-                            <button class="btn btn-success w-100">Subscribe</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        } catch (err) {
-            console.log("Failed to load subscription plans:", err);
-        }
-    });
-
-    
-    modal.addEventListener('hidden.bs.modal', function () {
-        document.activeElement.blur();
-    });
+tinymce.init({
+    selector: 'textarea',
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
 });
-

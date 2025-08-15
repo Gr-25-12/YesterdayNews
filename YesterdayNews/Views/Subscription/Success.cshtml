@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Subscription Success";
+    Layout = "_Layout"; 
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header py-4" style="background: linear-gradient(135deg, #3A2512 0%, #b39086 100%);">
+                    <h1 class="text-white mb-0">Subscription Activated!</h1>
+                </div>
+                <div class="card-body p-5 bg-light">
+                    <div class="mb-4">
+                        <div class="icon-success mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="#28a745" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-success mb-3">Thank You for Subscribing!</h2>
+                        <p class="lead">Your wallet might be crying, but your news feed is about to get <span class="fw-bold">FANCY</span>!</p>
+                    </div>
+
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                        <a href="/" class="btn btn-primary btn-lg px-4 gap-3">
+                            <i class="bi bi-newspaper me-2"></i>Show Me the News!
+                        </a>
+                        <a href="/Identity/Account/Manage" class="btn btn-outline-secondary border-1 border-dark btn-lg px-4">
+                            <i class="bi bi-person-circle me-2"></i>My Account
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-muted text-center py-3">
+                    <p class="small mb-0">Need help? <a href="">Sorry we don't have support team yet 😁</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .icon-success {
+            animation: bounceIn 3s;
+        }
+
+        @@keyframes bounceIn {
+            0% {
+                transform: scale(0.1);
+                opacity: 0;
+            }
+
+            60% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+    </style>

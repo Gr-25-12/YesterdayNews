@@ -135,6 +135,7 @@
 	<div class="container">
 		<main role="main" class="pb-3">
 			<partial name="_Notification" />
+			<partial name="_SubscriptionModalPartial" />
 			@RenderBody()
 		</main>
 	</div>
@@ -159,7 +160,10 @@
 	<script src="//cdn.datatables.net/2.3.2/js/dataTables.min.js" asp-append-version="true"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+	<script src="https://cdn.tiny.cloud/1/gqsdnvz8tyyms509u45t3zxlbfubgjtak1sdup901qv1tl9g/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+
 	<script src="~/js/site.js" asp-append-version="true"></script>
+	<script src="~/js/SubscriptionsModal.js" asp-append-version="true"></script>
 	@await RenderSectionAsync("Scripts", required: false)
 
 </body>
