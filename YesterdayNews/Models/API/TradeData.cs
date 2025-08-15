@@ -12,8 +12,5 @@ namespace YesterdayNews.Models.API
 
         [JsonPropertyName("t")]
         public long TimeStamp { get; set; }
-
-        [JsonPropertyName("v")]
-        public decimal Volume { get; set; }
     }
 }

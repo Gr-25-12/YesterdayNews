@@ -1,6 +1,6 @@
 ﻿@model YesterdayNews.Models.ViewModels.MarketsVM
 @* Markets View Component *@
-<article class="mb-4 border p-3 pb-0 rounded shadow-sm">
+@* <article class="mb-4 border p-3 pb-0 rounded shadow-sm">
     <h5 class="text-secondary">Markets</h5>
     <hr class="my-2" />
     <ul class="list-unstyled mb-2">
@@ -37,4 +37,45 @@
     .down {
         color: red;
     }
+</style> *@
+
+<article class="mb-4 border p-3 pb-0 rounded shadow-sm">
+    <h5 class="text-secondary">Markets</h5>
+    <hr class="my-2" />
+    <ul class="list-unstyled mb-2">
+        @foreach (var kvp in Model.StockInfo)
+        {
+            var symbol = kvp.Key;
+            var stock = kvp.Value;
+            var quote = Model.StockPrices.ContainsKey(symbol) ? Model.StockPrices[symbol] : null;
+            if (quote == null) continue;
+
+            <li class="mb-0 d-flex align-items-center" data-symbol="@symbol">
+                <div class="flex-grow-1">
+                    <small>
+                        <p class="mb-0 fw-bold text-break">
+                            @stock.Description (@symbol)
+                            Price: <span class="price">@quote.CurrentPrice.ToString("0.##")</span>
+                            <span class="percentage @(quote.PercentageChange >= 0 ? "up" : "down")">
+                                (@quote.PercentageChange.ToString("0.##")%)
+                            </span>
+                        </p>
+                    </small>
+                </div>
+            </li>
+        }
+    </ul>
+</article>
+
+<style>
+    .up {
+        color: green;
+    }
+
+    .down {
+        color: red;
+    }
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.11/signalr.min.js"></script>
+<script src="/js/Markets.js"></script>

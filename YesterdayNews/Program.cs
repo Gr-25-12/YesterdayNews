@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using YesterdayNews.Data;
+using YesterdayNews.Hubs;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
@@ -20,7 +21,8 @@ public class Program
 
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-        builder.Services.ConfigureApplicationCookie(options => {
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
             options.LoginPath = $"/Identity/Account/Login";
             options.LogoutPath = $"/Identity/Account/Logout";
             options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
@@ -42,7 +44,7 @@ public class Program
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
          {
              googleOptions.ClientId = builder.Configuration.GetSection("Google:ClientId").Get<string>()!;
-             
+
              googleOptions.ClientSecret = builder.Configuration.GetSection("Google:ClientSecret").Get<string>()!;
          });
         builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
@@ -58,7 +60,12 @@ public class Program
 
         });
 
-        builder.Services.AddHostedService<FinnhubWebsocketService>();
+        builder.Services.AddSignalR().AddJsonProtocol(options =>
+        {
+            options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+        });
+        builder.Services.AddSingleton<FinnhubBackgroundService>(); //singleton so there is only one of this
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubBackgroundService>());
 
         var app = builder.Build();
 
@@ -80,6 +87,8 @@ public class Program
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.MapHub<StockHub>("/stockHub"); //endpoint clients will connect to this using JS
 
         app.MapControllerRoute(
             name: "default",
