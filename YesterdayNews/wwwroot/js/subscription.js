@@ -51,7 +51,7 @@ function loadDataTable(status) {
 function Delete(url) {
     Swal.fire({
         title: "Are you sure?",
-        text: "If Payment is confirmed, refund will be issued for the customer!",
+        text: "No refunds as per policy, you will continue reading the news anyway 😅!",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3A2512",

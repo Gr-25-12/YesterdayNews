@@ -2,16 +2,19 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Scripting;
 using System.Security.Claims;
 using YesterdayNews.Data;
 using YesterdayNews.Models.ViewModels;
 using YesterdayNews.Utils;
+using static System.Collections.Specialized.BitVector32;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace YesterdayNews.Controllers
 {
   
         
-        [Authorize(Roles = StaticConsts.Role_Admin)]
+       
         public class UserController : Controller
         {
             private readonly ApplicationDbContext _db;
@@ -22,13 +25,13 @@ namespace YesterdayNews.Controllers
                 _db = db;
                 _userManager = userManager;
             }
-
-            public IActionResult Index()
+        [Authorize(Roles = StaticConsts.Role_Admin)]
+        public IActionResult Index()
             {
                 return View();
             }
-
-            public IActionResult RoleMangement(string userId)
+        [Authorize(Roles = StaticConsts.Role_Admin)]
+        public IActionResult RoleMangement(string userId)
             {
                 string RoleId = _db.UserRoles.FirstOrDefault(u => u.UserId == userId).RoleId;
 
@@ -49,8 +52,8 @@ namespace YesterdayNews.Controllers
 
                 return View(roleVM);
             }
-
-            [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Admin)]
+        [HttpPost]
             public IActionResult RoleMangement(RoleMangementVM roleVM)
             {
                 string RoleId = _db.UserRoles.FirstOrDefault(u => u.UserId == roleVM.ApplicationUser.Id).RoleId;
@@ -72,8 +75,9 @@ namespace YesterdayNews.Controllers
             }
 
 
-            #region API CALLS
-            public IActionResult GetAll()
+        #region API CALLS
+        [Authorize(Roles = StaticConsts.Role_Admin)]
+        public IActionResult GetAll()
             {
 
             var clamisIdentity = (ClaimsIdentity) User.Identity;
@@ -94,13 +98,26 @@ namespace YesterdayNews.Controllers
                 return Json(new { data = usersList });
             }
 
-            [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Customer)]
+        [HttpPost]
             public IActionResult LockUnlock([FromBody] string id)
             {
 
-                var userFromDb = _db.Users.FirstOrDefault(u => u.Id == id);
+            var userFromDb = _db.Users.FirstOrDefault(u => u.Id == id);
+            var clamisIdentity = (ClaimsIdentity)User.Identity;
+            var loggedInUserId = clamisIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                if (userFromDb == null)
+            if (User.IsInRole(StaticConsts.Role_Admin) && id == loggedInUserId)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Admins cannot delete their own accounts.",
+                    isAdminSelfDelete = true
+                });
+            }
+
+            if (userFromDb == null)
                 {
                     return Json(new { success = false, message = "Error while Lokcing" });
 
@@ -110,14 +127,17 @@ namespace YesterdayNews.Controllers
                 {
                     // user is currently locked
                     userFromDb.LockoutEnd = DateTime.UtcNow;
+                TempData["success"]= "User unlcoked " ;
+
                 }
                 else
                 {
                     userFromDb.LockoutEnd = DateTime.UtcNow.AddYears(100);
+                TempData["success"] = "User deleted 🙋‍🙋‍ , bye bye! ";
 
-                }
+            }
                 _db.SaveChanges();
-                return Json(new { success = true, message = "User locked/unlocked succssedfully" });
+                return Json(new { success = true, message = TempData["success"] });
             }
 
             #endregion
