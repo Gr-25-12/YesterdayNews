@@ -37,8 +37,10 @@ namespace YesterdayNews.Services
                 throw new Exception("Subscription type not found.");
 
             subscriptionType.TypeName = updatedSubscriptionType.TypeName;
+
             subscriptionType.Price = updatedSubscriptionType.Price;
             subscriptionType.Description = updatedSubscriptionType.Description;
+
             _db.SaveChanges();
         }
      
