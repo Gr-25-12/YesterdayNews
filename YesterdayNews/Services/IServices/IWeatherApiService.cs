@@ -4,6 +4,8 @@ namespace YesterdayNews.Services.IServices
 {
     public interface IWeatherApiService
     {
-       Task<Weather> GetWeatherAsync();
+        Task<List<Weather>> GetWeatherByCityAsync(string city);
+        Weather GetCurrentForecast(List<Weather> forecasts);
+
     }
 }

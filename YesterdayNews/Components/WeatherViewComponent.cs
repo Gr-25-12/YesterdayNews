@@ -1,4 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using YesterdayNews.Models.Api;
+using YesterdayNews.Services.IServices;
+using System.Threading.Tasks;
+
+
 
 namespace YesterdayNews.Components
 {
@@ -6,10 +11,27 @@ namespace YesterdayNews.Components
     {
 
 
+        private readonly IWeatherApiService _weatherApiService;
 
-        public IViewComponentResult Invoke()
+        public WeatherViewComponent(IWeatherApiService weatherApiService)
         {
-            return View();
+            _weatherApiService = weatherApiService;
         }
+
+
+        public async Task<IViewComponentResult> InvokeAsync(string city)
+        {
+            if (string.IsNullOrEmpty(city))
+            {
+                return View(null); 
+            }
+
+            var forecasts = await _weatherApiService.GetWeatherByCityAsync(city);
+
+            var currentForecast = _weatherApiService.GetCurrentForecast(forecasts);
+
+            return View(currentForecast);
+        }
+
     }
 }
