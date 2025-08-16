@@ -55,13 +55,15 @@ document.addEventListener('DOMContentLoaded', function () {
         document.addEventListener('turbolinks:click', showGlobalLoader);
         document.addEventListener('turbolinks:render', hideGlobalLoader);
     }
-
+   
     // For forms submissions
     document.addEventListener('submit', function (e) {
         const form = e.target;
         if (form.method.toLowerCase() === 'get') return;
         showGlobalLoader();
     });
+
+    showHoursAgo();
 });
 
 
@@ -109,3 +111,21 @@ function Delete(url) {
         }
     });
 }
+function showHoursAgo(selector = '.time-ago') {
+    document.querySelectorAll(selector).forEach(el => {
+        const timestamp = new Date(el.dataset.timestamp);
+        const now = new Date();
+        const diffMs = now - timestamp;
+        const diffHours = Math.floor(diffMs / 1000 / 60 / 60);
+        const span = el.querySelector('.hours-ago');
+        if (span) {
+            span.textContent = `${diffHours} h ago`;
+        }
+    });
+}
+
+tinymce.init({
+    selector: 'textarea',
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+});

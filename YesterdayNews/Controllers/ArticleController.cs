@@ -40,9 +40,7 @@ namespace YesterdayNews.Controllers
         }
         public IActionResult Details(int id)
         {
-            
-                var userId = _userManager.GetUserId(User);
-                var article = _articleServices.GetById(id, userId);
+                var article = _articleServices.GetById(id);
 
                 if (article == null)
                 {
@@ -50,49 +48,12 @@ namespace YesterdayNews.Controllers
                 return RedirectToAction("Index");
                 }
 
-            // Check if view cookie exists
-                string cookieName = $"ArticleView_{id}";
-            if (!Request.Cookies.ContainsKey(cookieName))
-            {
-                
-                _articleServices.IncrementViews(id);
-                Response.Cookies.Append(cookieName, "Viewed", new CookieOptions
-                {
-                    Expires = DateTime.Now.AddDays(StaticConsts.Cookie_Expires_IN),
-                    HttpOnly = true,
-                    Secure = true, 
-                    SameSite = SameSiteMode.Lax
-                });
-            }
             return View(article);
             
             
         }
 
-        [HttpPost]
-        public IActionResult ToggleLike(int id)
-        {
-            
-                if (!User.Identity.IsAuthenticated)
-                {
-                    TempData["error"] = "You must be logged in to like articles";
-                    return RedirectToAction("Details", new { id });
-                }
-
-                var userId = _userManager.GetUserId(User);
-                if (string.IsNullOrEmpty(userId))
-                {
-                    TempData["error"] = "User not found";
-                    return RedirectToAction("Details", new { id });
-                }
-
-                var result = _articleServices.ToggleLike(userId, id);
-                TempData["success"] = result ? "Article liked!" : "Article unliked!";
-
-                return RedirectToAction("Details", new { id });
-            
-           
-        }
+        
 
      
         #region API CALLS
@@ -156,7 +117,7 @@ namespace YesterdayNews.Controllers
         {
             try
             {
-                var articleToDelete = _articleServices.GetOne(id);
+                var articleToDelete = _articleServices.GetById(id);
                 if (articleToDelete == null)
                 {
                     TempData["error"] = "Article not found!";
@@ -213,7 +174,7 @@ namespace YesterdayNews.Controllers
                 if (newImageLink != null)
                     article.ImageLink = newImageLink;
 
-                article.DateStamp = DateTime.Now;
+                article.DateStamp = DateTime.UtcNow;
                 if (action == "draft")
                     article.ArticleStatus = ArticleStatus.Draft;
                 else if (action == "review")
@@ -414,7 +375,7 @@ namespace YesterdayNews.Controllers
                 if (article == null) return NotFound();
 
                 article.ArticleStatus = ArticleStatus.Published;
-                article.DateStamp = DateTime.Now;
+                article.DateStamp = DateTime.UtcNow;
                 _articleServices.Edit(article);
 
                 TempData["success"] = "Article published successfully";

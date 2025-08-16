@@ -5,127 +5,6 @@
     ViewData["Title"] = "Register";
 }
 
-
-
-@* <div class="card shadow border-0 mt-4">
-    <div class="card-header bg-secondary bg-gradient m-lg-0 py-0">
-        <div class="row">
-            <div class="col-md-12 text-center py-2">
-                <h2 class="py-2 text-light">@ViewData["Title"]</h2>
-
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-12">
-                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                    <h2>Create a new account.</h2>
-                    <hr />
-
-
-                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                        <label asp-for="Input.Email" class="ms-2">Email</label>
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
-                    </div>
-
-                    @if (!User.IsInRole(StaticConsts.Role_Admin))
-                    {
-                        <div class="row">
-
-                            <div class="form-floating mb-3 col-md-6">
-                                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                                <label asp-for="Input.Password" class="ms-2">Password</label>
-                                <span asp-validation-for="Input.Password" class="text-danger"></span>
-                            </div>
-                            <div class="form-floating mb-3 col-md-6">
-                                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                                <label asp-for="Input.ConfirmPassword" class="ms-2">Confirm Password</label>
-                                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-                            </div>
-                        </div>
-                    } else
-                    {
-
-                            <!-- Hidden fields to prevet model is invalid  -->
-                            <input type="hidden" asp-for="Input.Password" value="Dummy123!" />
-                            <input type="hidden" asp-for="Input.ConfirmPassword" value="Dummy123!" />
-
-                    }
-                    <div class="row">
-
-                        <div class="form-floating mb-3 col-md-4">
-                            <input asp-for="Input.FirstName" class="form-control" aria-required="true" placeholder="First Name" />
-                            <label asp-for="Input.FirstName" class="ms-2">FirstName</label>
-                            <span asp-validation-for="Input.FirstName" class="text-danger"></span>
-                        </div>
-                        <div class="form-floating mb-3 col-md-4">
-                            <input asp-for="Input.LastName" class="form-control" aria-required="true" placeholder="LastName" />
-                            <label asp-for="Input.LastName" class="ms-2">Last Name</label>
-                            <span asp-validation-for="Input.LastName" class="text-danger"></span>
-                        </div>
-                        <div class="form-floating mb-3 col-md-4">
-                            <input type="date" asp-for="Input.DateOfBirth" class="form-control" placeholder="Date of Birth" />
-                            <label asp-for="Input.DateOfBirth" class="ms-2">Date of Birth</label>
-                            <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
-                        </div>
-                        @if (User.IsInRole(StaticConsts.Role_Admin))
-                        {
-                            <div class="form-floating mb-3">
-                                <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select">
-                                    <option disabled selected>--Role--</option>
-
-                                            </select>   
-                            </div>
-                        }
-                    </div>
-                    <div class="col-md-12">
-
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-                    </div>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                                <p>
-                                    There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                                        article
-                                        about setting up this ASP.NET application to support logging in via external services
-                                    </a>.
-                                </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
-                }
-            }
-        </section>
-    </div>
-</div>
-</div>
-</div>
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-} *@
-
-
 <div class="min-vh-100 d-flex align-items-center justify-content-center">
     <div class="container">
         <div class="row justify-content-center align-content-center">
@@ -253,37 +132,62 @@
 
                             @if (!User.IsInRole(StaticConsts.Role_Admin))
                             {
-                                <div class="col-lg-6 d-flex align-items-center justify-content-center">
-                                    <div class="p-4 text-center w-100">
+                                <div class="row">
+                                        <div class="d-flex justify-content-center align-content-center">
 
-                                        <h5 class="fw-bold mb-3">Already have an account?</h5>
+                                    <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                                        <div class="p-4 text-center w-100">
+
+                                            <h5 class="fw-bold mb-3">Already have an account?</h5>
                                         <a href="/Identity/Account/Login" class="btn btn-outline-success text-primary rounded-pill px-4">
                                             Sign In <i class="bi bi-box-arrow-in-right ms-2"></i>
-                                        </a>
+                                            </a>
 
-                                        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
-                                        {
+                                            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                                            {
 
-                                            <div class="mt-4">
-                                                <div class="d-flex align-items-center mb-3">
-                                                    <hr class="flex-grow-1">
-                                                    <span class="px-3 small text-muted">OR CONTINUE WITH</span>
-                                                    <hr class="flex-grow-1">
-                                                </div>
-                                                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                                                    <div class="d-flex justify-content-center gap-2">
-                                                        @foreach (var provider in Model.ExternalLogins!)
-                                                        {
-                                                            <button type="submit" class="btn btn-outline-secondary rounded-circle p-2" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
-                                                                <i class="bi bi-@(provider.DisplayName.ToLower()) fs-5"></i>
-                                                            </button>
-                                                        }
+                                                <div class="mt-4">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <hr class="flex-grow-1">
+                                                        <span class="px-3 small text-muted">OR CONTINUE WITH</span>
+                                                        <hr class="flex-grow-1">
                                                     </div>
-                                                </form>
-                                            </div>
-                                        }    
+                                                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                                        <div class="d-flex flex-column gap-2 w-100">
+                                                            <!-- Changed to column layout -->
+                                                            @foreach (var provider in Model.ExternalLogins!)
+                                                            {
+                                                                <button type="submit"
+                                                                        class="btn btn-outline-secondary d-flex align-items-center justify-content-center py-3"
+                                                                        style="border-radius: 12px;"
+                                                                        name="provider"
+                                                                        value="@provider.Name"
+                                                                        title="Log in using your @provider.DisplayName account">
+                                                                    <div class="d-flex align-items-center gap-3">
+                                                                        @if (provider.DisplayName == "Microsoft")
+                                                                        {
+                                                                            <i class="fab fa-microsoft" style="font-size: 24px; color: #00a1f1;"></i>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/@(provider.DisplayName.ToLower())/@(provider.DisplayName.ToLower())-original.svg"
+                                                                                 alt="@provider.DisplayName"
+                                                                                 style="width: 24px; height: 24px;" />
+                                                                        }
+                                                                        <span class="fw-medium">Sign in with @provider.DisplayName</span>
+                                                                    </div>
+                                                                </button>
+                                                            }
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
+
+                                        </div>
                                 </div>
+
                             } 
                             
                                

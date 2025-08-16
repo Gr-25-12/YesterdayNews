@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using YesterdayNews.Models.Db;
+using YesterdayNews.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
 {
@@ -55,6 +58,20 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            [Required]
+
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [Required]
+
+            [Display(Name = "Last Name")]
+
+            public string LastName { get; set; }
+
+            [DataType(DataType.Date)]
+            [Display(Name = "Date of Birth")]
+            public DateOnly? DateOfBirth { get; set; }
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
@@ -64,11 +81,17 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
+            var appUser = user as User;
+            var firstName = appUser.FirstName;
+            var lastName = appUser.LastName;
+            var dateOfBirth = appUser.DateOfBirth;
             Username = userName;
 
             Input = new InputModel
             {
+                FirstName = firstName,
+                LastName = lastName,
+                DateOfBirth = dateOfBirth,
                 PhoneNumber = phoneNumber
             };
         }
@@ -109,7 +132,23 @@ namespace YesterdayNews.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
-
+            var appUser = user as User;
+            if (appUser != null &&
+                (Input.FirstName != appUser.FirstName ||
+                Input.LastName != appUser.LastName ||
+                Input.DateOfBirth != appUser.DateOfBirth))
+            {
+                appUser.FirstName = Input.FirstName;
+                appUser.LastName = Input.LastName;
+                appUser.DateOfBirth = Input.DateOfBirth;
+                var updateResult = await _userManager.UpdateAsync(appUser);
+                if (!updateResult.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to update user info.";
+                    TempData["error"] = "Cannot update now!";
+                    return RedirectToPage();
+                }
+            }
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();

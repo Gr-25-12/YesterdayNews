@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using YesterdayNews.Data;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
-
 namespace YesterdayNews;
 
 public class Program
@@ -39,10 +39,25 @@ public class Program
         builder.Services.AddScoped<IWeatherApiService, WeatherApiService>();
         builder.Services.AddHttpClient();
 
+        builder.Services.AddScoped<IStripe, StripeServices>();
 
 
 
+        builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+         {
+             googleOptions.ClientId = builder.Configuration.GetSection("Google:ClientId").Get<string>()!;
+             
+             googleOptions.ClientSecret = builder.Configuration.GetSection("Google:ClientSecret").Get<string>()!;
+         });
+      
 
+        builder.Services.AddAuthentication().AddMicrosoftAccount(microSoftOptions =>
+        {
+            microSoftOptions.ClientId = builder.Configuration.GetSection("Microsoft:ClientId").Get<string>()!;
+            microSoftOptions.ClientSecret = builder.Configuration.GetSection("Microsoft:ClientSecret").Get<string>()!;
+
+        });
+        StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
         var app = builder.Build();

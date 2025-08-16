@@ -1,0 +1,43 @@
+﻿@model List<YesterdayNews.Models.Api.Weather>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No weather data available.</p>
+}
+else
+{
+    <h3>Forecast for @Model.First().City</h3>
+
+    <table class="weather-table">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Summary</th>
+                <th>Temp (°C)</th>
+                <th>Temp (°F)</th>
+                <th>Humidity</th>
+                <th>Wind Speed</th>
+                <th>Icon</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in Model)
+            {
+                <tr>
+                    <td>@forecast.Date.ToString("HH:mm")</td>
+                    <td>@forecast.Summary</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Humidity%</td>
+                    <td>@forecast.WindSpeed km/h</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(forecast.Icon?.Url))
+                        {
+                            <img src="@forecast.Icon.Url" alt="Weather icon" style="width: 40px;" />
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
