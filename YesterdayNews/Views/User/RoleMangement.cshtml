@@ -1,16 +1,18 @@
 ﻿@using YesterdayNews.Models.ViewModels
 @model RoleMangementVM
 
-<div class="card shadow border-0 mt-4">
-    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
-        <div class="row">
-            <div class="col-12 text-center">
-                <h2 class="text-white py-2">Manage user roles</h2>
+
+<div class="container col-8">
+
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-primary ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h6 class="text-white py-2">Role mangement dashboard</h6>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="card-body p-4">
+        <div class="card-body p-4">
         <form method="post" class="row">
             <input asp-for="ApplicationUser.Id" hidden />
 
@@ -42,7 +44,7 @@
         </form>
     </div>
 </div>
-
+</div>
 
 
 

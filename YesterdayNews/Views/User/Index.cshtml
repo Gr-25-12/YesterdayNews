@@ -1,21 +1,23 @@
 ﻿@using YesterdayNews.Models.Db;
 @model List<User>;
 
-<div class="card shadow border-0 my-4">
-    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
-        <div class="row">
-            <div class="col-12 text-center">
-                <h2 class="text-white py-2">Users List</h2>
+
+<div class="container col-12">
+
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-primary ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h6 class="text-white py-2">User mangement</h6>
+                </div>
             </div>
         </div>
-
-        <div class="col-12 text-end mb-2">
-            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> &nbsp; Create New User
+        <div class="col-md-12 text-end mt-3 pe-5 me-5">
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary">
+                <i class="bi bi-plus-circle"></i> &nbsp; Add New User
             </a>
         </div>
-    </div>
-    <div class="card-body p-4">
+        <div class="card-body p-4">
         <table id="tblData" class="table table-bordered table-striped">
             <tr>
             </tr>
@@ -23,7 +25,7 @@
     </div>
 </div>
 
-
+</div>
 
 
 @section Scripts {
