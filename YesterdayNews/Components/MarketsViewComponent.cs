@@ -15,7 +15,7 @@ namespace YesterdayNews.Components
         }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = await _financeApiServices.GetMarketVM();
+            var model = await _financeApiServices.GetMarketsVM();
             return View(model);
         }
     }

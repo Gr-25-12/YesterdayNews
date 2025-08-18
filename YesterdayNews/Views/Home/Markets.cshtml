@@ -1,0 +1,104 @@
+﻿@model YesterdayNews.Models.ViewModels.MarketsVM;
+@{
+	ViewData["Title"] = "Markets";
+}
+
+<div class="container my-4">
+	<div class="row justify-content-center">
+		<div class="col-12 col-md-7 col-lg-8">
+            <div class="card p-3 mb-3">
+				<h3>Nasdaq</h3>
+                <ul class="list-unstyled mb-2">
+                    @foreach (var kvp in Model.NasdaqStockInfo)
+                    {
+                        var symbol = kvp.Key;
+                        var stock = kvp.Value;
+                        var quote = Model.NasdaqStockPrices.ContainsKey(symbol) ? Model.NasdaqStockPrices[symbol] : null;
+                        if (quote == null) continue;
+
+                        <li class="mb-0 d-flex align-items-center" data-symbol="@symbol">
+                            <div class="flex-grow-1">
+                                <small>
+                                    <p class="mb-0 fw-bold text-break">
+                                        @stock.Description (@symbol)
+                                        Price: <span class="price">@quote.CurrentPrice.ToString("0.##")</span>
+                                        <span class="change @(quote.Change >= 0 ? "up" : "down")">
+                                            @(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")
+                                        </span>
+                                        <span class="percentage @(quote.PercentageChange >= 0 ? "up" : "down")">
+                                            (@quote.PercentageChange.ToString("0.##")%)
+                                        </span>
+                                    </p>
+                                </small>
+                            </div>
+                        </li>
+                    }
+                </ul>
+			</div>
+            <div class="card p-3 mb-3">
+				<h3>New York Stock Exchange</h3>
+                <ul class="list-unstyled mb-2">
+                    @foreach (var kvp in Model.NyseStockInfo)
+                    {
+                        var symbol = kvp.Key;
+                        var stock = kvp.Value;
+                        var quote = Model.NyseStockPrices.ContainsKey(symbol) ? Model.NyseStockPrices[symbol] : null;
+                        if (quote == null) continue;
+
+                        <li class="mb-0 d-flex align-items-center" data-symbol="@symbol">
+                            <div class="flex-grow-1">
+                                <small>
+                                    <p class="mb-0 fw-bold text-break">
+                                        @stock.Description (@symbol)
+                                        Price: <span class="price">@quote.CurrentPrice.ToString("0.##")</span>
+                                        <span class="change @(quote.Change >= 0 ? "up" : "down")">
+                                            @(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")
+                                        </span>
+                                        <span class="percentage @(quote.PercentageChange >= 0 ? "up" : "down")">
+                                            (@quote.PercentageChange.ToString("0.##")%)
+                                        </span>
+                                    </p>
+                                </small>
+                            </div>
+                        </li>
+                    }
+                </ul>
+			</div>
+            <div class="card p-3 mb-3">
+				<h3>Crypto</h3>
+                <ul class="list-unstyled mb-2">
+                    @foreach (var kvp in Model.CryptoPrices)
+                    {
+                        var symbol = kvp.Key;
+                        var stock = kvp.Value;
+                        var quote = Model.CryptoPrices.ContainsKey(symbol) ? Model.CryptoPrices[symbol] : null;
+                        if (quote == null) continue;
+
+                        <li class="mb-0 d-flex align-items-center" data-symbol="@symbol">
+                            <div class="flex-grow-1">
+                                <small>
+                                    <p class="mb-0 fw-bold text-break">
+                                        @stock.Description (@symbol)
+                                        Price: <span class="price">@quote.CurrentPrice.ToString("0.##")</span>
+                                        <span class="change @(quote.Change >= 0 ? "up" : "down")">
+                                            @(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")
+                                        </span>
+                                        <span class="percentage @(quote.PercentageChange >= 0 ? "up" : "down")">
+                                            (@quote.PercentageChange.ToString("0.##")%)
+                                        </span>
+                                    </p>
+                                </small>
+                            </div>
+                        </li>
+                    }
+                </ul>
+			</div>
+		</div>
+        <div class="col-12 col-md-5 col-lg-4">
+            @await Component.InvokeAsync("Sidebar", new { categoryId = ViewData["SelectedCategory"] ?? 0 })
+        </div>
+	</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.11/signalr.min.js"></script>
+<script src="/js/Markets.js"></script>

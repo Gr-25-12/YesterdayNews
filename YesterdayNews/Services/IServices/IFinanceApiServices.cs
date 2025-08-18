@@ -5,6 +5,6 @@ namespace YesterdayNews.Services.IServices
 {
     public interface IFinanceApiServices
     {
-        Task<MarketsVM> GetMarketVM();
+        Task<MarketsVM> GetMarketsVM();
     }
 }

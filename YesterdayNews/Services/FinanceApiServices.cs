@@ -14,27 +14,39 @@ namespace YesterdayNews.Services
             
         }
 
-        public async Task<MarketsVM> GetMarketVM()
+        public async Task<MarketsVM> GetMarketsVM()
         {
             var model = new MarketsVM();
-            var stocks = FinnhubBackgroundService.NasdaqList;
-            string[] Top3Symbols = { "NVDA", "MSFT", "AAPL" };
-            //var topStocks = stocks
-            //    .Where(s => Top3Symbols.Contains(s.Symbol))
-            //    .ToList();
 
-            foreach (var stock in stocks)
+            //Nasdaq
+            var nasdaq = FinnhubBackgroundService.NasdaqList;
+            foreach (var stock in nasdaq)
             {
                 if (string.IsNullOrWhiteSpace(stock.Symbol))
                     continue;
                 var quote = FinnhubBackgroundService.GetCachedStockQuote(stock.Symbol);
                 if(quote != null)
-                    model.StockPrices[stock.Symbol] = quote;
+                    model.NasdaqStockPrices[stock.Symbol] = quote;
 
-                model.StockInfo[stock.Symbol] = stock;
+                model.NasdaqStockInfo[stock.Symbol] = stock;
             }
+            //NYSE
+            var nyse = FinnhubBackgroundService.NyseList;
 
+            foreach (var stock in nyse)
+            {
+                if (string.IsNullOrWhiteSpace(stock.Symbol))
+                    continue;
+                var quote = FinnhubBackgroundService.GetCachedStockQuote(stock.Symbol);
+                if (quote != null)
+                    model.NyseStockPrices[stock.Symbol] = quote;
+
+                model.NyseStockInfo[stock.Symbol] = stock;
+            }
+            //CRYPTO
+            model.CryptoPrices = FinnhubBackgroundService.CryptoQuotes;
             return model;
-        }      
+        } 
+
     }
 }

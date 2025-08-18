@@ -17,13 +17,15 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly IArticleServices _articleServices;
     private readonly ILikeService _likeServices;
+    private readonly IFinanceApiServices _financeApiServices;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices ,UserManager<IdentityUser> userManager)
+    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices, IFinanceApiServices financeApiServices ,UserManager<IdentityUser> userManager)
     {
         _logger = logger;
         _articleServices = articleServices;
         _likeServices = likeServices;
+        _financeApiServices = financeApiServices;
         _userManager = userManager;
     }
 
@@ -82,6 +84,11 @@ public class HomeController : Controller
         return RedirectToAction("Details",  new { id });
 
 
+    }
+    public async Task<IActionResult> Markets()
+    {
+        var models = await _financeApiServices.GetMarketsVM();
+        return View(models);
     }
 
     public IActionResult Privacy()

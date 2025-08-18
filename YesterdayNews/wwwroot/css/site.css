@@ -379,3 +379,10 @@ form-control::placeholder,
     border-color: var(--bs-primary) !important;
     color: #fff !important;
 }
+.up {
+    color: green;
+}
+
+.down {
+    color: red;
+}

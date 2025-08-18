@@ -20,10 +20,14 @@ namespace YesterdayNews.Services
 
         //Cached data
         bool dataIsCached = false;
-        private readonly string[] symbolList = { "NVDA", "MSFT", "AAPL" };
+        private readonly string[] symbolsList = { "NVDA", "MSFT", "AAPL", "GOOG", "GOOGL", "AMZN", "META", "AVGO", "NFLX", "TSLA",
+                    "BRK.B", "TSM", "V", "LLY", "MA", "JPM", "WMT", "ORCL", "XOM", "BRK.A",
+                    "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:XRPUSDT", "BINANCE:BNBUSDT", "BINANCE:SOLUSDT", "BINANCE:DOGEUSDT", "BINANCE:TRXUSDT", "BINANCE:ADAUSDT","BINANCE:LINKUSDT", "BINANCE:HYPEUSDT" };
         public static List<UsStock>? NasdaqList { get; private set; }
         public static List<UsStock>? NyseList { get; private set; }
+        public static List<Crypto>? BinanceList { get; private set; }
         public static Dictionary<string, StockQuote> StockQuotes { get; private set; } = new();
+        public static Dictionary<string, Crypto> CryptoQuotes { get; private set; } = new();
 
         public FinnhubBackgroundService(IHubContext<StockHub> hubContext, HttpClient httpClient, IConfiguration config, ILogger<FinnhubBackgroundService> logger)
         {
@@ -44,7 +48,7 @@ namespace YesterdayNews.Services
             if (dataIsCached == false)
             {
                 //do initial API calls
-                await InitializeCachedData(symbolList);
+                await InitializeCachedData(symbolsList);
             }
 
             //Connect
@@ -53,7 +57,7 @@ namespace YesterdayNews.Services
             await websocket.ConnectAsync(new Uri(url), stoppingToken);
 
             //Subscribe-Send
-            foreach (var sym in symbolList)
+            foreach (var sym in symbolsList)
             {
                 var msg = JsonSerializer.Serialize(new { type = "subscribe", symbol = sym });
                 await websocket.SendAsync(Encoding.UTF8.GetBytes(msg), WebSocketMessageType.Text, true, stoppingToken);
@@ -73,7 +77,7 @@ namespace YesterdayNews.Services
                     var response = JsonSerializer.Deserialize<TradesResponse>(json);
                     if (response?.Data != null && response.Data.Count > 0)
                     {
-                        //store updated prices in cached StockQuotes
+                        //store updated prices in cached StockQuotes and CryptoQuotes
                         foreach (var trade in response.Data)
                         {
                             if (StockQuotes.ContainsKey(trade.Symbol))
@@ -81,19 +85,26 @@ namespace YesterdayNews.Services
                                 StockQuotes[trade.Symbol].CurrentPrice = trade.Price;
                                 StockQuotes[trade.Symbol].TimeStamp = trade.TimeStamp;
                             }
+                            else if (CryptoQuotes.ContainsKey(trade.Symbol))
+                            {
+                                CryptoQuotes[trade.Symbol].CurrentPrice = trade.Price;
+                                CryptoQuotes[trade.Symbol].TimeStamp = trade.TimeStamp;
+                            }
                         }
-
+                        var updates = MergeStocksAndCryptos();
+                        await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
                         //transform naming from JSON property names to actual names (See StockQuote model)
-                        var stockQuotesForClient = StockQuotes.ToDictionary(
-                                    kvp => kvp.Key,
-                                    kvp => new
-                                    {
-                                        CurrentPrice = kvp.Value.CurrentPrice,
-                                        PercentageChange = kvp.Value.PercentageChange
-                                    }
-                        );
+                        //var priceUpdatesForClient = StockQuotes.ToDictionary(
+                        //            kvp => kvp.Key,
+                        //            kvp => new
+                        //            {
+                        //                CurrentPrice = kvp.Value.CurrentPrice,
+                        //                PercentageChange = kvp.Value.PercentageChange
+                        //            }
+                        //);
+
                         //Send tradedata to all clients
-                        await _hubContext.Clients.All.SendAsync("ReceiveStockUpdates", stockQuotesForClient, stoppingToken);
+                        //await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", response.Data, stoppingToken);
                     }
                 }
                 catch (Exception ex)
@@ -109,13 +120,28 @@ namespace YesterdayNews.Services
             {
                 NasdaqList = await GetNasdaqStockList(); //1 API call
                 NyseList = await GetNyseStockList();    // 1 API call
+                BinanceList = await GetBinanceCryptoList(); // 1 API call
                 foreach (var symbol in SymbolList)
                 {
-                    var quote = await GetStockQuote(symbol); //symbolList size nr API calls
-                    if (quote == null)
-                        throw new Exception($"No data for symbol: {symbol}");
+                    if (symbol.Contains("BINANCE"))
+                    {
+                        foreach (var item in BinanceList)
+                        {
+                            if (item.Symbol == symbol)
+                            {
+                                CryptoQuotes[symbol] = item;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var quote = await GetStockQuote(symbol); //symbolList size nr API calls
+                        if (quote == null)
+                            throw new Exception($"No data for symbol: {symbol}");
 
-                    StockQuotes[symbol] = quote;
+                        StockQuotes[symbol] = quote;
+                    }
+
                 }
                 dataIsCached = true;
             }
@@ -131,8 +157,8 @@ namespace YesterdayNews.Services
 
             string Nasdaq = "stock/symbol?exchange=US&mic=XNAS";
             var url = $"{_baseUrl}{Nasdaq}&token={_apiKey}";
-            NasdaqList = await _httpClient.GetFromJsonAsync<List<UsStock>>(url) ?? new List<UsStock>();
-            return NasdaqList;
+            var list = await _httpClient.GetFromJsonAsync<List<UsStock>>(url) ?? new List<UsStock>();
+            return list;
         }
         private async Task<List<UsStock>> GetNyseStockList()
         {
@@ -140,8 +166,17 @@ namespace YesterdayNews.Services
 
             string Nyse = "stock/symbol?exchange=US&mic=XNYS";
             var url = $"{_baseUrl}{Nyse}&token={_apiKey}";
-            NyseList = await _httpClient.GetFromJsonAsync<List<UsStock>>(url) ?? new List<UsStock>();
-            return NyseList;
+            var list = await _httpClient.GetFromJsonAsync<List<UsStock>>(url) ?? new List<UsStock>();
+            return list;
+        }
+        private async Task<List<Crypto>> GetBinanceCryptoList()
+        {
+            if (BinanceList != null) return BinanceList;
+
+            string binance = "crypto/symbol?exchange=binance";
+            string url = $"{_baseUrl}{binance}&token={_apiKey}";
+            var list = await _httpClient.GetFromJsonAsync<List<Crypto>>(url) ?? new List<Crypto>();
+            return list;
         }
         private async Task<StockQuote> GetStockQuote(string tickerSymbol)
         {
@@ -153,6 +188,33 @@ namespace YesterdayNews.Services
         public static StockQuote? GetCachedStockQuote(string symbol)
         {
             return StockQuotes.TryGetValue(symbol, out var quote) ? quote : null;
+        }
+        public static Crypto? GetCachedCryptoQuote(string symbol)
+        {
+            return CryptoQuotes.TryGetValue(symbol, out var quote) ? quote : null;
+        }
+        private Dictionary<string, object> MergeStocksAndCryptos()
+        {
+            var updates = new Dictionary<string, object>();
+            foreach (var stockQuote in StockQuotes)
+            {
+                updates[stockQuote.Key] = new
+                {
+                    stockQuote.Value.CurrentPrice,
+                    stockQuote.Value.Change,
+                    stockQuote.Value.PercentageChange,
+                };
+            }
+            foreach (var crypto in CryptoQuotes)
+            {
+                updates[crypto.Key] = new
+                {
+                    crypto.Value.CurrentPrice,
+                    crypto.Value.Change,
+                    crypto.Value.PercentageChange,
+                };
+            }
+            return updates;
         }
 
         //public async Task<string> GetForexQuotes(string exchangeName)
