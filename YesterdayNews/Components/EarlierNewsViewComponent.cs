@@ -11,10 +11,10 @@ namespace YesterdayNews.Components
         {
             _articleServices = articleServices;
         }
-        public IViewComponentResult Invoke(int articlesToSkip)
+        public IViewComponentResult Invoke(int articlesToSkip, int categoryId = 0)
         {
             //skip number in articlesToSkip then get next 10 articles
-            var articles = _articleServices.GetAllAsArticleVM(articlesToSkip, 10);
+            var articles = _articleServices.GetAllAsArticleVM(articlesToSkip, 10, categoryId);
             return View(articles);
         }
     }

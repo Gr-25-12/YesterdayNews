@@ -28,24 +28,46 @@ namespace YesterdayNews.Services
                                .ToList();
                 
         }
-        public List<ArticleVM> GetAllAsArticleVM(int articlesToSkip, int numberOfArticles)
+        public List<ArticleVM> GetAllAsArticleVM(int articlesToSkip, int numberOfArticles, int categoryId)
         {
-            return GetAll()
-                   .Where(a => a.ArticleStatus == ArticleStatus.Published)
-                   .Skip(articlesToSkip)
-                   .Take(numberOfArticles)
-                   .Select(a => new ArticleVM
-                   {
-                       Id = a.Id,
-                       Headline = a.Headline,
-                       Summary = a.ContentSummary,
-                       ImageURL = a.ImageLink,
-                       Linktext = a.LinkText,
-                       Category = a.Category,
-                       DateStamp = a.DateStamp
-                   })
-                   .ToList();
-
+            List<ArticleVM> result = new List<ArticleVM>();
+            if (categoryId == 0)
+            {
+                result = GetAll()
+                       .Where(a => a.ArticleStatus == ArticleStatus.Published)
+                       .Skip(articlesToSkip)
+                       .Take(numberOfArticles)
+                       .Select(a => new ArticleVM
+                       {
+                           Id = a.Id,
+                           Headline = a.Headline,
+                           Summary = a.ContentSummary,
+                           ImageURL = a.ImageLink,
+                           Linktext = a.LinkText,
+                           Category = a.Category,
+                           DateStamp = a.DateStamp
+                       })
+                       .ToList();
+            }
+            else {
+                result = GetAll()
+                       .Where(a => a.ArticleStatus == ArticleStatus.Published)
+                       .Where(a => a.CategoryId == categoryId)
+                       .Skip(articlesToSkip)
+                       .Take(numberOfArticles)
+                       .Select(a => new ArticleVM
+                       {
+                           Id = a.Id,
+                           Headline = a.Headline,
+                           Summary = a.ContentSummary,
+                           ImageURL = a.ImageLink,
+                           Linktext = a.LinkText,
+                           Category = a.Category,
+                           DateStamp = a.DateStamp
+                       })
+                       .ToList();
+            }
+                return result;
         }
         public List<ArticleVM> GetAllAsArticleVM(string query)
         {

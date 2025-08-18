@@ -5,15 +5,22 @@
     ViewData["Title"] = "Register";
 }
 
-<div class="min-vh-100 d-flex align-items-center justify-content-center">
+<div class="min-vh-75 d-flex align-items-center justify-content-center mt-5">
     <div class="container">
         <div class="row justify-content-center align-content-center">
             <div class="col-lg-8">
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                     <div class="card-header bg-primary py-4">
                         <div class="text-center">
+                            @if (User.IsInRole(StaticConsts.Role_Admin))
+                            {
+                                <h2 class="text-white fw-bold mb-0">Create new user</h2>
+                            }else
+                            {
+                                
                             <h2 class="text-white fw-bold mb-0">Create Your Account</h2>
                             <p class="text-white-50 mb-0">Join our community today</p>
+                            }
                         </div>
                     </div>
                     <div class="card-body p-5">
@@ -139,7 +146,7 @@
                                         <div class="p-4 text-center w-100">
 
                                             <h5 class="fw-bold mb-3">Already have an account?</h5>
-                                        <a href="/Identity/Account/Login" class="btn btn-outline-success text-primary rounded-pill px-4">
+                                        <a href="/Identity/Account/Login" class=" bg-secondary-subtle py-2 px-2 rounded">
                                             Sign In <i class="bi bi-box-arrow-in-right ms-2"></i>
                                             </a>
 
@@ -153,18 +160,29 @@
                                                         <hr class="flex-grow-1">
                                                     </div>
                                                     <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                                                        <div class="d-flex justify-content-center gap-2">
+                                                        <div class="d-flex flex-column gap-2 w-100">
+                                                            <!-- Changed to column layout -->
                                                             @foreach (var provider in Model.ExternalLogins!)
                                                             {
                                                                 <button type="submit"
-                                                                        class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                                                        style="width: 60px; height: 60px; padding: 0;"
+                                                                        class="btn btn-outline-secondary d-flex align-items-center justify-content-center py-3"
+                                                                        style="border-radius: 12px;"
                                                                         name="provider"
                                                                         value="@provider.Name"
                                                                         title="Log in using your @provider.DisplayName account">
-                                                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/@(provider.DisplayName.ToLower())/@(provider.DisplayName.ToLower())-original.svg"
-                                                                         alt="@provider.DisplayName"
-                                                                         style="width: 32px; height: 32px;" />
+                                                                    <div class="d-flex align-items-center gap-3">
+                                                                        @if (provider.DisplayName == "Microsoft")
+                                                                        {
+                                                                            <i class="fab fa-microsoft" style="font-size: 24px; color: #00a1f1;"></i>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/@(provider.DisplayName.ToLower())/@(provider.DisplayName.ToLower())-original.svg"
+                                                                                 alt="@provider.DisplayName"
+                                                                                 style="width: 24px; height: 24px;" />
+                                                                        }
+                                                                        <span class="fw-medium">Sign in with @provider.DisplayName</span>
+                                                                    </div>
                                                                 </button>
                                                             }
                                                         </div>

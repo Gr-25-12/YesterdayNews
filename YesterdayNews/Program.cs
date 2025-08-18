@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using YesterdayNews.Data;
 using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
@@ -35,6 +36,7 @@ public class Program
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
         builder.Services.AddScoped<ILikeService, LikeService>();
+        builder.Services.AddScoped<IStripe, StripeServices>();
 
 
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
@@ -43,12 +45,15 @@ public class Program
              
              googleOptions.ClientSecret = builder.Configuration.GetSection("Google:ClientSecret").Get<string>()!;
          });
-        builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
-        {
-            facebookOptions.AppId = builder.Configuration.GetSection("Facebook:AppId").Get<string>()!;
-            facebookOptions.AppSecret = builder.Configuration.GetSection("Facebook:AppSecret").Get<string>()!;
-        });
+      
 
+        builder.Services.AddAuthentication().AddMicrosoftAccount(microSoftOptions =>
+        {
+            microSoftOptions.ClientId = builder.Configuration.GetSection("Microsoft:ClientId").Get<string>()!;
+            microSoftOptions.ClientSecret = builder.Configuration.GetSection("Microsoft:ClientSecret").Get<string>()!;
+
+        });
+        StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
         var app = builder.Build();
