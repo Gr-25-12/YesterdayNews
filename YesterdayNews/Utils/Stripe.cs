@@ -38,7 +38,7 @@ namespace YesterdayNews.Utils
                 },
                 Mode = "payment",
                 SuccessUrl = $"{domain}subscriptions/success?session_Id={{CHECKOUT_SESSION_ID}}",
-                CancelUrl = $"{domain}identity/account/manage",
+                CancelUrl = $"{domain}Identity/Account/Manage/Subscription",
                 CustomerEmail = email,
                 Metadata = new Dictionary<string, string>
                 {

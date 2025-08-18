@@ -355,6 +355,9 @@ form-control::placeholder,
     transition: transform 0.3s ease;
 }
 
+.hover-text-white:hover {
+    color: #fff !important;
+}
 
 /* Open Dropdown Animation */
 .dropdown-menu.show {
@@ -473,4 +476,25 @@ description-container {
 
 .bg-gradient-danger {
     background: linear-gradient(135deg, #dc3545 0%, #9c1c2b 100%);
+}
+
+/*Remove padding and adjust colors */
+.hover-bg-secondary:hover {
+    background-color: var(--bs-secondary) !important;
+}
+
+
+.navbar-nav .nav-link {
+    padding: 0.75rem 1.5rem;
+}
+
+/*payment toggle button*/
+.form-check-input:checked {
+    background-color: #3A2512;
+    border-color: #3A2512;
+}
+
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
 }
