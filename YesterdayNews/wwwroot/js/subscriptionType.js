@@ -16,18 +16,20 @@ function loadDataTable() {
         "columns": [
             { "data": 'typeName', "width": "20%" },
             {
-                "data": 'description', "width": "30%", "render": function (data) {
-                    // Show first 50 chars with a "Show More" toggle
+                "data": 'description', "width": "30%", "render": function (data, type, row) {
+                    // Strip HTML tags for display
+                    const strippedData = $('<div>').html(data).text();
+
                     return `
-            <div class="description-cell">
-                <span class="short-text">${data.length > 50 ? data.slice(0, 50) + '...' : data}</span>
-                ${data.length > 50 ?
-                            `<span class="full-text d-none">${data}</span>
-                     <a href="#" class="toggle-description ms-2 text-info underline">Show More</a>`
+        <div class="description-cell">
+            <span class="short-text">${strippedData.length > 50 ? strippedData.slice(0, 50) + '...' : strippedData}</span>
+            ${strippedData.length > 50 ?
+                            `<span class="full-text d-none">${strippedData}</span>
+                 <a href="#" class="toggle-description ms-2 text-info underline">Show More</a>`
                             : ''
                         }
-            </div>
-        `;
+        </div>
+    `;
                 }
              },
             {
@@ -67,5 +69,7 @@ $(document).on('click', '.toggle-description', function (e) {
     e.preventDefault();
     const $cell = $(this).closest('.description-cell');
     $cell.find('.short-text, .full-text').toggleClass('d-none');
-    $(this).text($(this).text() === 'Show More' ? 'Show Less' : 'Show More');
+    $(this).text(function (i, text) {
+        return text === 'Show More' ? 'Show Less' : 'Show More';
+    });
 });

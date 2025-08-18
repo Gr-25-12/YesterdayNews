@@ -28,6 +28,7 @@
 
                 var isActive = Model.CurrentSubscription.Expires > now;
                 var isDeleted = Model.CurrentSubscription.IsDeleted;
+                var isPaid = Model.CurrentSubscription.PaymentComplete;
 
                 if (!isActive)
                 {
@@ -35,6 +36,13 @@
                     statusBadgeClass = "bg-danger";
                     textColorClass = "text-dark";
                     statusText = "Expired";
+                }
+                else if (!isPaid)
+                {
+                    cardHeaderClass = "bg-light border-2";
+                    statusBadgeClass = "bg-danger";
+                    textColorClass = "text-dark";
+                    statusText = "Payment Pending";
                 }
                 else if (isDeleted)
                 {
@@ -152,6 +160,7 @@
                                     <th><i class="bi bi-calendar-plus me-2"></i>Start Date</th>
                                     <th><i class="bi bi-calendar-x me-2"></i>End Date</th>
                                     <th><i class="bi bi-info-circle me-2"></i>Status</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -161,14 +170,20 @@
                                         <td>@history.SubscriptionType?.TypeName</td>
                                         <td>@history.Created.ToShortDateString()</td>
                                         <td>@history.Expires?.ToShortDateString()</td>
+                                        
                                         <td>
                                             @{
                                                 
                                                 var historyIsActive = history.Expires > DateTime.UtcNow;
                                                 var historyStatus = historyIsActive ? "Active" : "Expired";
                                                 var historyBadgeClass = historyIsActive ? "bg-success" : "bg-secondary";
+                                                var hisoryIsPaid = history.PaymentComplete;
+                                                var histryStatus = hisoryIsPaid ? "paid" : "Not paid";
+                                                var historyBadgepayment = hisoryIsPaid ? "bg-success" : "bg-danger";
+                                                
                                             }
                                             <span class="badge @historyBadgeClass fs-6">@historyStatus</span>
+                                            <span class="badge @historyBadgepayment fs-6 ms-2">@histryStatus</span>
                                         </td>
                                     </tr>
                                 }

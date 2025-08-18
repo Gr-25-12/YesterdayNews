@@ -12,8 +12,15 @@
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                     <div class="card-header bg-primary py-4">
                         <div class="text-center">
+                            @if (User.IsInRole(StaticConsts.Role_Admin))
+                            {
+                                <h2 class="text-white fw-bold mb-0">Create new user</h2>
+                            }else
+                            {
+                                
                             <h2 class="text-white fw-bold mb-0">Create Your Account</h2>
                             <p class="text-white-50 mb-0">Join our community today</p>
+                            }
                         </div>
                     </div>
                     <div class="card-body p-5">

@@ -355,6 +355,9 @@ form-control::placeholder,
     transition: transform 0.3s ease;
 }
 
+.hover-text-white:hover {
+    color: #fff !important;
+}
 
 /* Open Dropdown Animation */
 .dropdown-menu.show {
@@ -485,3 +488,13 @@ description-container {
     padding: 0.75rem 1.5rem;
 }
 
+/*payment toggle button*/
+.form-check-input:checked {
+    background-color: #3A2512;
+    border-color: #3A2512;
+}
+
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+}
