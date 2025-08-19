@@ -169,13 +169,6 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                         // Admin must selet a role 
                         await _userManager.AddToRoleAsync(user, Input.Role ?? StaticConsts.Role_Customer);
 
-                        // Send admin-created account email (with password)
-                        //var emailBody =;
-                        //await _emailSender.SendEmailAsync(
-                        //    Input.Email,
-                        //    "Your Yesterday News Account is Ready",
-                        //    emailBody
-                        //);
                         await _emailSender.SendEmailAsync(Input.Email, "Your Yesterday News Account is Ready", EmailTemplate.GetAdminCreatedAccountEmail(user.FullName, generatedPassword, StaticConsts.Home_URL_DEV));
 
                         TempData["success"] = "New user created successfully!";
@@ -203,7 +196,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                             protocol: Request.Scheme);
 
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                            EmailTemplate.GetConfirmationEmail(user.FullName, callbackUrl));
 
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {

@@ -14,7 +14,7 @@ namespace YesterdayNews.Utils
                                         <style>
                                             body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #3A2512; max-width: 600px; margin: 0 auto; padding: 20px; }}
                                             .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
-                                            .header img {{ max-height: 50px; }}
+                                            .header img {{ max-height: 100px; }}
                                             .content {{ padding: 30px; background-color: #f9f9f9; }}
                                             .password-box {{ background-color: #fff; border: 2px dashed #3A2512; padding: 15px; text-align: center; font-size: 18px; margin: 20px 0; font-weight: bold; }}
                                             .button {{ background-color: #3A2512; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 15px 0; }}
@@ -45,10 +45,79 @@ namespace YesterdayNews.Utils
                                         </div>
                                         <div class='footer'>
                                             <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
+                                            <p>We bring you the news that you already know... but better! 📰</p>
                                             <p>If you didn't request this account, please contact support if you found them 😁.</p>
                                         </div>
                                     </body>
                                     </html>";
         }
+
+        public static string GetConfirmationEmail(string userName, string redirectUrl)
+        {
+            return @$"<!DOCTYPE html>
+                    <html> 
+                    <head>
+                        <style>
+                            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #3A2512; max-width: 600px; margin: 0 auto; padding: 20px; }}
+                            .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
+                            .header img {{ max-height: 100px; }}
+                            .content {{ padding: 30px; background-color: #f9f9f9; }}
+                            .welcome-text {{ font-size: 18px; margin-bottom: 25px; color: #3A2512; }}
+                            .button {{ background-color: #3A2512; color: white !important; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; font-size: 16px; }}
+                            .button:hover {{ background-color: #2a1c0d; }}
+                            .security-note {{ background-color: #fff4f4; border-left: 4px solid #d32f2f; padding: 15px; margin: 20px 0; }}
+                            .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
+                            .divider {{ border-top: 2px solid #b39086; margin: 25px 0; opacity: 0.5; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class='header'>
+                            <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/ResizedLogo.jpg' alt='Yesterday News Logo'>
+                        </div>
+    
+                        <div class='content'>
+                            <h4 style='color: #3A2512; margin-bottom: 10px;'>Welcome to Yesterday News! 🎉</h4>
+        
+                            <div class='welcome-text'>
+                                <p>Hi <strong>{userName}</strong>,</p>
+                                <p>Thank you for joining our community of news enthusiasts! We're excited to have you on board.</p>
+                            </div>
+
+                            <div class='divider'></div>
+
+                            <p style='margin-bottom: 20px;'>To complete your registration and start exploring the latest news (Only after you pay 😅), please confirm your email address:</p>
+        
+                            <div style='text-align: center;'>
+                                <a href='{redirectUrl}' class='button'>Confirm Email Address</a>
+                            </div>
+
+                            <div class='security-note'>
+                                <p style='margin: 0; color: #d32f2f;'><strong>🔒 Security Tip:</strong> We're not sure if this link has expiry.</p>
+                            </div>
+
+                            <p style='font-size: 14px; color: #666;'>
+                                If the button doesn't work, copy and paste this URL into your browser:<br>
+                                <code style='background: #f0f0f0; padding: 8px; border-radius: 4px; word-break: break-all;'>{redirectUrl}</code>
+                            </p>
+
+                            <div class='divider'></div>
+
+                            <p style='color: #666; font-size: 14px;'>
+                                <strong>What's next?</strong><br>
+                                After confirmation, you'll have access to our webiste, but you can't read any article unless you 💵 a little.
+                            </p>
+                        </div>
+    
+                        <div class='footer'>
+                            <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
+                            <p>We bring you the news that you already know... but better! 📰</p>
+                            <p style='font-size: 11px; color: #999; margin-top: 10px;'>
+                                If you didn't create this account, please ignore this email or contact our support team if you can find them 😁.
+                            </p>
+                        </div>
+                    </body>
+                    </html>";
+        }
+        
     }
 }
