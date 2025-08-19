@@ -85,9 +85,9 @@ public class HomeController : Controller
 
 
     }
-    public async Task<IActionResult> Markets()
+    public IActionResult Markets()
     {
-        var models = await _financeApiServices.GetMarketsVM();
+        var models =  _financeApiServices.GetMarketsVM();
         return View(models);
     }
 

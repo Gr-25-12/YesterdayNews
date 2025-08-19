@@ -1,33 +1,121 @@
 ﻿@model YesterdayNews.Models.ViewModels.MarketsVM
 @* Markets View Component *@
 <article class="mb-4 border p-3 pb-0 rounded shadow-sm">
-    <a asp-controller="Home" asp-action="Markets" class="flex-grow-1 text-decoration-none d-block">
-        <h5 class="text-secondary">Markets</h5>
-    </a>
-    <hr class="my-2" />
-    <ul class="list-unstyled mb-2">
-        @foreach (var kvp in Model.NasdaqStockInfo)
-        {
-            var symbol = kvp.Key;
-            var stock = kvp.Value;
-            var quote = Model.NasdaqStockPrices.ContainsKey(symbol) ? Model.NasdaqStockPrices[symbol] : null;
-            if (quote == null) continue;
+	<a asp-controller="Home" asp-action="Markets" class="flex-grow-1 text-decoration-none d-block">
+		<h5 class="text-secondary">Markets</h5>
 
-            <li class="mb-0 d-flex align-items-center" data-symbol="@symbol">
-                <div class="flex-grow-1">
-                    <small>
-                        <p class="mb-0 fw-bold text-break">
-                            @stock.Description (@symbol)
-                            Price: <span class="price">@quote.CurrentPrice.ToString("0.##")</span>
-                            <span class="percentage @(quote.PercentageChange >= 0 ? "up" : "down")">
-                                (@quote.PercentageChange.ToString("0.##")%)
-                            </span>
-                        </p>
-                    </small>
-                </div>
-            </li>
-        }
-    </ul>
+	<hr class="my-2" />
+	<div class="table-responsive">
+		<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
+			 @* NASDAQ *@
+			<thead>
+				<tr>
+					<th>NASDAQ</th>
+					<th>Price</th>
+					<th>Diff</th>
+					<th>In %</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var kvp in Model.NasdaqStockInfo)
+				{
+					var symbol = kvp.Key;
+					var stock = kvp.Value;
+					var quote = Model.NasdaqStockPrices.ContainsKey(symbol) ? Model.NasdaqStockPrices[symbol] : null;
+					if (quote == null) continue;
+					<tr>
+						<td>@stock.Description</td>
+						<td>@quote.CurrentPrice.ToString("0.##")</td>
+						<td>@(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")</td>
+						<td class="@(quote.PercentageChange >= 0 ? "up" : "down")">
+							(@quote.PercentageChange.ToString("0.##")%)
+						</td>
+					</tr>
+				}
+			</tbody>
+				@* NYSE *@
+				<thead>
+					<tr>
+						<th>NYSE</th>
+						<th>Price</th>
+						<th>Diff</th>
+						<th>In %</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					@foreach (var kvp in Model.NyseStockInfo)
+					{
+						var symbol = kvp.Key;
+						var stock = kvp.Value;
+						var quote = Model.NyseStockPrices.ContainsKey(symbol) ? Model.NyseStockPrices[symbol] : null;
+						if (quote == null) continue;
+						<tr>
+							<td>@stock.Description</td>
+							<td>@quote.CurrentPrice.ToString("0.##")</td>
+							<td>@(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")</td>
+							<td class="@(quote.PercentageChange >= 0 ? "up" : "down")">
+								(@quote.PercentageChange.ToString("0.##")%)
+							</td>
+						</tr>
+					}
+				</tbody>
+				@* Binance / Crypto *@
+				<thead>
+					<tr>
+						<th>CRYPTO</th>
+						<th>Price</th>
+						<th>Diff</th>
+						<th>In %</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					@foreach (var kvp in Model.CryptoPrices)
+					{
+						var symbol = kvp.Key;
+						var stock = kvp.Value;
+						var quote = Model.CryptoPrices.ContainsKey(symbol) ? Model.CryptoPrices[symbol] : null;
+						if (quote == null) continue;
+						<tr>
+							<td>@stock.Description</td>
+							<td>@quote.CurrentPrice.ToString("0.##")</td>
+							<td>@(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")</td>
+							<td class="@(quote.PercentageChange >= 0 ? "up" : "down")">
+								(@quote.PercentageChange.ToString("0.##")%)
+							</td>
+						</tr>
+					}
+				</tbody>
+		</table>
+	</div>
+	</a>
+@* 	<ul class="list-unstyled mb-2">
+		@foreach (var kvp in Model.NasdaqStockInfo)
+		{
+			var symbol = kvp.Key;
+			var stock = kvp.Value;
+			var quote = Model.NasdaqStockPrices.ContainsKey(symbol) ? Model.NasdaqStockPrices[symbol] : null;
+			if (quote == null) continue;
+
+			<li class="mb-0 d-flex align-items-center" data-symbol="@symbol">
+				<div class="flex-grow-1">
+					<small>
+						<p class="mb-0 fw-bold text-break">
+							@stock.Description (@symbol)
+							Price: <span class="price">@quote.CurrentPrice.ToString("0.##")</span>
+							<span class="change @(quote.Change >= 0 ? "up" : "down")">
+								@(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")
+							</span>
+							<span class="percentage @(quote.PercentageChange >= 0 ? "up" : "down")">
+								(@quote.PercentageChange.ToString("0.##")%)
+							</span>
+						</p>
+					</small>
+				</div>
+			</li>
+		}
+	</ul> *@
 </article>
 
 

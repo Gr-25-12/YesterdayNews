@@ -7,6 +7,7 @@
         for (const symbol in priceData) {
             if (!priceData.hasOwnProperty(symbol)) continue;
             const trade = priceData[symbol]; 
+            //not working in marketviewComponent because it use tables. tr / td
             const li = document.querySelector(`li[data-symbol='${symbol}']`);
             if (!li) continue;
 

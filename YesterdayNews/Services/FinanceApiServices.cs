@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis.Elfie.Model;
+using Microsoft.IdentityModel.Tokens;
 using YesterdayNews.Models.API;
 using YesterdayNews.Models.ViewModels;
 using YesterdayNews.Services.IServices;
@@ -9,39 +10,51 @@ namespace YesterdayNews.Services
     public class FinanceApiServices : IFinanceApiServices
     {
 
-        public async Task<MarketsVM> GetMarketsVM()
+        public MarketsVM GetMarketsVM(string[] symbols = null)
         {
-            var model = new MarketsVM();
+            string[] stockSymbols = FinnhubBackgroundService.StockQuotes.Keys.ToArray();
+            string[] cryptoSymbols = FinnhubBackgroundService.CryptoQuotes.Keys.ToArray();
+            string[] allSymbols = stockSymbols.Concat(cryptoSymbols).ToArray();
 
-            //Nasdaq
-            var nasdaq = FinnhubBackgroundService.NasdaqList;
-            foreach (var stock in nasdaq)
+            MarketsVM model = new MarketsVM();
+            var symbolsToUse = (symbols == null || symbols.Length == 0) ? allSymbols : symbols;
+
+            if (symbolsToUse != null)
             {
-                if (string.IsNullOrWhiteSpace(stock.Symbol))
-                    continue;
-                var quote = FinnhubBackgroundService.GetCachedStockQuote(stock.Symbol);
-                if(quote != null)
-                    model.NasdaqStockPrices[stock.Symbol] = quote;
-
-                model.NasdaqStockInfo[stock.Symbol] = stock;
+                foreach (var symbol in symbolsToUse)
+                {
+                        SetMarketVM(ref model, symbol);
+                }
             }
-            //NYSE
-            var nyse = FinnhubBackgroundService.NyseList;
-
-            foreach (var stock in nyse)
-            {
-                if (string.IsNullOrWhiteSpace(stock.Symbol))
-                    continue;
-                var quote = FinnhubBackgroundService.GetCachedStockQuote(stock.Symbol);
-                if (quote != null)
-                    model.NyseStockPrices[stock.Symbol] = quote;
-
-                model.NyseStockInfo[stock.Symbol] = stock;
-            }
-            //CRYPTO
-            model.CryptoPrices = FinnhubBackgroundService.CryptoQuotes;
             return model;
-        } 
+        }
 
+        private void SetMarketVM(ref MarketsVM model, string symbol)
+        {
+            var stockinfo = FinnhubBackgroundService.GetCachedUsStock(symbol);
+
+            if (stockinfo != null)
+            { 
+                var quote = FinnhubBackgroundService.GetCachedStockQuote(symbol);
+                if (quote != null)
+                {
+                    if (stockinfo.Mic == FinnhubBackgroundService.NASDAQ)
+                    {
+                        model.NasdaqStockPrices[symbol] = quote;
+                        model.NasdaqStockInfo[symbol] = stockinfo;
+                    }
+                    else if (stockinfo.Mic == FinnhubBackgroundService.NYSE)
+                    {
+                        model.NyseStockPrices[symbol] = quote;
+                        model.NyseStockInfo[symbol] = stockinfo;
+                    }
+                }
+            }
+            var cryptoInfo = FinnhubBackgroundService.GetCachedCryptoQuote(symbol);
+            if (cryptoInfo != null)
+            {
+                model.CryptoPrices[symbol] = cryptoInfo;
+            }
+        }
     }
 }

@@ -13,9 +13,12 @@ namespace YesterdayNews.Components
             _financeApiServices = financeApiServices;
             _categoryService = categoryService;
         }
-        public async Task<IViewComponentResult> InvokeAsync()
+        public IViewComponentResult Invoke()
         {
-            var model = await _financeApiServices.GetMarketsVM();
+             string[] stocksToDisplay = { "NVDA", "MSFT", "AAPL", "BRK.B", "TSM", "V",
+                    "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:XRPUSDT"};
+
+        var model =  _financeApiServices.GetMarketsVM(stocksToDisplay);
             return View(model);
         }
     }

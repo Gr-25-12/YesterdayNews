@@ -41,5 +41,4 @@ namespace YesterdayNews.Models.API
             }
         }
     }
-
 }

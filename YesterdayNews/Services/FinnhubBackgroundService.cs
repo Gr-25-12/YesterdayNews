@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Collections.Concurrent;
 using System.Net.Http;
@@ -18,16 +19,19 @@ namespace YesterdayNews.Services
 
         private readonly string _apiKey;
         private readonly string _baseUrl = "https://finnhub.io/api/v1/";
+        public static readonly string NYSE = "XNYS";
+        public static readonly string NASDAQ = "XNAS";
 
         //Cached data
         bool dataIsCached = false;
-        private readonly string[] symbolsList = { "NVDA", "MSFT", "AAPL", "GOOG", "GOOGL", "AMZN", "META", "AVGO", "NFLX", "TSLA",
+        private static readonly string[] symbolsList = { "NVDA", "MSFT", "AAPL", "GOOG", "GOOGL", "AMZN", "META", "AVGO", "NFLX", "TSLA",
                     "BRK.B", "TSM", "V", "LLY", "MA", "JPM", "WMT", "ORCL", "XOM", "BRK.A",
                     "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:XRPUSDT", "BINANCE:BNBUSDT", "BINANCE:SOLUSDT", "BINANCE:DOGEUSDT", "BINANCE:TRXUSDT", "BINANCE:ADAUSDT","BINANCE:LINKUSDT", "BINANCE:HYPEUSDT" };
-        public static List<UsStock>? NasdaqList { get; private set; }
-        public static List<UsStock>? NyseList { get; private set; }
-        public static List<Crypto>? BinanceList { get; private set; }
+        private static List<UsStock>? NasdaqList { get; set; }
+        private static List<UsStock>? NyseList { get; set; }
+        private static List<Crypto>? BinanceList { get; set; }
         public static ConcurrentDictionary<string, StockQuote> StockQuotes { get; private set; } = new();
+        public static ConcurrentDictionary<string, UsStock> UsStocks { get; private set; } = new();
         public static ConcurrentDictionary<string, Crypto> CryptoQuotes { get; private set; } = new();
 
         public FinnhubBackgroundService(IHubContext<StockHub> hubContext, HttpClient httpClient, IConfiguration config, ILogger<FinnhubBackgroundService> logger)
@@ -122,9 +126,13 @@ namespace YesterdayNews.Services
                     {
                         var quote = await GetStockQuote(symbol); //symbolList size nr API calls
                         if (quote == null)
-                            throw new Exception($"No data for symbol: {symbol}");
-
+                            throw new Exception($"No stock quote for symbol: {symbol}");
                         StockQuotes[symbol] = quote;
+
+                        //slow operation (loops through thousands of stocks)
+                        var info = GetNasdaqStock(symbol) ?? GetNyseStock(symbol)
+                            ?? throw new Exception($"No stock info for symbol: {symbol}");
+                        UsStocks[symbol] = info;
                     }
 
                 }
@@ -174,9 +182,37 @@ namespace YesterdayNews.Services
         {
             return StockQuotes.TryGetValue(symbol, out var quote) ? quote : null;
         }
+        public static UsStock? GetCachedUsStock(string symbol)
+        {
+            return UsStocks.TryGetValue(symbol, out var info) ? info : null;
+        }
         public static Crypto? GetCachedCryptoQuote(string symbol)
         {
             return CryptoQuotes.TryGetValue(symbol, out var quote) ? quote : null;
+        }
+        private UsStock GetNasdaqStock(string symbol)
+        {
+            if(NasdaqList  == null) 
+                return null;
+
+            foreach(var stock in NasdaqList)
+            {
+                if(stock.Symbol == symbol) 
+                    return stock;
+            }
+            return null;
+        }
+        private UsStock GetNyseStock(string symbol)
+        {
+            if(NyseList  == null) 
+                return null;
+
+            foreach(var stock in NyseList)
+            {
+                if(stock.Symbol == symbol) 
+                    return stock;
+            }
+            return null;
         }
         private Dictionary<string, object> MergeStocksAndCryptos()
         {
@@ -201,12 +237,12 @@ namespace YesterdayNews.Services
             }
             return updates;
         }
-
-        //public async Task<string> GetForexQuotes(string exchangeName)
+        //public async Task<string> GetMarketStatus(string exchangeName)
         //{
         //    throw new NotImplementedException();
         //}
-        //public async Task<string> GetCryptoQuotes(string exchangeName)
+
+        //public async Task<string> GetForexQuotes(string exchangeName)
         //{
         //    throw new NotImplementedException();
         //}
@@ -224,10 +260,6 @@ namespace YesterdayNews.Services
         //}
 
         //public async Task<string> GetCompanyNews(string tickerSymbol)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public async Task<string> GetMarketStatus(string exchangeName)
         //{
         //    throw new NotImplementedException();
         //}
