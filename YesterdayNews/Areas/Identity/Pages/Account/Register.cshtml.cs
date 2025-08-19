@@ -149,7 +149,6 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 user.DateOfBirth = Input.DateOfBirth;
@@ -160,61 +159,98 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
 
                 if (User.IsInRole(StaticConsts.Role_Admin))
                 {
-                    // Generate a strong random password
+                    // Admin-created account flow
                     var generatedPassword = GenerateRandomPassword();
                     result = await _userManager.CreateAsync(user, generatedPassword);
-                    //Send email to user with his password
-                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    if (result.Succeeded)
+                    {
+                       
+                        // Admin must selet a role 
+                        await _userManager.AddToRoleAsync(user, Input.Role ?? StaticConsts.Role_Customer);
+
+                        // Send admin-created account email (with password)
+                        var emailBody = $@"
+                                    <!DOCTYPE html>
+                                    <html>
+                                    <head>
+                                        <style>
+                                            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }}
+                                            .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
+                                            .header img {{ max-height: 50px; }}
+                                            .content {{ padding: 30px; background-color: #f9f9f9; }}
+                                            .password-box {{ background-color: #fff; border: 2px dashed #3A2512; padding: 15px; text-align: center; font-size: 18px; margin: 20px 0; font-weight: bold; }}
+                                            .button {{ background-color: #3A2512; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 15px 0; }}
+                                            .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class='header'>
+                                            <img src='https://yourwebsite.com/logo.png' alt='Yesterday News Logo'>
+                                        </div>
+                                        <div class='content'>
+                                            <h2>Your Account Is Ready!</h2>
+                                            <p>Dear {user.UserName},</p>
+                                            <p>Your administrator has created an account for you on <strong>Yesterday News</strong>.</p>
+        
+                                            <div class='password-box'>
+                                                One-Time Password:<br>
+                                                <span style='font-size: 24px; letter-spacing: 2px;'>{generatedPassword}</span>
+                                            </div>
+        
+                                            <p style='color: #d32f2f;'><strong>Important:</strong> Please change this password after your first login.</p>
+        
+                                            <p>Click below to activate your account:</p>
+                                            <a href='{HtmlEncoder.Default.Encode(returnUrl)}' class='button'>Activate Account</a>
+        
+                                            <p>If the button doesn't work, copy and paste this URL into your browser:<br>
+                                            <small>{returnUrl}</small></p>
+                                        </div>
+                                        <div class='footer'>
+                                            <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
+                                            <p>If you didn't request this account, please contact support.</p>
+                                        </div>
+                                    </body>
+                                    </html>";
+                        await _emailSender.SendEmailAsync(
+                            Input.Email,
+                            "Your Yesterday News Account is Ready",
+                            emailBody
+                        );
+
+                        TempData["success"] = "New user created successfully!";
+                        return LocalRedirect(returnUrl);
+                    }
                 }
                 else
                 {
+                    // Normal flow
                     result = await _userManager.CreateAsync(user, Input.Password);
-                }
 
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User created a new account with password.");
-
-                    // all users are customers unless specified otherwise 
-                    if (Input.Role != null)
+                    if (result.Succeeded)
                     {
-                        await _userManager.AddToRoleAsync(user, Input.Role);
-                    }
-                    else
-                    {
+                        _logger.LogInformation("User created a new account with password.");
                         await _userManager.AddToRoleAsync(user, StaticConsts.Role_Customer);
-                    }
 
+                        
+                        var userId = await _userManager.GetUserIdAsync(user);
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        var callbackUrl = Url.Page(
+                            "/Account/ConfirmEmail",
+                            pageHandler: null,
+                            values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                            protocol: Request.Scheme);
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-
-                        if (User.IsInRole(StaticConsts.Role_Admin))
+                        if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {
-                            TempData["success"] = "New user created sucssfully!";
+                            return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                         }
-                        else
-                        {
 
-                            await _signInManager.SignInAsync(user, isPersistent: false);
-                        }
+                        await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     }
                 }
@@ -224,7 +260,6 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
 
