@@ -1,10 +1,11 @@
-﻿using YesterdayNews.Models.API;
+﻿using System.Collections.Concurrent;
+using YesterdayNews.Models.API;
 
 namespace YesterdayNews.Services
 {
     public class CryptoSnapshotService : BackgroundService
     {
-        private Dictionary<string, Crypto> Cryptos;
+        private ConcurrentDictionary<string, Crypto> Cryptos;
         private const int SNAPSHOT_INTERVAL = 60000; // 60000 ms = 1 minute
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

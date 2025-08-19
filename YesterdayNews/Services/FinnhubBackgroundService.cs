@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
@@ -26,8 +27,8 @@ namespace YesterdayNews.Services
         public static List<UsStock>? NasdaqList { get; private set; }
         public static List<UsStock>? NyseList { get; private set; }
         public static List<Crypto>? BinanceList { get; private set; }
-        public static Dictionary<string, StockQuote> StockQuotes { get; private set; } = new();
-        public static Dictionary<string, Crypto> CryptoQuotes { get; private set; } = new();
+        public static ConcurrentDictionary<string, StockQuote> StockQuotes { get; private set; } = new();
+        public static ConcurrentDictionary<string, Crypto> CryptoQuotes { get; private set; } = new();
 
         public FinnhubBackgroundService(IHubContext<StockHub> hubContext, HttpClient httpClient, IConfiguration config, ILogger<FinnhubBackgroundService> logger)
         {
@@ -76,13 +77,15 @@ namespace YesterdayNews.Services
                         {
                             if (StockQuotes.ContainsKey(trade.Symbol))
                             {
-                                StockQuotes[trade.Symbol].CurrentPrice = trade.Price;
-                                StockQuotes[trade.Symbol].TimeStamp = trade.TimeStamp;
+                                var stock = StockQuotes[trade.Symbol];
+                                stock.CurrentPrice = trade.Price;
+                                stock.TimeStamp = trade.TimeStamp;
                             }
                             else if (CryptoQuotes.ContainsKey(trade.Symbol))
                             {
-                                CryptoQuotes[trade.Symbol].CurrentPrice = trade.Price;
-                                CryptoQuotes[trade.Symbol].TimeStamp = trade.TimeStamp;
+                                var crypto = CryptoQuotes[trade.Symbol];
+                                crypto.CurrentPrice = trade.Price;
+                                crypto.TimeStamp = trade.TimeStamp;
                             }
                         }
                         var updates = MergeStocksAndCryptos();

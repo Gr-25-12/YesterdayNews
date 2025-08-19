@@ -8,11 +8,6 @@ namespace YesterdayNews.Services
 {
     public class FinanceApiServices : IFinanceApiServices
     {
-        
-        public FinanceApiServices()
-        {
-            
-        }
 
         public async Task<MarketsVM> GetMarketsVM()
         {

@@ -10,6 +10,7 @@ namespace YesterdayNews.Models.API
         [JsonPropertyName("displaySymbol")] public string? DisplaySymbol { get; set; }
         [JsonPropertyName("symbol")] public string? Symbol { get; set; }
 
+        private readonly object _lock = new(); // for thread-safety
         private readonly Queue<decimal> priceSnapshots24 = new();
         private const int MAX_SNAPSHOTS = 1440;
 
@@ -28,16 +29,16 @@ namespace YesterdayNews.Models.API
 
         public void UpdateSnapshots()
         {
-            Debug.Write($"Snapshot take for {Symbol}");
-            Debug.WriteLine($", Current Price: {CurrentPrice}");
-            Debug.WriteLine($"----------------------------");
-            priceSnapshots24.Enqueue(CurrentPrice);
+            lock (_lock)
+            {
+                priceSnapshots24.Enqueue(CurrentPrice);
 
-            while (priceSnapshots24.Count > MAX_SNAPSHOTS)
-                priceSnapshots24.Dequeue();
+                while (priceSnapshots24.Count > MAX_SNAPSHOTS)
+                    priceSnapshots24.Dequeue();
 
-            if (priceSnapshots24.Count == MAX_SNAPSHOTS)
-                Price24HoursAgo = priceSnapshots24.Peek();
+                if (priceSnapshots24.Count == MAX_SNAPSHOTS)
+                    Price24HoursAgo = priceSnapshots24.Peek();
+            }
         }
     }
 
