@@ -170,53 +170,13 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                         await _userManager.AddToRoleAsync(user, Input.Role ?? StaticConsts.Role_Customer);
 
                         // Send admin-created account email (with password)
-                        var emailBody = $@"
-                                    <!DOCTYPE html>
-                                    <html>
-                                    <head>
-                                        <style>
-                                            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }}
-                                            .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
-                                            .header img {{ max-height: 50px; }}
-                                            .content {{ padding: 30px; background-color: #f9f9f9; }}
-                                            .password-box {{ background-color: #fff; border: 2px dashed #3A2512; padding: 15px; text-align: center; font-size: 18px; margin: 20px 0; font-weight: bold; }}
-                                            .button {{ background-color: #3A2512; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 15px 0; }}
-                                            .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
-                                        </style>
-                                    </head>
-                                    <body>
-                                        <div class='header'>
-                                            <img src='https://yourwebsite.com/logo.png' alt='Yesterday News Logo'>
-                                        </div>
-                                        <div class='content'>
-                                            <h2>Your Account Is Ready!</h2>
-                                            <p>Dear {user.UserName},</p>
-                                            <p>Your administrator has created an account for you on <strong>Yesterday News</strong>.</p>
-        
-                                            <div class='password-box'>
-                                                One-Time Password:<br>
-                                                <span style='font-size: 24px; letter-spacing: 2px;'>{generatedPassword}</span>
-                                            </div>
-        
-                                            <p style='color: #d32f2f;'><strong>Important:</strong> Please change this password after your first login.</p>
-        
-                                            <p>Click below to activate your account:</p>
-                                            <a href='{HtmlEncoder.Default.Encode(returnUrl)}' class='button'>Activate Account</a>
-        
-                                            <p>If the button doesn't work, copy and paste this URL into your browser:<br>
-                                            <small>{returnUrl}</small></p>
-                                        </div>
-                                        <div class='footer'>
-                                            <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
-                                            <p>If you didn't request this account, please contact support.</p>
-                                        </div>
-                                    </body>
-                                    </html>";
-                        await _emailSender.SendEmailAsync(
-                            Input.Email,
-                            "Your Yesterday News Account is Ready",
-                            emailBody
-                        );
+                        //var emailBody =;
+                        //await _emailSender.SendEmailAsync(
+                        //    Input.Email,
+                        //    "Your Yesterday News Account is Ready",
+                        //    emailBody
+                        //);
+                        await _emailSender.SendEmailAsync(Input.Email, "Your Yesterday News Account is Ready", EmailTemplate.GetAdminCreatedAccountEmail(user.FullName, generatedPassword, StaticConsts.Home_URL_DEV));
 
                         TempData["success"] = "New user created successfully!";
                         return LocalRedirect(returnUrl);
