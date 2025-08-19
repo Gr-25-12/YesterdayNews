@@ -65,7 +65,11 @@
                 </ul>
 			</div>
             <div class="card p-3 mb-3">
-				<h3>Crypto</h3>
+                <div class="d-flex align-items-center mb-2">
+                    <h3 class="me-2">Crypto</h3>
+                    <p class="fs-5">(from Binance)</p>
+                </div>
+				
                 <ul class="list-unstyled mb-2">
                     @foreach (var kvp in Model.CryptoPrices)
                     {

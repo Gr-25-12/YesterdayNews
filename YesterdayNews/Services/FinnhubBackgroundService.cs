@@ -37,12 +37,6 @@ namespace YesterdayNews.Services
             _httpClient = httpClient;
         }
 
-        /// <summary>
-        /// Updates cached data with API calls and gets tradedata with a websocket realtime
-        /// Max limit with Finnhub for free version is 50 symbols
-        /// </summary>
-        /// <param name="stoppingToken"></param>
-        /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (dataIsCached == false)
@@ -93,18 +87,6 @@ namespace YesterdayNews.Services
                         }
                         var updates = MergeStocksAndCryptos();
                         await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
-                        //transform naming from JSON property names to actual names (See StockQuote model)
-                        //var priceUpdatesForClient = StockQuotes.ToDictionary(
-                        //            kvp => kvp.Key,
-                        //            kvp => new
-                        //            {
-                        //                CurrentPrice = kvp.Value.CurrentPrice,
-                        //                PercentageChange = kvp.Value.PercentageChange
-                        //            }
-                        //);
-
-                        //Send tradedata to all clients
-                        //await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", response.Data, stoppingToken);
                     }
                 }
                 catch (Exception ex)

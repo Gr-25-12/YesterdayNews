@@ -66,6 +66,8 @@ public class Program
         });
         builder.Services.AddSingleton<FinnhubBackgroundService>(); //singleton so there is only one of this
         builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubBackgroundService>());
+        builder.Services.AddSingleton<CryptoSnapshotService>();
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
 
         var app = builder.Build();
 
