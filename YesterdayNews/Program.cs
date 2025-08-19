@@ -37,6 +37,8 @@ public class Program
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
         builder.Services.AddScoped<ILikeService, LikeService>();
         builder.Services.AddScoped<IStripe, StripeServices>();
+        builder.Services.AddHttpClient<NewsService>();
+
 
 
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>

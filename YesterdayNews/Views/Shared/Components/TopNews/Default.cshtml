@@ -1,0 +1,27 @@
+﻿@using YesterdayNews.Models.Db
+@model List<NewsArticle>
+
+<div class="card mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Top News</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var news in Model)
+            {
+                <li class="list-group-item">
+                    <a href="@news.Url" target="_blank" class="text-decoration-none">
+                        @news.Title
+                    </a>
+                    <br />
+                    <small class="text-muted">@news.SourceName - @news.PublishedAt?.ToString("g")</small>
+                </li>
+            }
+        }
+        else
+        {
+            <li class="list-group-item text-muted">No top news available at the moment.</li>
+        }
+    </ul>
+</div>
