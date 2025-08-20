@@ -167,7 +167,7 @@ namespace YesterdayNews.Utils
             </div>
 
                 <div class='content'>
-                    <h2 style='color: #3A2512;'>Payment Receipt</h2>
+                    <h6 style='color: #3A2512;'>Payment Receipt</h6>
                     <p>Hi <strong>{userName}</strong>,</p>
                     <p>Thank you for subscribing to <strong>{planName}</strong> at Yesterday News!</p>
 
