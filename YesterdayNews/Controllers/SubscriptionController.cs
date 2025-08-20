@@ -1,32 +1,35 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 using YesterdayNews.Models.Db;
-using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
 
 namespace YesterdayNews.Controllers
 {
-    [Authorize(Roles = StaticConsts.Role_Admin)]
+
 
     public class SubscriptionController : Controller
     {
         private readonly ISubscriptionServices _subscriptionServices;
         private readonly ISubscriptionTypeServices _subscriptionTypeServices;
         private readonly UserManager<IdentityUser> _userManager;
-        public SubscriptionController(ISubscriptionServices subscriptionServices, ISubscriptionTypeServices subscriptionTypeServices, UserManager<IdentityUser> userManager)
+        private readonly IStripe _stripe;
+        public SubscriptionController(ISubscriptionServices subscriptionServices, ISubscriptionTypeServices subscriptionTypeServices, UserManager<IdentityUser> userManager, IStripe stripe)
         {
             _subscriptionServices = subscriptionServices;
             _subscriptionTypeServices = subscriptionTypeServices;
             _userManager = userManager;
+            _stripe = stripe;
         }
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         [HttpGet]
         public IActionResult Create()
         {
@@ -41,6 +44,7 @@ namespace YesterdayNews.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         [HttpPost]
         public IActionResult Create(Subscription subscription)
         {
@@ -65,6 +69,8 @@ namespace YesterdayNews.Controllers
             _subscriptionServices.Add(subscription);
             return RedirectToAction("Index");
         }
+
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -76,6 +82,7 @@ namespace YesterdayNews.Controllers
             ViewBag.SubscriptionTypes = types;
             return View(subscription);
         }
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         [HttpPost]
         public IActionResult Edit(Subscription subscription)
         {
@@ -95,6 +102,7 @@ namespace YesterdayNews.Controllers
         #region API CALLS
 
         [HttpGet]
+        [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult GetAll()
         {
             var subscriptionsList = _subscriptionServices.GetAllByExpires()
@@ -113,6 +121,7 @@ namespace YesterdayNews.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Search(string searchTerm)
         {
             if (string.IsNullOrEmpty(searchTerm))
@@ -133,6 +142,7 @@ namespace YesterdayNews.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Customer)] // will be used by the customer to cancel their subscription
         public IActionResult Delete(int id)
         {
             var subscriptionToBeDeleted = _subscriptionServices.GetOne(id);
@@ -151,6 +161,8 @@ namespace YesterdayNews.Controllers
         #endregion
 
         [HttpGet]
+        [Authorize(Roles = StaticConsts.Role_Admin)]
+
         public IActionResult GetUserById(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -172,9 +184,91 @@ namespace YesterdayNews.Controllers
 
             return Json(user);
         }
+
+        [HttpPost]
+        [Authorize(Roles = StaticConsts.Role_Customer)]
+        public IActionResult SubscribeNow(int planId)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new
+                {
+                    success = false,
+                    redirectUrl = $"/Identity/Account/Login?ReturnUrl={Uri.EscapeDataString(Request.Path)}"
+                });
+            }
+
+
+            var plan = _subscriptionTypeServices.GetOne(planId);
+            if (plan == null)
+            {
+                return Json(new { success = false, message = "Selected plan not found." });
+            }
+
+            if (_subscriptionServices.HasActiveSubscription(userId))
+            {
+                return Json(new { success = false, message = "You already have an active subscription." });
+            }
+
+            var domain = $"{Request.Scheme}://{Request.Host}/";
+            var redirectUrl = _stripe.CreatePaymentSession(plan, domain, userId, email);
+
+            return Json(new { success = true, redirectUrl });
+        }
+
+        [HttpGet("subscriptions/success")]
+        [AllowAnonymous]
+        public IActionResult Success(string session_id)
+        {
+            var session = _stripe.GetSession(session_id);
+
+            if (session.PaymentStatus == "paid")
+            {
+                var userId = session.Metadata["user_id"];
+                var planId = int.Parse(session.Metadata["plan_id"]);
+
+                if (_subscriptionServices.getSelcetedPlan(planId, userId) is { PaymentComplete: true })
+                {
+
+                    TempData["Info"] = "Subscription already activated.";
+                    return View("Success");
+                }
+
+                var plan = _subscriptionTypeServices.GetOne(planId);
+                DateTime expiresAt = plan.TypeName switch
+                {
+                    StaticConsts.SubscriptionType_Yearly => DateTime.UtcNow.AddYears(1),
+                    StaticConsts.SubscriptionType_Quarterly => DateTime.UtcNow.AddMonths(3),
+                    StaticConsts.SubscriptionType_Monthly => DateTime.UtcNow.AddMonths(1),
+                    StaticConsts.SubscriptionType_Weekly => DateTime.UtcNow.AddDays(7),
+                    _ => DateTime.UtcNow.AddDays(1)
+                };
+
+
+                var subscription = new Subscription
+                {
+                    UserId = userId,
+                    SubscriptionTypeId = planId,
+                    Created = DateTime.UtcNow,
+                    Expires = expiresAt,
+                    PaymentComplete = true
+                };
+
+                _subscriptionServices.Add(subscription);
+
+                TempData["Success"] = "Subscription activated successfully!";
+                // logic to send the emails will be handled later
+                return View("Success");
+            }
+
+            TempData["Error"] = "Payment was not completed.";
+            return View("PaymentFailed");
+        }
+
     }
 }
-
-
-
 

@@ -5,7 +5,7 @@
 }
 
 <div class="container my-4">
-    <div class="row justify-content-center">
+    <div class="row justify-content-between">
         <div class="col-12 col-md-7 col-lg-8">
             @await Html.PartialAsync("_ArticlePartialView", Model)
             @await Component.InvokeAsync("EarlierNews", new { articlesToSkip = 3 })
@@ -15,3 +15,5 @@
         </div>
     </div>
 </div>
+
+

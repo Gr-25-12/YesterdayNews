@@ -21,22 +21,22 @@ function loadDataTable() {
                     if (lockout > today) {
                         //means the customer is locked
                         return `
-                        <div class="text-center">
+                        <div class="d-flex justify-content-around align-content-center">
                         
-                     <a Onclick=lockUnlock('${data.id}') class="btn btn-success text-white mx-2"> 
-                     <i class="bi bi-ublock-fill"></i> unlock user
+                     <a Onclick=lockUnlock('${data.id}') class="btn btn-outline-success text-success hover-text-white mx-3"> 
+                     <i class="bi bi-unlock"></i> unlock user
                      </a>      
-                     <a href="/User/RoleMangement?userId=${data.id}" class="btn btn-warning text-white mx-2"> 
+                     <a href="/User/RoleMangement?userId=${data.id}" class="btn btn-primary text-white mx-3"> 
                      <i class="bi bi-pencil-square"></i> Permisson
                      </a> 
                            </div>`
                     } else {
-                        return `   <div class="text-center">
+                        return `   <div class="d-flex justify-content-around align-content-center">
 
                             <a Onclick=lockUnlock('${data.id}') class="btn btn-danger text-white mx-2">
-                                <i class="bi bi-ublock-fill"></i> lock user
+                                <i class="bi bi-lock"></i> lock user
                             </a>
-                            <a href="/User/RoleMangement?userId=${data.id}" class="btn btn-warning text-white mx-2">
+                            <a href="/User/RoleMangement?userId=${data.id}" class="btn btn-primary text-white mx-2">
                                 <i class="bi bi-pencil-square"></i> Permissons
                             </a>
                         </div>`

@@ -75,6 +75,7 @@ namespace YesterdayNews.Controllers
         #region API CALLS
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult GetAll()
         {
             var typesList = _subscriptionTypeServices.GetAll();

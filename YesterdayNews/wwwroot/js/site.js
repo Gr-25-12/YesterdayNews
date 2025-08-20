@@ -123,3 +123,36 @@ function showHoursAgo(selector = '.time-ago') {
         }
     });
 }
+
+tinymce.init({
+    selector: 'textarea',
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+});
+
+
+// hide the seach bar on mobile when scrolling
+let lastScroll = 0;
+const navbar = document.querySelector('.navbar');
+const mobileButtons = document.querySelector('.position-fixed');
+
+window.addEventListener('scroll', function () {
+    if (window.innerWidth <= 992) { // Mobile only
+        const currentScroll = window.pageYOffset;
+
+        if (currentScroll <= 0) {
+            navbar.classList.remove('hide-buttons');
+            return;
+        }
+
+        if (currentScroll > lastScroll) {
+            // Scrolling down
+            navbar.classList.add('hide-buttons');
+        } else {
+            // Scrolling up
+            navbar.classList.remove('hide-buttons');
+        }
+
+        lastScroll = currentScroll;
+    }
+});
