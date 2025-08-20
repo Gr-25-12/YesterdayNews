@@ -14,7 +14,7 @@ namespace YesterdayNews.Utils
                                         <style>
                                             body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #3A2512; max-width: 600px; margin: 0 auto; padding: 20px; }}
                                             .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
-                                            .header img {{ max-height: 100px; }}
+                                            .header img {{ max-height: 50px; }}
                                             .content {{ padding: 30px; background-color: #f9f9f9; }}
                                             .password-box {{ background-color: #fff; border: 2px dashed #3A2512; padding: 15px; text-align: center; font-size: 18px; margin: 20px 0; font-weight: bold; }}
                                             .button {{ background-color: #3A2512; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 15px 0; }}
@@ -22,9 +22,17 @@ namespace YesterdayNews.Utils
                                         </style>
                                     </head>
                                     <body>
-                                        <div class='header'>
-                                            <img  src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/ResizedLogo.jpg' alt='Yesterday News Logo'>
-                                        </div>
+                                        <div class='header' style=""background-color: #3A2512; padding: 20px; text-align: center;"">
+                                <div style=""display: inline-block; vertical-align: middle;"">
+                                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png' 
+                                         alt='Yesterday News Logo' 
+                                         style=""height: 30px; width: auto; vertical-align: middle; margin-right: 10px;"">
+                                    <span style=""color: #f8f9fa; font-size: 20px; font-weight: bold; vertical-align: middle;"">
+                                        Yesterday's News
+                                    </span>
+                                </div>
+                
+                         </div>
                                         <div class='content'>
                                             <h6> <strong> Psssst! </strong> Your Account Is Ready! 🤝</h6>
                                             <p>Dear {userName},</p>
@@ -60,7 +68,7 @@ namespace YesterdayNews.Utils
                         <style>
                             body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #3A2512; max-width: 600px; margin: 0 auto; padding: 20px; }}
                             .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
-                            .header img {{ max-height: 100px; }}
+                            .header img {{ max-height: 50px; }}
                             .content {{ padding: 30px; background-color: #f9f9f9; }}
                             .welcome-text {{ font-size: 18px; margin-bottom: 25px; color: #3A2512; }}
                             .button {{ background-color: #3A2512; color: white !important; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; font-size: 16px; }}
@@ -71,9 +79,17 @@ namespace YesterdayNews.Utils
                         </style>
                     </head>
                     <body>
-                        <div class='header'>
-                            <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/ResizedLogo.jpg' alt='Yesterday News Logo'>
-                        </div>
+                         <div class='header' style=""background-color: #3A2512; padding: 20px; text-align: center;"">
+                                <div style=""display: inline-block; vertical-align: middle;"">
+                                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png' 
+                                         alt='Yesterday News Logo' 
+                                         style=""height: 30px; width: auto; vertical-align: middle; margin-right: 10px;"">
+                                    <span style=""color: #f8f9fa; font-size: 20px; font-weight: bold; vertical-align: middle;"">
+                                        Yesterday's News
+                                    </span>
+                                </div>
+                
+                         </div>
     
                         <div class='content'>
                             <h4 style='color: #3A2512; margin-bottom: 10px;'>Welcome to Yesterday News! 🎉</h4>
@@ -138,9 +154,17 @@ namespace YesterdayNews.Utils
                 </style>
             </head>
             <body>
-                <div class='header'>
-                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/loge3.png' alt='Yesterday News Logo'>
+               <div class='header' style=""background-color: #3A2512; padding: 20px; text-align: center;"">
+                <div style=""display: inline-block; vertical-align: middle;"">
+                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png' 
+                         alt='Yesterday News Logo' 
+                         style=""height: 30px; width: auto; vertical-align: middle; margin-right: 10px;"">
+                    <span style=""color: #f8f9fa; font-size: 20px; font-weight: bold; vertical-align: middle;"">
+                        Yesterday's News
+                    </span>
                 </div>
+                
+            </div>
 
                 <div class='content'>
                     <h2 style='color: #3A2512;'>Payment Receipt</h2>
