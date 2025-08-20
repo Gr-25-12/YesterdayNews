@@ -209,12 +209,12 @@
 				<ul class="list-inline mb-0 d-flex flex-nowrap overflow-auto">
 					<li class="list-inline-item">
 
-						<a asp-controller="Home" asp-action="Index" class="text-primary fw-bold text-decoration-none">Home</a>
+						<a asp-controller="Home" asp-action="Index" class="text-primary fw-bolder text-decoration-none px-3 py-2 rounded">Home</a>
 					</li>
 					@foreach (var category in categories)
 					{
 						<li class="list-inline-item">
-							<a class=" text-dark @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active bg-secondary" : "") px-3 py-2 rounded"
+							<a class=" text-dark @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active bg-secondary" : "") px-3 py-2 rounded small"
 							   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
 								@category.Name
 							</a>

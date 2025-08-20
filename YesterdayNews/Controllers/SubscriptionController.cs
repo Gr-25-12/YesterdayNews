@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using YesterdayNews.Models.Db;
@@ -16,12 +17,15 @@ namespace YesterdayNews.Controllers
         private readonly ISubscriptionTypeServices _subscriptionTypeServices;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IStripe _stripe;
-        public SubscriptionController(ISubscriptionServices subscriptionServices, ISubscriptionTypeServices subscriptionTypeServices, UserManager<IdentityUser> userManager, IStripe stripe)
+        private readonly IEmailSender _emailSender;
+
+        public SubscriptionController(ISubscriptionServices subscriptionServices, ISubscriptionTypeServices subscriptionTypeServices, UserManager<IdentityUser> userManager, IStripe stripe , IEmailSender emailSender)
         {
             _subscriptionServices = subscriptionServices;
             _subscriptionTypeServices = subscriptionTypeServices;
             _userManager = userManager;
             _stripe = stripe;
+            _emailSender = emailSender;
         }
         [Authorize(Roles = StaticConsts.Role_Admin)]
         public IActionResult Index()
@@ -225,6 +229,11 @@ namespace YesterdayNews.Controllers
         public IActionResult Success(string session_id)
         {
             var session = _stripe.GetSession(session_id);
+            if (session == null || session.PaymentStatus != "paid")
+            {
+                TempData["Info"] = "Payment was not processed sucssfully!.";
+                return RedirectToAction("Index", "Home"); 
+            }
 
             if (session.PaymentStatus == "paid")
             {
@@ -237,7 +246,8 @@ namespace YesterdayNews.Controllers
                     TempData["Info"] = "Subscription already activated.";
                     return View("Success");
                 }
-
+                var identityuser = _userManager.FindByIdAsync(userId).Result;
+                var user = identityuser as User;
                 var plan = _subscriptionTypeServices.GetOne(planId);
                 DateTime expiresAt = plan.TypeName switch
                 {
@@ -261,12 +271,15 @@ namespace YesterdayNews.Controllers
                 _subscriptionServices.Add(subscription);
 
                 TempData["Success"] = "Subscription activated successfully!";
+               
                 // logic to send the emails will be handled later
+                var emailBody = EmailTemplate.GetConfirmationSubscriptionEmail(user.FullName, plan.TypeName, plan.Price, session.Id,StaticConsts.Home_URL_DEV);
+                _emailSender.SendEmailAsync(user.Email, "Your Payment Receipt - Yesterday News", emailBody);
                 return View("Success");
             }
 
             TempData["Error"] = "Payment was not completed.";
-            return View("PaymentFailed");
+            return RedirectToAction("Index", "Home");
         }
 
     }

@@ -24,7 +24,7 @@
         public const string SubscriptionType_Weekly = "Weekly";
 
         public const string Home_URL = @"https://yesterdaynews.azurewebsites.net/";
-        public const string Home_URL_DEV = @"https://localhost:7195/Identity/Account/Login/";
+        public const string Home_URL_DEV = @"https://localhost:7195/";
 
     }
 }

@@ -118,6 +118,55 @@ namespace YesterdayNews.Utils
                     </body>
                     </html>";
         }
-        
+
+        public static string GetConfirmationSubscriptionEmail(string userName, string planName, decimal amount, string transactionId,string WebsiteUrl)
+        {
+            return @$"
+<!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #3A2512; max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
+                    .header img {{ max-height: 100px; }}
+                    .content {{ padding: 30px; background-color: #f9f9f9; }}
+                     .button {{ background-color: #3A2512; color: white !important; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; font-size: 16px; }}
+                    .receipt-box {{ background-color: #e9f7ef; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; }}
+                    .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
+                </style>
+            </head>
+            <body>
+                <div class='header'>
+                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/ResizedLogo.jpg' alt='Yesterday News Logo'>
+                </div>
+
+                <div class='content'>
+                    <h2 style='color: #3A2512;'>Payment Receipt</h2>
+                    <p>Hi <strong>{userName}</strong>,</p>
+                    <p>Thank you for subscribing to <strong>{planName}</strong> at Yesterday News!</p>
+
+                    <div class='receipt-box'>
+                        <p style='margin: 0;'><strong>✅ Payment Confirmed</strong></p>
+                        <p style='margin: 5px 0 0 0;'>Amount: <strong>{amount:C} SEK</strong></p>
+                        <p style='margin: 0;'>Transaction ID: <code>{transactionId}</code></p>
+                    </div>
+
+                            <div style='text-align: center;'>
+                                <a href='{WebsiteUrl}' class='button'>Take me to the news 😎</a>
+                            </div>
+
+                    <p>Your subscription is now active and you can start enjoying our premium content.</p>
+                    <p>If you have any questions, feel free to reach out to our support team (if you can find them 😁).</p>
+                </div>
+
+                <div class='footer'>
+                    <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
+                    <p>We bring you the news that you already know! 📰</p>
+                </div>
+            </body>
+            </html>";
+        }
+
+
     }
 }
