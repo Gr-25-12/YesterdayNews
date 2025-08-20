@@ -75,7 +75,8 @@ namespace YesterdayNews.Services
                 .Include(a => a.Author)
                 .Include(a => a.Category)
                 .Where(a => a.Headline.Contains(query) ||
-                            a.ContentSummary.Contains(query) ||
+                            a.ContentSummary.Contains(query) || 
+                            a.LinkText.Contains(query) ||
                             a.Content.Contains(query) ||
                             a.Category.Name.Contains(query) ||
                             a.Author.FirstName.Contains(query) ||
