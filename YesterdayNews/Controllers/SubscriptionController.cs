@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using YesterdayNews.Models.Db;
@@ -271,10 +270,28 @@ namespace YesterdayNews.Controllers
                 _subscriptionServices.Add(subscription);
 
                 TempData["Success"] = "Subscription activated successfully!";
+
+                // GenerateAnd send PDF receipt
+                var pdfService = new PdfService(); 
+                var pdfBytes = pdfService.GenerateReceiptPdf(user.FullName, plan.TypeName, plan.Price, session.Id);
+                var pdfFileName = $"Receipt_YesterdayNews_{plan.TypeName}_{DateTime.UtcNow:yyyyMMdd}.pdf";
+
                
-                // logic to send the emails will be handled later
-                var emailBody = EmailTemplate.GetConfirmationSubscriptionEmail(user.FullName, plan.TypeName, plan.Price, session.Id,StaticConsts.Home_URL_DEV);
-                _emailSender.SendEmailAsync(user.Email, "Your Payment Receipt - Yesterday News", emailBody);
+                var emailBody = EmailTemplate.GetConfirmationSubscriptionEmail(user.FullName, plan.TypeName, plan.Price, session.Id, StaticConsts.Home_URL);
+
+                // Use the new method that supports PDF attachments
+               
+                     _emailSender.SendEmailWithPdfAsync(
+                        user.Email,
+                        "Your Payment Receipt - Yesterday News",
+                        emailBody,
+                        pdfBytes,
+                        pdfFileName
+                    ).GetAwaiter().GetResult();
+              
+                //// logic to send the emails will be handled later
+                //var emailBody = EmailTemplate.GetConfirmationSubscriptionEmail(user.FullName, plan.TypeName, plan.Price, session.Id,StaticConsts.Home_URL_DEV);
+                //_emailSender.SendEmailAsync(user.Email, "Your Payment Receipt - Yesterday News", emailBody);
                 return View("Success");
             }
 

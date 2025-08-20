@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -169,7 +168,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                         // Admin must selet a role 
                         await _userManager.AddToRoleAsync(user, Input.Role ?? StaticConsts.Role_Customer);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Your Yesterday News Account is Ready", EmailTemplate.GetAdminCreatedAccountEmail(user.FullName, generatedPassword, StaticConsts.Home_URL_DEV));
+                        await _emailSender.SendEmailAsync(Input.Email, "Your Yesterday News Account is Ready", EmailTemplate.GetAdminCreatedAccountEmail(user.FullName, generatedPassword, StaticConsts.Home_URL));
 
                         TempData["success"] = "New user created successfully!";
                         return LocalRedirect(returnUrl);

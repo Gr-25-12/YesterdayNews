@@ -121,6 +121,8 @@ namespace YesterdayNews.Utils
 
         public static string GetConfirmationSubscriptionEmail(string userName, string planName, decimal amount, string transactionId,string WebsiteUrl)
         {
+            transactionId = transactionId.Substring(transactionId.Length - 10) ?? transactionId;
+
             return @$"
 <!DOCTYPE html>
             <html>
@@ -128,7 +130,7 @@ namespace YesterdayNews.Utils
                 <style>
                     body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #3A2512; max-width: 600px; margin: 0 auto; padding: 20px; }}
                     .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
-                    .header img {{ max-height: 100px; }}
+                    .header img {{ max-height: 50px; }}
                     .content {{ padding: 30px; background-color: #f9f9f9; }}
                      .button {{ background-color: #3A2512; color: white !important; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; font-size: 16px; }}
                     .receipt-box {{ background-color: #e9f7ef; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; }}
@@ -137,7 +139,7 @@ namespace YesterdayNews.Utils
             </head>
             <body>
                 <div class='header'>
-                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/ResizedLogo.jpg' alt='Yesterday News Logo'>
+                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/loge3.png' alt='Yesterday News Logo'>
                 </div>
 
                 <div class='content'>
@@ -147,8 +149,8 @@ namespace YesterdayNews.Utils
 
                     <div class='receipt-box'>
                         <p style='margin: 0;'><strong>✅ Payment Confirmed</strong></p>
-                        <p style='margin: 5px 0 0 0;'>Amount: <strong>{amount:C} SEK</strong></p>
-                        <p style='margin: 0;'>Transaction ID: <code>{transactionId}</code></p>
+                        <p style='margin: 5px 0 0 0;'>Amount: <strong>{amount:F2} SEK</strong></p>
+                        <p style='margin: 0;'>Transaction ID: <strong>{transactionId}<strong></p>
                     </div>
 
                             <div style='text-align: center;'>
@@ -167,6 +169,133 @@ namespace YesterdayNews.Utils
             </html>";
         }
 
+        public static string GetReceiptHtml(string userName, string planName, decimal amount, string transactionId)
+        {
+            decimal vatRate = 0.25m; 
+            decimal vatAmount = Math.Round(amount * vatRate / (1 + vatRate), 2); 
+            decimal netAmount = Math.Round(amount - vatAmount, 2);
+             transactionId = transactionId.Substring(transactionId.Length - 5) ?? transactionId;
 
+            return $@"
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset='UTF-8'>
+                        <title>Kvitto</title>
+                        <style>
+                            body {{ 
+                                font-family: Arial, sans-serif; 
+                                margin: 40px; 
+                                font-size: 12px;
+                                color: #333;
+                            }}
+                            .header {{
+                                text-align: center;
+                                margin-bottom: 30px;
+                                border-bottom: 2px solid #333;
+                                padding-bottom: 20px;
+                            }}
+                            .company-info {{
+                                text-align: center;
+                                margin-bottom: 30px;
+                            }}
+                            .receipt-info {{
+                                margin-bottom: 30px;
+                            }}
+                            .receipt-info p {{
+                                margin: 8px 0;
+                                font-size: 14px;
+                            }}
+                            table {{ 
+                                width: 100%; 
+                                border-collapse: collapse; 
+                                margin: 20px 0;
+                                font-size: 12px;
+                            }}
+                            th {{ 
+                                background-color: #f5f5f5;
+                                border: 1px solid #ddd; 
+                                padding: 12px 8px; 
+                                text-align: left;
+                                font-weight: bold;
+                            }}
+                            td {{ 
+                                border: 1px solid #ddd; 
+                                padding: 12px 8px; 
+                                text-align: left;
+                            }}
+                            .total {{ 
+                                font-weight: bold; 
+                                background-color: #f9f9f9;
+                                font-size: 14px;
+                            }}
+                            .footer {{
+                                margin-top: 40px;
+                                text-align: center;
+                                font-size: 11px;
+                                color: #666;
+                            }}
+                            .thank-you {{
+                                text-align: center;
+                                margin: 30px 0;
+                                font-size: 16px;
+                                font-weight: bold;
+                                color: #333;
+                            }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class='header'>
+                            <h1>KVITTO</h1>
+                            <h2>Yesterday News</h2>
+                        </div>
+
+                        <div class='company-info'>
+                            <strong>Yesterday News AB</strong><br>
+                            Box 1234<br>
+                            123 45 Stockholm<br>
+                            Org.nr: 556677-8899<br>
+                            Momsreg.nr: SE556677889901
+                        </div>
+
+                        <div class='receipt-info'>
+                            <p><strong>Kund:</strong> {userName}</p>
+                            <p><strong>Datum:</strong> {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm")}</p>
+                            <p><strong>Kvittonnummer:</strong> {transactionId}</p>
+                            <p><strong>Betalningsstatus:</strong> Betald</p>
+                        </div>
+
+                        <table>
+                            <tr>
+                                <th>Beskrivning</th>
+                                <th>Netto (SEK)</th>
+                                <th>Moms 25%</th>
+                                <th>Totalt inkl. moms (SEK)</th>
+                            </tr>
+                            <tr>
+                                <td>Prenumeration - {planName}</td>
+                                <td>{netAmount:F2}</td>
+                                <td>{vatAmount:F2}</td>
+                                <td>{amount:F2}</td>
+                            </tr>
+                            <tr class='total'>
+                                <td colspan='3'><strong>TOTALT ATT BETALA:</strong></td>
+                                <td><strong>{amount:F2} SEK</strong></td>
+                            </tr>
+                        </table>
+
+                        <div class='thank-you'>
+                            Tack för ditt köp!
+                        </div>
+
+                        <div class='footer'>
+                            <p>Detta är ett digitalt kvitto. Spara för dina register.</p>
+                            <p>Vid frågor, kontakta oss på support@yesterdaynews.com</p>
+                        </div>
+                    </body>
+                    </html>";
+        }
     }
+
 }
+

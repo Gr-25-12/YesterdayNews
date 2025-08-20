@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using YesterdayNews.Data;
@@ -37,6 +36,8 @@ public class Program
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
         builder.Services.AddScoped<ILikeService, LikeService>();
         builder.Services.AddScoped<IStripe, StripeServices>();
+        builder.Services.AddScoped<IPdfService, PdfService>();
+
 
 
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
