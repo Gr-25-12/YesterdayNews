@@ -1,0 +1,59 @@
+﻿@model List<OutsourcedNews.Models.ArticleDto>
+
+@{
+    ViewData["Title"] = "Top News from NewsAPI";
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="container my-4">
+        <h1 class="mb-3">Top News (from NewsAPI)</h1>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row">
+                @foreach (var news in Model)
+                {
+                    <div class="col-12 col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(news.UrlToImage))
+                            {
+                                <img src="@news.UrlToImage" class="card-img-top" alt="@news.Title" style="max-height:200px; object-fit:cover;">
+                            }
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">@news.Title</h5>
+                                <p class="card-text">@news.Description</p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        @news.SourceName
+                                        @if (!string.IsNullOrEmpty(news.Author))
+                                        {
+                                            <span> • @news.Author</span>
+                                        }
+                                        @if (news.PublishedAt.HasValue)
+                                        {
+                                            <span> • @news.PublishedAt.Value.ToString("g")</span>
+                                        }
+                                    </small>
+                                </p>
+                                <a href="@news.Url" target="_blank" class="btn btn-primary mt-auto">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>No top news available at the moment.</p>
+        }
+    </div>
+}
+else
+{
+    <div class="container my-4">
+        <div class="alert alert-warning">
+            Please log in to view the news.
+        </div>
+    </div>
+}

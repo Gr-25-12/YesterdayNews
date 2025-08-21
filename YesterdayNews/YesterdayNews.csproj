@@ -23,6 +23,7 @@
     <PackageReference Include="SendWithBrevo" Version="1.0.0" />
     <PackageReference Include="Stripe.net" Version="48.4.0" />
 	<ProjectReference Include="..\FinanceServices\FinanceServices.csproj" />
+	<ProjectReference Include="..\OutsourcedNews\OutsourcedNews.csproj" />
   </ItemGroup>
     
 
