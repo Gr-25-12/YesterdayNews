@@ -169,7 +169,7 @@ namespace YesterdayNews.Utils
                 <div class='content'>
                     <h6 style='color: #3A2512;'>Payment Receipt</h6>
                     <p>Hi <strong>{userName}</strong>,</p>
-                    <p>Thank you for subscribing to <strong>{planName}</strong> at Yesterday News!</p>
+                    <p>Thank you for subscribing to <strong>({planName} membership)</strong> at Yesterday News!</p>
 
                     <div class='receipt-box'>
                         <p style='margin: 0;'><strong>✅ Payment Confirmed</strong></p>
@@ -316,7 +316,7 @@ namespace YesterdayNews.Utils
                         </table>
 
                         <div class='thank-you'>
-                            Thank you for your money!
+                            Thank you!
                         </div>
 
                         <div class='footer'>
