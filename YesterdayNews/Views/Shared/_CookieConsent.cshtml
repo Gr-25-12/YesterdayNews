@@ -23,9 +23,13 @@
 </div>
 
 <script>
-    // Check if consent already given
-    if (!localStorage.getItem("cookieConsent")) {
+    function showCookieBanner() {
         document.getElementById("cookieConsent").classList.remove("hidden");
+    }
+
+    // Show only if no consent yet
+    if (!localStorage.getItem("cookieConsent")) {
+        showCookieBanner();
     }
 
     document.getElementById("acceptAllCookies").addEventListener("click", function () {
