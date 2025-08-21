@@ -1,5 +1,9 @@
+using FinanceServices.Services;
+using FinanceServices.Services.BackgroundServices;
+using FinanceServices.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using YesterdayNews.Data;
@@ -59,14 +63,17 @@ public class Program
         });
         StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-        builder.Services.AddSignalR().AddJsonProtocol(options =>
-        {
-            options.PayloadSerializerOptions.PropertyNamingPolicy = null;
-        });
+        
         builder.Services.AddSingleton<FinnhubBackgroundService>(); //singleton so there is only one of this
         builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubBackgroundService>());
         builder.Services.AddSingleton<CryptoSnapshotService>();
         builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
+
+        //register SignalR for the financeHub
+        builder.Services.AddSignalR().AddJsonProtocol(options =>
+        {
+            options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+        });
 
         var app = builder.Build();
 
@@ -89,7 +96,15 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapHub<StockHub>("/stockHub"); //endpoint clients will connect to this using JS
+        //setting up the financeHub so price updates can be sent real time
+        var hubContext = app.Services.GetRequiredService<IHubContext<FinanceHub>>();
+        var finnhubService = app.Services.GetRequiredService<FinnhubBackgroundService>();
+
+        finnhubService.OnPriceUpdate += async updates =>
+        {
+            await hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
+        };
+        app.MapHub<FinanceHub>("/financeHub"); //endpoint clients will connect to this using JS
 
         app.MapControllerRoute(
             name: "default",

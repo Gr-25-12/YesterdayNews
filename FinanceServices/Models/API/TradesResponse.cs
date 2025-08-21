@@ -1,7 +1,7 @@
 ﻿
 using System.Text.Json.Serialization;
 
-namespace YesterdayNews.Models.API
+namespace FinanceServices.Models.API
 {
     public class TradesResponse
     {

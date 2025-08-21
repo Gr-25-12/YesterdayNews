@@ -1,7 +1,9 @@
 ﻿using System.Collections.Concurrent;
-using YesterdayNews.Models.API;
+using FinanceServices.Models.API;
+using Microsoft.Extensions.Hosting;
 
-namespace YesterdayNews.Services
+
+namespace FinanceServices.Services.BackgroundServices
 {
     public class CryptoSnapshotService : BackgroundService
     {

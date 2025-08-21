@@ -1,12 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
+using FinanceServices.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using YesterdayNews.Models;
-using YesterdayNews.Models.Db;
 using YesterdayNews.Models.ViewModels;
-using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
 
@@ -99,7 +96,7 @@ public class HomeController : Controller
     }
     public IActionResult Markets()
     {
-        var models =  _financeApiServices.GetMarketsVM();
+        var models = _financeApiServices.GetMarketsModel();
         return View(models);
     }
 

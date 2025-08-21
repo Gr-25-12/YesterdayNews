@@ -1,22 +1,20 @@
-﻿using Microsoft.CodeAnalysis.Elfie.Model;
-using Microsoft.IdentityModel.Tokens;
-using YesterdayNews.Models.API;
-using YesterdayNews.Models.ViewModels;
-using YesterdayNews.Services.IServices;
+﻿using FinanceServices.Models;
+using FinanceServices.Services.BackgroundServices;
+using FinanceServices.Services.IServices;
 
 
-namespace YesterdayNews.Services
+namespace FinanceServices.Services
 {
     public class FinanceApiServices : IFinanceApiServices
     {
 
-        public MarketsVM GetMarketsVM(string[] symbols = null)
+        public MarketDto GetMarketsModel(string[] symbols = null)
         {
             string[] stockSymbols = FinnhubBackgroundService.StockQuotes.Keys.ToArray();
             string[] cryptoSymbols = FinnhubBackgroundService.CryptoQuotes.Keys.ToArray();
             string[] allSymbols = stockSymbols.Concat(cryptoSymbols).ToArray();
 
-            MarketsVM model = new MarketsVM();
+            MarketDto model = new MarketDto();
             var symbolsToUse = (symbols == null || symbols.Length == 0) ? allSymbols : symbols;
 
             if (symbolsToUse != null)
@@ -29,7 +27,7 @@ namespace YesterdayNews.Services
             return model;
         }
 
-        private void SetMarketVM(ref MarketsVM model, string symbol)
+        private void SetMarketVM(ref MarketDto model, string symbol)
         {
             var stockinfo = FinnhubBackgroundService.GetCachedUsStock(symbol);
 

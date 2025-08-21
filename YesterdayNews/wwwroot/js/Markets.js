@@ -1,6 +1,6 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/stockHub")
+        .withUrl("/financeHub")
         .build();
 
     connection.on("ReceivePriceUpdates", (priceData) => {

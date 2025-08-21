@@ -1,20 +1,18 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using FinanceServices.Models.API;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using System.Collections.Concurrent;
-using System.Net.Http;
+using System.Net.Http.Json;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using YesterdayNews.Hubs;
-using YesterdayNews.Models.API;
 
-namespace YesterdayNews.Services
+namespace FinanceServices.Services.BackgroundServices
 {
     public class FinnhubBackgroundService : BackgroundService
     {
-        private readonly IHubContext<StockHub> _hubContext;
-        private readonly ILogger<FinnhubBackgroundService> _logger;
+        //private readonly IHubContext<FinanceHub> _hubContext;
+        public event Action<Dictionary<string, object>> OnPriceUpdate;
         private readonly HttpClient _httpClient;
 
         private readonly string _apiKey;
@@ -34,11 +32,10 @@ namespace YesterdayNews.Services
         public static ConcurrentDictionary<string, UsStock> UsStocks { get; private set; } = new();
         public static ConcurrentDictionary<string, Crypto> CryptoQuotes { get; private set; } = new();
 
-        public FinnhubBackgroundService(IHubContext<StockHub> hubContext, HttpClient httpClient, IConfiguration config, ILogger<FinnhubBackgroundService> logger)
+        public FinnhubBackgroundService(/*IHubContext<FinanceHub> hubContext,*/ HttpClient httpClient, IConfiguration config)
         {
-            _hubContext = hubContext;
+            //_hubContext = hubContext;
             _apiKey = "" + config["Finnhub:ApiKey"];
-            _logger = logger;
             _httpClient = httpClient;
         }
 
@@ -93,14 +90,19 @@ namespace YesterdayNews.Services
                             }
                         }
                         var updates = MergeStocksAndCryptos();
-                        await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
+                        RaisePriceUpdate(updates);
+                        //await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "WebSocket parse error");
+                    Console.WriteLine($"{ex}, WebSocket parse error");
                 }
             }
+        }
+        private void RaisePriceUpdate(Dictionary<string, object> updates)
+        {
+            OnPriceUpdate?.Invoke(updates);
         }
 
         private async Task InitializeCachedData(string[] SymbolList)
@@ -141,7 +143,7 @@ namespace YesterdayNews.Services
             catch (Exception ex)
             {
                 dataIsCached = false;
-                _logger.LogError(ex, "Failed to cache data at startup");
+                Console.WriteLine($"{ex}, Failed to cache data at startup");
             }
         }
         private async Task<List<UsStock>> GetNasdaqStockList()

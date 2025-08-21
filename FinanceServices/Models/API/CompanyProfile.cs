@@ -1,4 +1,4 @@
-﻿namespace YesterdayNews.Models.API
+﻿namespace FinanceServices.Models.API
 {
     public class CompanyProfile
     {
