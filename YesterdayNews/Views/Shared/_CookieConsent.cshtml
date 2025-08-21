@@ -1,0 +1,40 @@
+﻿<div id="cookieConsent" class="fixed bottom-0 inset-x-0 bg-gray-100 text-black p-4 shadow-lg hidden">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+        <div>
+            <p class="mb-2">
+                At <strong class="text-blue-800">YesterdayNews</strong>, we use cookies to make the website work as well as possible for you.
+                We also use cookies for web analytics to make the website better.
+            </p>
+            <a href="/Home/Privacy" class="text-blue-600 hover:text-blue-800 underline text-sm">
+                Learn more about how YesterdayNews uses cookies
+            </a>
+        </div>
+        <div class="flex gap-2 mt-3 md:mt-0">
+            <button id="acceptAllCookies"
+                    class="border border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white px-4 py-2 rounded-lg">
+                Yes, I agree to all cookies
+            </button>
+            <button id="acceptNecessaryCookies"
+                    class="border border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white px-4 py-2 rounded-lg">
+                No, I only agree to necessary cookies
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Check if consent already given
+    if (!localStorage.getItem("cookieConsent")) {
+        document.getElementById("cookieConsent").classList.remove("hidden");
+    }
+
+    document.getElementById("acceptAllCookies").addEventListener("click", function () {
+        localStorage.setItem("cookieConsent", "all");
+        document.getElementById("cookieConsent").classList.add("hidden");
+    });
+
+    document.getElementById("acceptNecessaryCookies").addEventListener("click", function () {
+        localStorage.setItem("cookieConsent", "necessary");
+        document.getElementById("cookieConsent").classList.add("hidden");
+    });
+</script>
