@@ -6,7 +6,7 @@
 		var category = _categoryService.GetOne((int)categoryId);
 	}
 
-	@if (category?.Name == "Economy")
+	@if (category?.Name.ToLower() == "economy")
 	{
 		@await Component.InvokeAsync("Markets")
 	}
