@@ -31,10 +31,11 @@ namespace YesterdayNews.Utils
                             {
                                 Name = "Yesterday News " + plan.TypeName + " Subscription 👍",
                                 Description = System.Text.RegularExpressions.Regex.Replace(
-                                                        plan.Description,
-                                                        "<.*?>",
-                                                        string.Empty),
-                              
+                                    plan.Description,
+                                    "<.*?>",
+                                    string.Empty
+                                ),
+
                             },
                         },
                         Quantity = 1,
