@@ -5,6 +5,7 @@
 	ViewData["Title"] = "Yesterday's News";
 }
 
+
 <div class="container my-4">
 	<div class="row justify-content-center">
 		<div class="col-12 col-md-7 col-lg-8">
@@ -31,7 +32,7 @@
 			@await Component.InvokeAsync("EarlierNews", new { articlesToSkip = Model.Count, categoryId = ViewData["SelectedCategory"] ?? 0 })
 		</div>
 		<div class="col-12 col-md-5 col-lg-4">
-			@await Component.InvokeAsync("Sidebar")
+			@await Component.InvokeAsync("Sidebar", new { categoryId = ViewData["SelectedCategory"] ?? 0 })
 		</div>
 	</div>
 </div>

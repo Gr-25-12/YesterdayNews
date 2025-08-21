@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap');
 
 
 html {
@@ -386,6 +386,25 @@ form-control::placeholder,
     border-color: var(--bs-primary) !important;
     color: #fff !important;
 }
+.up {
+    color: green !important;
+}
+
+.down {
+    color: red !important;
+}
+
+#marketTable th,
+#marketTable td {
+    padding: 0; /* compact spacing */
+    font-size: 0.75rem; 
+    border: none;
+    white-space: nowrap;
+}
+#marketTable th{
+    font-weight: bold;
+}
+
 
 
 /*subscrtption modal*/
