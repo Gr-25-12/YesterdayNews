@@ -81,7 +81,7 @@
 							<td>@crypto.DisplaySymbol</td>
 							<td class="price">@quote.CurrentPrice.ToString("0.##")</td>
 							<td class="change">@(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")</td>
-							<td class="percentage@(quote.PercentageChange >= 0 ? "up" : "down")">
+							<td class="percentage @(quote.PercentageChange >= 0 ? "up" : "down")">
 								(@quote.PercentageChange.ToString("0.##")%)
 							</td>
 						</tr>
