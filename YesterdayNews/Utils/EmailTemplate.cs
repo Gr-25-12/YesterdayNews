@@ -1,5 +1,4 @@
 ﻿using System.Text.Encodings.Web;
-using YesterdayNews.Models.Db;
 
 namespace YesterdayNews.Utils
 {
@@ -53,7 +52,7 @@ namespace YesterdayNews.Utils
                                         </div>
                                         <div class='footer'>
                                             <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
-                                            <p>We bring you the news that you already know... but better! 📰</p>
+                                            <p>We bring you the news that you already know! 📰</p>
                                             <p>If you didn't request this account, please contact support if you found them 😁.</p>
                                         </div>
                                     </body>
@@ -111,9 +110,10 @@ namespace YesterdayNews.Utils
                                 <p style='margin: 0; color: #d32f2f;'><strong>🔒 Security Tip:</strong> We're not sure if this link has expiry.</p>
                             </div>
 
-                            <p style='font-size: 14px; color: #666;'>
-                                If the button doesn't work, copy and paste this URL into your browser:<br>
-                                <code style='background: #f0f0f0; padding: 8px; border-radius: 4px; word-break: break-all;'>{redirectUrl}</code>
+                            <p style='font-size: 14px; color: #666; margin-top: 20px;'>
+                            <strong>Need help?</strong> If the button doesn't work, you can:<br>
+                            • Try to find us.<br>
+                            • Create an issue on our <a href='https://github.com/Gr-25-12/YesterdayNews/issues' style='color: #3A2512;'>GitHub repository</a>
                             </p>
 
                             <div class='divider'></div>
@@ -126,7 +126,7 @@ namespace YesterdayNews.Utils
     
                         <div class='footer'>
                             <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
-                            <p>We bring you the news that you already know... but better! 📰</p>
+                            <p>We bring you the news that you already know! 📰</p>
                             <p style='font-size: 11px; color: #999; margin-top: 10px;'>
                                 If you didn't create this account, please ignore this email or contact our support team if you can find them 😁.
                             </p>
@@ -223,6 +223,7 @@ namespace YesterdayNews.Utils
                                 text-align: center;
                                 margin-bottom: 30px;
                             }}
+                            .img {{ max-height: 50px; }}
                             .receipt-info {{
                                 margin-bottom: 30px;
                             }}
@@ -269,52 +270,58 @@ namespace YesterdayNews.Utils
                         </style>
                     </head>
                     <body>
+                    <div style=""display: inline-block; vertical-align: left;"">
+                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png' 
+                         alt='Yesterday News Logo' 
+                         style=""height: 30px; width: auto; vertical-align: middle; margin-right: 10px;"">
+                   
+                </div>
                         <div class='header'>
-                            <h1>KVITTO</h1>
+                            <h1>RECEIPT</h1>
                             <h2>Yesterday News</h2>
                         </div>
 
                         <div class='company-info'>
                             <strong>Yesterday News AB</strong><br>
-                            Box 1234<br>
-                            123 45 Stockholm<br>
+                            Po-Box: null || undefiend<br>
+                             Sweden<br>
                             Org.nr: 556677-8899<br>
-                            Momsreg.nr: SE556677889901
+                            Tax-reg.nr: SE556677889901 – Yes, we pay our taxes
                         </div>
 
                         <div class='receipt-info'>
-                            <p><strong>Kund:</strong> {userName}</p>
-                            <p><strong>Datum:</strong> {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm")}</p>
-                            <p><strong>Kvittonnummer:</strong> {transactionId}</p>
-                            <p><strong>Betalningsstatus:</strong> Betald</p>
+                            <p><strong>Customer name:</strong> {userName}</p>
+                            <p><strong>Date:</strong> {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}</p>
+                            <p><strong>Reciept number:</strong> {transactionId}</p>
+                            <p><strong>Payment status:</strong> Paid</p>
                         </div>
 
                         <table>
                             <tr>
-                                <th>Beskrivning</th>
-                                <th>Netto (SEK)</th>
-                                <th>Moms 25%</th>
-                                <th>Totalt inkl. moms (SEK)</th>
+                                <th>Description</th>
+                                <th>Total (SEK)</th>
+                                <th>VAT 25%</th>
+                                <th>Totalt incl. VAT (SEK)</th>
                             </tr>
                             <tr>
-                                <td>Prenumeration - {planName}</td>
+                                <td>Subscription - {planName} membership</td>
                                 <td>{netAmount:F2}</td>
                                 <td>{vatAmount:F2}</td>
                                 <td>{amount:F2}</td>
                             </tr>
                             <tr class='total'>
-                                <td colspan='3'><strong>TOTALT ATT BETALA:</strong></td>
+                                <td colspan='3'><strong>TOTAL TO PAY:</strong></td>
                                 <td><strong>{amount:F2} SEK</strong></td>
                             </tr>
                         </table>
 
                         <div class='thank-you'>
-                            Tack för ditt köp!
+                            Thank you for your money!
                         </div>
 
                         <div class='footer'>
-                            <p>Detta är ett digitalt kvitto. Spara för dina register.</p>
-                            <p>Vid frågor, kontakta oss på support@yesterdaynews.com</p>
+                            <p>This is a digtal recepit , you can save it in case you want to complain 😁.</p>
+                            <p>Any questions, contact us via github because we are a team 🤝</p>
                         </div>
                     </body>
                     </html>";
