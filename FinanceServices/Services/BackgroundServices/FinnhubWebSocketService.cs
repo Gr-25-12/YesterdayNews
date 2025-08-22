@@ -98,7 +98,7 @@ namespace FinanceServices.Services.BackgroundServices
             {
                 var msg = JsonSerializer.Serialize(new { type = "subscribe", symbol = sym });
                 await websocket.SendAsync(Encoding.UTF8.GetBytes(msg), WebSocketMessageType.Text, true, stoppingToken);
-                _logger.LogInformation("Subscribed to {Symbol}", sym);
+                //_logger.LogInformation("Subscribed to {Symbol}", sym);
             }
         }
         private void UpdateResult(WebSocketReceiveResult result, byte[] buffer)
