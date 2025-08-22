@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Polly;
+using Polly.Extensions.Http;
 using Stripe;
 using YesterdayNews.Data;
 using YesterdayNews.Hubs;
@@ -44,7 +46,10 @@ public class Program
         builder.Services.AddScoped<ILikeService, LikeService>();
         builder.Services.AddScoped<IStripe, StripeServices>();
         builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
+        builder.Services.AddScoped<IExternalNewsService, ExternalNewsService>();
 
+        builder.Services.AddHttpClient<ExternalNewsService>();
+   
         builder.Services.AddHttpClient();
 
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
@@ -74,6 +79,10 @@ public class Program
         {
             options.PayloadSerializerOptions.PropertyNamingPolicy = null;
         });
+
+
+        builder.Services.AddMemoryCache();
+
 
         var app = builder.Build();
 
@@ -111,6 +120,6 @@ public class Program
             pattern: "{controller=Home}/{action=Index}/{id?}");
         app.MapRazorPages();
 
-        app.Run();
-    }
+        app.Run();    
+}
 }
