@@ -7,5 +7,6 @@ namespace FinanceServices.Services.IServices
     {
         MarketDto GetMarketsModel(string[] symbols = null);
         string[] GetSmallSymbolList();
+        string GetMarketStatus(string exchange);
     }
 }

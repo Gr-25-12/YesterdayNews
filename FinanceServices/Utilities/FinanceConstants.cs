@@ -10,6 +10,7 @@ namespace FinanceServices.Utilities
     {
         public const string BaseUrl = "https://finnhub.io/api/v1/";
 
+        public const string US = "US";
         public const string NYSE = "XNYS";
         public const string NASDAQ = "XNAS";
 

@@ -37,6 +37,10 @@ namespace FinanceServices.Services.BackgroundServices
                 //do initial API calls
                 await InitializeCachedData();
             }
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await UpdateMarketStatus(stoppingToken);
+            }
         }
         private async Task InitializeCachedData()
         {
@@ -80,6 +84,21 @@ namespace FinanceServices.Services.BackgroundServices
                 dataIsCached = false;
                 _logger.LogWarning($"{ex}, Failed to cache data at startup");
             }
+        }
+
+        private async Task UpdateMarketStatus(CancellationToken stoppingToken)
+        {
+            try
+            {
+                var marketStatus = await GetMarketStatus(FinanceConstants.US);
+                _cache.MarketStatus[FinanceConstants.US] = marketStatus;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Error fetching market status: {ex.Message}");
+            }
+
+            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
         }
         private async Task<List<UsStock>> GetNasdaqStockList()
         {
@@ -131,7 +150,7 @@ namespace FinanceServices.Services.BackgroundServices
             if (_apiCallsCounter.IsCallPossible())
             {
                 string baseUrl = FinanceConstants.BaseUrl;
-                string stockQuote = $"/quote?symbol={tickerSymbol}";
+                string stockQuote = $"quote?symbol={tickerSymbol}";
                 var url = $"{baseUrl}{stockQuote}&token={_apiKey}";
                 var quote = await _httpClient.GetFromJsonAsync<StockQuote>(url);
                 return quote;
@@ -166,10 +185,22 @@ namespace FinanceServices.Services.BackgroundServices
             return null;
         }
 
-        //public async Task<string> GetMarketStatus(string exchangeName)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public async Task<MarketStatus> GetMarketStatus(string exchange)
+        {
+            if (_apiCallsCounter.IsCallPossible())
+            {
+                string baseUrl = FinanceConstants.BaseUrl;
+                
+                string marketStatus = $"stock/market-status?exchange={exchange}";
+                var url = $"{baseUrl}{marketStatus}&token={_apiKey}";
+                var status = await _httpClient.GetFromJsonAsync<MarketStatus>(url);
+                return status;
+            }
+            else
+            {
+                throw new Exception("Api Calls Limit reached!");
+            }
+        }
 
         //public async Task<string> GetForexQuotes(string exchangeName)
         //{

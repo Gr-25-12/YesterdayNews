@@ -16,8 +16,7 @@ namespace YesterdayNews.Components
         public IViewComponentResult Invoke()
         {
             string[] stocksToDisplay = _financeApiServices.GetSmallSymbolList();
-
-        var model =  _financeApiServices.GetMarketsModel(stocksToDisplay);
+            var model =  _financeApiServices.GetMarketsModel(stocksToDisplay);
             return View(model);
         }
     }
