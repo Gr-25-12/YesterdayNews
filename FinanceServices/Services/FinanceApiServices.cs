@@ -1,17 +1,24 @@
-﻿using FinanceServices.Models;
+﻿using FinanceServices.Data;
+using FinanceServices.Models;
 using FinanceServices.Services.BackgroundServices;
 using FinanceServices.Services.IServices;
+using FinanceServices.Utilities;
 
 
 namespace FinanceServices.Services
 {
     public class FinanceApiServices : IFinanceApiServices
     {
+        private readonly MarketDataCache _marketDataCache;
+        public FinanceApiServices(MarketDataCache cache)
+        {
+            _marketDataCache = cache;
+        }
 
         public MarketDto GetMarketsModel(string[] symbols = null)
         {
-            string[] stockSymbols = FinnhubBackgroundService.StockQuotes.Keys.ToArray();
-            string[] cryptoSymbols = FinnhubBackgroundService.CryptoQuotes.Keys.ToArray();
+            string[] stockSymbols = _marketDataCache.StockQuotes.Keys.ToArray();
+            string[] cryptoSymbols = _marketDataCache.CryptoQuotes.Keys.ToArray();
             string[] allSymbols = stockSymbols.Concat(cryptoSymbols).ToArray();
 
             MarketDto model = new MarketDto();
@@ -21,34 +28,38 @@ namespace FinanceServices.Services
             {
                 foreach (var symbol in symbolsToUse)
                 {
-                        SetMarketVM(ref model, symbol);
+                    SetMarketModel(ref model, symbol);
                 }
             }
             return model;
         }
-
-        private void SetMarketVM(ref MarketDto model, string symbol)
+        public string[] GetSmallSymbolList()
         {
-            var stockinfo = FinnhubBackgroundService.GetCachedUsStock(symbol);
+            return FinanceConstants.SmallSymbolsList;
+        }
+
+        private void SetMarketModel(ref MarketDto model, string symbol)
+        {
+            var stockinfo = _marketDataCache.GetCachedUsStock(symbol);
 
             if (stockinfo != null)
-            { 
-                var quote = FinnhubBackgroundService.GetCachedStockQuote(symbol);
+            {
+                var quote = _marketDataCache.GetCachedStockQuote(symbol);
                 if (quote != null)
                 {
-                    if (stockinfo.Mic == FinnhubBackgroundService.NASDAQ)
+                    if (stockinfo.Mic == FinanceConstants.NASDAQ)
                     {
                         model.NasdaqStockPrices[symbol] = quote;
                         model.NasdaqStockInfo[symbol] = stockinfo;
                     }
-                    else if (stockinfo.Mic == FinnhubBackgroundService.NYSE)
+                    else if (stockinfo.Mic == FinanceConstants.NYSE)
                     {
                         model.NyseStockPrices[symbol] = quote;
                         model.NyseStockInfo[symbol] = stockinfo;
                     }
                 }
             }
-            var cryptoInfo = FinnhubBackgroundService.GetCachedCryptoQuote(symbol);
+            var cryptoInfo = _marketDataCache.GetCachedCryptoQuote(symbol);
             if (cryptoInfo != null)
             {
                 model.CryptoPrices[symbol] = cryptoInfo;

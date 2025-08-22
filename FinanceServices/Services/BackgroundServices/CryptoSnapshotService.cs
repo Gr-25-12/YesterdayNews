@@ -1,20 +1,27 @@
-﻿using System.Collections.Concurrent;
+﻿using FinanceServices.Data;
 using FinanceServices.Models.API;
 using Microsoft.Extensions.Hosting;
+using System.Collections.Concurrent;
 
 
 namespace FinanceServices.Services.BackgroundServices
 {
     public class CryptoSnapshotService : BackgroundService
     {
+
+        private readonly MarketDataCache _cache;
         private ConcurrentDictionary<string, Crypto> Cryptos;
         private const int SNAPSHOT_INTERVAL = 60000; // 60000 ms = 1 minute
+        public CryptoSnapshotService(MarketDataCache cache)
+        {
+            _cache = cache;
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                Cryptos = FinnhubBackgroundService.CryptoQuotes;
+                Cryptos = _cache.CryptoQuotes;
                 if (Cryptos != null)
                 {
                     UpdateAllSnapshots();

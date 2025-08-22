@@ -6,5 +6,6 @@ namespace FinanceServices.Services.IServices
     public interface IFinanceApiServices
     {
         MarketDto GetMarketsModel(string[] symbols = null);
+        string[] GetSmallSymbolList();
     }
 }

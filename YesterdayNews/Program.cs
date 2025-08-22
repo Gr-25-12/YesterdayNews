@@ -1,6 +1,8 @@
+using FinanceServices.Data;
 using FinanceServices.Services;
 using FinanceServices.Services.BackgroundServices;
 using FinanceServices.Services.IServices;
+using FinanceServices.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -63,10 +65,16 @@ public class Program
         });
         StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-        
-        builder.Services.AddSingleton<FinnhubBackgroundService>(); //singleton so there is only one of this
-        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubBackgroundService>());
+        //Finance Services
+        //Singletons
+        builder.Services.AddSingleton<MarketDataCache>();
+        builder.Services.AddSingleton<FinnhubApiCallsCounter>();
+        builder.Services.AddSingleton<FinnhubApiService>();
+        builder.Services.AddSingleton<FinnhubWebSocketService>();
         builder.Services.AddSingleton<CryptoSnapshotService>();
+            //HostetService
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubApiService>());
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubWebSocketService>());
         builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
 
         //register SignalR for the financeHub
@@ -98,11 +106,19 @@ public class Program
 
         //setting up the financeHub so price updates can be sent real time
         var hubContext = app.Services.GetRequiredService<IHubContext<FinanceHub>>();
-        var finnhubService = app.Services.GetRequiredService<FinnhubBackgroundService>();
+        var finnhubService = app.Services.GetRequiredService<FinnhubWebSocketService>();
 
         finnhubService.OnPriceUpdate += async updates =>
         {
-            await hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
+            try
+            {
+                await hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogError(ex, "Broadcast failed");
+            }
+
         };
         app.MapHub<FinanceHub>("/financeHub"); //endpoint clients will connect to this using JS
 
