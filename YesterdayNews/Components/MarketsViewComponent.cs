@@ -15,8 +15,7 @@ namespace YesterdayNews.Components
         }
         public IViewComponentResult Invoke()
         {
-             string[] stocksToDisplay = { "NVDA", "MSFT", "AAPL", "BRK.B", "TSM", "V",
-                    "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:XRPUSDT"};
+            string[] stocksToDisplay = _financeApiServices.GetSmallSymbolList();
 
         var model =  _financeApiServices.GetMarketsModel(stocksToDisplay);
             return View(model);
