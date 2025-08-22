@@ -3,6 +3,7 @@ using FinanceServices.Models.API;
 using FinanceServices.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 
 
@@ -10,6 +11,7 @@ namespace FinanceServices.Services.BackgroundServices
 {
     public class FinnhubApiService : BackgroundService
     {
+        private readonly ILogger<FinnhubApiService> _logger;
         private readonly FinnhubApiCallsCounter _apiCallsCounter;
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
@@ -20,12 +22,13 @@ namespace FinanceServices.Services.BackgroundServices
         private static List<UsStock>? NyseList { get; set; }
         private static List<Crypto>? BinanceList { get; set; }
 
-        public FinnhubApiService(FinnhubApiCallsCounter finnhubApiCallsCounter, HttpClient httpClient, IConfiguration config, MarketDataCache cache)
+        public FinnhubApiService(FinnhubApiCallsCounter finnhubApiCallsCounter, HttpClient httpClient, IConfiguration config, MarketDataCache cache, ILogger<FinnhubApiService> logger)
         {
             _apiCallsCounter = finnhubApiCallsCounter;
             _httpClient = httpClient;
             _apiKey = "" + config["Finnhub:ApiKey"];
             _cache = cache;
+            _logger = logger;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -75,7 +78,7 @@ namespace FinanceServices.Services.BackgroundServices
             catch (Exception ex)
             {
                 dataIsCached = false;
-                Console.WriteLine($"{ex}, Failed to cache data at startup");
+                _logger.LogWarning($"{ex}, Failed to cache data at startup");
             }
         }
         private async Task<List<UsStock>> GetNasdaqStockList()
