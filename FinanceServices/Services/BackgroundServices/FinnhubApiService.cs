@@ -1,4 +1,4 @@
-﻿using FinanceServices.Data;
+using FinanceServices.Data;
 using FinanceServices.Models.API;
 using FinanceServices.Utilities;
 using Microsoft.Extensions.Configuration;

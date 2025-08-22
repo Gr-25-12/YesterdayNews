@@ -1,4 +1,4 @@
-﻿using FinanceServices.Data;
+using FinanceServices.Data;
 using FinanceServices.Models;
 using FinanceServices.Models.API;
 using FinanceServices.Services.BackgroundServices;

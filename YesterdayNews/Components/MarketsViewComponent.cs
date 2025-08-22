@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using FinanceServices.Services.IServices;
 using YesterdayNews.Services.IServices;
 
