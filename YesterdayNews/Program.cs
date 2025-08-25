@@ -6,8 +6,7 @@ using FinanceServices.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Polly;
-using Polly.Extensions.Http;
+
 using Stripe;
 using YesterdayNews.Data;
 using YesterdayNews.Hubs;
