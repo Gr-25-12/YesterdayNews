@@ -358,7 +358,7 @@ namespace YesterdayNews.Utils
                     <p>To continue enjoying uninterrupted access to our premium content and features, please renew your subscription before it expires.</p>
                     
                     <p style='text-align: center;'>
-                        <a href='{HomeUrl}/' class='button'>Renew Subscription Now</a>
+                        <a href='{StaticConsts.Home_URL}Identity/Account/Manage/Subscription' class='button'>Renew Subscription Now</a>
                     </p>
                     
                     <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
