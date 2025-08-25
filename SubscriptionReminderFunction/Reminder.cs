@@ -52,15 +52,15 @@ namespace SubscriptionReminderFunction
            
 
 
-            var startDate = DateTime.Today.AddMinutes(1); // Subscriptions ending tomorrow
-            var endDate = DateTime.Today.AddDays(3);   // Subscriptions ending in next 3 days
+            var startDate = DateTime.Today.AddDays(1); 
+            var endDate = DateTime.Today.AddDays(3);
 
             var subscriptions = await _db.Subscriptions
-                .Include(s => s.User)
-                .Where(s => s.Expires >= startDate && s.Expires <= endDate)
-                .Where(s => !s.ReminderSent)
+             .Include(s => s.User)
+             .Where(s => s.Expires >= startDate && s.Expires <= endDate)
+                //.Where(s => !s.ReminderSent)
                 .ToListAsync();
-
+        
             return subscriptions;
         }
 
@@ -124,7 +124,7 @@ namespace SubscriptionReminderFunction
             var subscription = await _db.Subscriptions.FindAsync(subscriptionId);
             if (subscription != null)
             {
-                subscription.ReminderSent = true;
+                //subscription.ReminderSent = true;
                 await _db.SaveChangesAsync();
             }
         }

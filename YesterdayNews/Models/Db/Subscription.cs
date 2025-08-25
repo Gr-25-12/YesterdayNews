@@ -32,8 +32,6 @@ namespace YesterdayNews.Models.Db
         [ForeignKey("SubscriptionTypeId")]
         public SubscriptionType SubscriptionType { get; set; }
 
-        [NotMapped]
-        public bool ReminderSent { get; set; } = false;
 
     }
 }

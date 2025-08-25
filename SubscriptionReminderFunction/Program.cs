@@ -14,7 +14,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Configuration
+    .AddUserSecrets<Program>(optional: true, reloadOnChange: true);
 
 builder.Build().Run();
