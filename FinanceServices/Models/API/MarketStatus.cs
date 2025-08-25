@@ -5,7 +5,7 @@ namespace FinanceServices.Models.API
     public class MarketStatus
     {
         [JsonPropertyName("exchange")] public string Exchange { get; set; }
-        [JsonPropertyName("holiday")] public object Holiday { get; set; }
+        [JsonPropertyName("holiday")] public string Holiday { get; set; }
         [JsonPropertyName("isOpen")] public bool IsOpen { get; set; }
         [JsonPropertyName("session")] public string Session { get; set; }
         [JsonPropertyName("t")] public long TimeStamp { private get; set; }

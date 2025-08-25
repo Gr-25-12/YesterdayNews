@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using FinanceServices.Services.IServices;
 using YesterdayNews.Services.IServices;
 
@@ -15,10 +15,8 @@ namespace YesterdayNews.Components
         }
         public IViewComponentResult Invoke()
         {
-             string[] stocksToDisplay = { "NVDA", "MSFT", "AAPL", "BRK.B", "TSM", "V",
-                    "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:XRPUSDT"};
-
-        var model =  _financeApiServices.GetMarketsModel(stocksToDisplay);
+            string[] stocksToDisplay = _financeApiServices.GetSmallSymbolList();
+            var model =  _financeApiServices.GetMarketsModel(stocksToDisplay);
             return View(model);
         }
     }
