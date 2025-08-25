@@ -28,6 +28,25 @@ namespace YesterdayNews.Utils
 
             );
         }
+        public async Task SendEmailWithPdfAsync(string email, string subject, string htmlMessage, byte[] pdfBytes, string pdfFileName)
+        {
+            var attachment = new Attachment
+            {
+                Filename = pdfFileName,
+                Content = Convert.ToBase64String(pdfBytes)
+                
+            };
+
+            await _client.SendAsync(
+                new Sender(_fromName, _fromEmail),
+                new List<Recipient> { new Recipient(email, email) },
+                subject,
+                htmlMessage,
+                true,
+                replyTo: null,
+                attachments: new List<Attachment> { attachment }
+            );
+        }
 
 
 
