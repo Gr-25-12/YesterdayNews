@@ -1,10 +1,11 @@
-﻿using FinanceServices.Models.API;
+using FinanceServices.Models.API;
 using System.Collections.Concurrent;
 
 namespace FinanceServices.Data
 {
     public class MarketDataCache
     {
+        public ConcurrentDictionary<string, MarketStatus> MarketStatus { get; private set; } = new();
         public ConcurrentDictionary<string, StockQuote> StockQuotes { get; private set; } = new();
         public ConcurrentDictionary<string, UsStock> UsStocks { get; private set; } = new();
         public ConcurrentDictionary<string, Crypto> CryptoQuotes { get; private set; } = new();
