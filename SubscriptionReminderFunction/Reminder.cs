@@ -1,8 +1,6 @@
 using System;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
@@ -24,7 +22,7 @@ namespace SubscriptionReminderFunction
         }
 
         [Function("Reminder")]
-        public async Task Run([TimerTrigger("0 0 8 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer)
         {
             _logger.LogInformation($"Subscription reminder function executed at: {DateTime.Now}");
 
