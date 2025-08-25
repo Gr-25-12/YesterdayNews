@@ -18,7 +18,7 @@
             if (changeCell) changeCell.textContent = `${trade.Change >= 0 ? "+" : ""}${trade.Change.toFixed(2)}`;
             if (percentageCell) {
                 percentageCell.textContent = `(${trade.PercentageChange.toFixed(2)}%)`;
-                percentageCell.className = `percentage ${trade.PercentageChange >= 0 ? "up" : "down"}`;
+                percentageCell.className = `percentage ${trade.PercentageChange >= 0 ? "text-success" : "text-danger"}`;
             }
         }
        

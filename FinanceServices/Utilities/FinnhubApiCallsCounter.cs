@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace FinanceServices.Utilities
 {
     public class FinnhubApiCallsCounter
     {
+        private readonly ILogger<FinnhubApiCallsCounter> _logger;
         private static int SecondCounter { get; set; } = 0;
         private static int MinuteCounter { get; set; } = 0;
         private static int DayCounter { get; set; } = 0;
@@ -18,6 +15,10 @@ namespace FinanceServices.Utilities
         private static DateTime lastSecondReset = DateTime.UtcNow;
         private static DateTime lastMinuteReset = DateTime.UtcNow;
         private static DateTime lastDayReset = DateTime.UtcNow;
+        public FinnhubApiCallsCounter(ILogger<FinnhubApiCallsCounter> logger)
+        {
+            _logger = logger;
+        }
 
         private readonly object _lock = new();
         public bool IsCallPossible()
@@ -82,9 +83,9 @@ namespace FinanceServices.Utilities
         /// </summary>
         public void PrintToConsole()
         {
-            Console.WriteLine($"Second counter: {SecondCounter}");
-            Console.WriteLine($"Minute counter: {MinuteCounter}");
-            Console.WriteLine($"Day counter: {DayCounter}");
+            _logger.LogInformation($"Calls on SecondCounter: {SecondCounter}");
+            _logger.LogInformation($"Calls on MinuteCounter: {MinuteCounter}");
+            _logger.LogInformation($"Calls on DayCounter: {DayCounter}");
         }
     }
 }
