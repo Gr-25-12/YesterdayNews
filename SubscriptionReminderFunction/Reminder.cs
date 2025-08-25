@@ -1,6 +1,9 @@
 using System;
+using Azure;
+using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
@@ -11,18 +14,23 @@ namespace SubscriptionReminderFunction
     public class Reminder
     {
         private readonly ILogger _logger;
+        private readonly IConfiguration _config ;
         private readonly IEmailSender _emailSender;
         private readonly ApplicationDbContext _db;
-
-        public Reminder(ILoggerFactory loggerFactory , IEmailSender emailSender , ApplicationDbContext db)
+        private readonly TableClient _tableClient;
+        public Reminder(ILoggerFactory loggerFactory , IEmailSender emailSender , ApplicationDbContext db , IConfiguration config)
         {
             _logger = loggerFactory.CreateLogger<Reminder>();
             _emailSender = emailSender;
             _db = db;
+            _config = config;   
+            //creatings     table is not exists
+            _tableClient = new TableClient(_config["AzureWebJobsStorage"], "SentReminders");
+            _tableClient.CreateIfNotExists(); 
         }
 
         [Function("Reminder")]
-        public async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 9 * * *")] TimerInfo myTimer)
         {
             _logger.LogInformation($"Subscription reminder function executed at: {DateTime.Now}");
 
@@ -50,8 +58,6 @@ namespace SubscriptionReminderFunction
         private async Task<List<Subscription>> GetExpiringSubscriptionsAsync()
         {
            
-
-
             var startDate = DateTime.Today.AddDays(1); 
             var endDate = DateTime.Today.AddDays(3);
 
@@ -60,8 +66,21 @@ namespace SubscriptionReminderFunction
              .Where(s => s.Expires >= startDate && s.Expires <= endDate)
                 //.Where(s => !s.ReminderSent)
                 .ToListAsync();
-        
-            return subscriptions;
+
+            var unsentSubscriptions = new List<Subscription>();
+            foreach (var sub in subscriptions)
+            {
+                if (!await IsReminderSentAsync(sub.Id))
+                    unsentSubscriptions.Add(sub);
+            }
+
+            foreach (var sub in unsentSubscriptions)
+            {
+                await SendSubscriptionEmailAsync(_emailSender, sub);
+                await MarkReminderAsSentAsync(sub.Id);
+            }
+
+            return unsentSubscriptions;
         }
 
         private async Task SendSubscriptionEmailAsync(IEmailSender emailSender, Subscription subscription)
@@ -69,64 +88,35 @@ namespace SubscriptionReminderFunction
             var userName = $"{subscription.User.FirstName} {subscription.User.LastName}";
             var email = subscription.User.Email;
             var subject = "Your Subscription is Ending Soon!";
-            var htmlContent = GenerateSubscriptionEmail(userName, subscription.Expires, StaticConsts.Home_URL);
+            var htmlContent = EmailTemplate.GenerateSubscriptionReminderEmail(userName, subscription.Expires, StaticConsts.Home_URL);
 
             await emailSender.SendEmailAsync(email, subject, htmlContent);
         }
 
-        private string GenerateSubscriptionEmail(string userName, DateTime? endDate , string HomeUrl)
+       
+        private async Task<bool> IsReminderSentAsync(int subscriptionId)
         {
-            return $@"
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #3A2512; max-width: 600px; margin: 0 auto; padding: 20px; }}
-                    .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
-                    .header img {{ max-height: 50px; }}
-                    .content {{ padding: 30px; background-color: #f9f9f9; }}
-                    .button {{ background-color: #3A2512; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 15px 0; }}
-                    .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
-                    .highlight-box {{ background-color: #fff4e5; border-left: 4px solid #ffa726; padding: 15px; margin: 20px 0; }}
-                </style>
-            </head>
-            <body>
-                <div class='header'>
-                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/ResizedLogo.jpg' alt='Yesterday News Logo'>
-                </div>
-                <div class='content'>
-                    <h2>Subscription Expiration Notice</h2>
-                    <p>Dear {userName},</p>
-                    
-                    <div class='highlight-box'>
-                        <p>Your Yesterday News subscription will expire on <strong>{endDate:MMMM dd, yyyy}</strong>.</p>
-                    </div>
-                    
-                    <p>To continue enjoying uninterrupted access to our premium content and features, please renew your subscription before it expires.</p>
-                    
-                    <p style='text-align: center;'>
-                        <a href='{HomeUrl}/' class='button'>Renew Subscription Now</a>
-                    </p>
-                    
-                    <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
-                </div>
-                <div class='footer'>
-                    <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
-                    <p>This is an automated message. Please do not reply to this email.</p>
-                </div>
-            </body>
-            </html>";
+            try
+            {
+                var entity = await _tableClient.GetEntityAsync<SentReminderEntity>("Reminder", subscriptionId.ToString());
+                return entity != null;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                return false;
+            }
         }
-
         private async Task MarkReminderAsSentAsync(int subscriptionId)
         {
 
-            var subscription = await _db.Subscriptions.FindAsync(subscriptionId);
-            if (subscription != null)
+            var entity = new SentReminderEntity
             {
-                //subscription.ReminderSent = true;
-                await _db.SaveChangesAsync();
-            }
+                PartitionKey = "Reminder",
+                RowKey = subscriptionId.ToString(),
+                SentAt = DateTimeOffset.UtcNow
+            };
+
+            await _tableClient.UpsertEntityAsync(entity);
         }
     }
 }
