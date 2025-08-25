@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.Contracts;
 
 namespace YesterdayNews.Models.Db
 {
@@ -30,6 +31,9 @@ namespace YesterdayNews.Models.Db
         public int SubscriptionTypeId { get; set; }
         [ForeignKey("SubscriptionTypeId")]
         public SubscriptionType SubscriptionType { get; set; }
+
+        [NotMapped]
+        public bool ReminderSent { get; set; } = false;
 
     }
 }
