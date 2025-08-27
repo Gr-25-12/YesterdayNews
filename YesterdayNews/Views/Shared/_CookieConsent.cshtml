@@ -1,4 +1,7 @@
-﻿<div id="cookieConsent" class="bg-gray-100 text-black p-4 shadow-lg hidden mt-6">
+﻿<div id="cookieConsent" class="cookie-banner hidden">
+    <button id="closeCookieBanner" class="absolute top-2 right-2 text-gray-600 hover:text-black">
+        ✕
+    </button>
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
         <div>
             <p class="mb-2">
@@ -22,23 +25,58 @@
     </div>
 </div>
 
+
 <script>
-    function showCookieBanner() {
-        document.getElementById("cookieConsent").classList.remove("hidden");
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const banner = document.getElementById("cookieConsent");
+        const closeBtn = document.getElementById("closeCookieBanner");
+        const acceptAll = document.getElementById("acceptAllCookies");
+        const acceptNecessary = document.getElementById("acceptNecessaryCookies");
 
-    // Show only if no consent yet
-    if (!localStorage.getItem("cookieConsent")) {
-        showCookieBanner();
-    }
+        if (!banner) return;
 
-    document.getElementById("acceptAllCookies").addEventListener("click", function () {
-        localStorage.setItem("cookieConsent", "all");
-        document.getElementById("cookieConsent").classList.add("hidden");
+        // Show banner only if not accepted or dismissed
+        if (!localStorage.getItem("cookieConsent") && !sessionStorage.getItem("cookieBannerDismissed")) {
+            banner.classList.remove("hidden");
+            setTimeout(() => banner.classList.add("show"), 10); // slide up
+        }
+
+        // Close banner (session only)
+        if (closeBtn) {
+            closeBtn.addEventListener("click", function () {
+                sessionStorage.setItem("cookieBannerDismissed", "true");
+                banner.classList.remove("show");
+                setTimeout(() => banner.classList.add("hidden"), 500);
+            });
+        }
+
+        // Accept all cookies
+        if (acceptAll) {
+            acceptAll.addEventListener("click", function () {
+                localStorage.setItem("cookieConsent", JSON.stringify({
+                    choice: "all",
+                    date: new Date().toISOString()
+                }));
+                banner.classList.remove("show");
+                setTimeout(() => banner.classList.add("hidden"), 500);
+            });
+        }
+
+        // Accept only necessary cookies
+        if (acceptNecessary) {
+            acceptNecessary.addEventListener("click", function () {
+                localStorage.setItem("cookieConsent", JSON.stringify({
+                    choice: "necessary",
+                    date: new Date().toISOString()
+                }));
+                banner.classList.remove("show");
+                setTimeout(() => banner.classList.add("hidden"), 500);
+            });
+        }
     });
 
-    document.getElementById("acceptNecessaryCookies").addEventListener("click", function () {
-        localStorage.setItem("cookieConsent", "necessary");
-        document.getElementById("cookieConsent").classList.add("hidden");
-    });
 </script>
+
+
+
+
