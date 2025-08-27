@@ -5,10 +5,8 @@ namespace FinanceServices.Models
     public class MarketDto
     {
         public string UsMarketStatus { get; set; } = "Status Unknown";
-        public Dictionary<string, StockQuote> NasdaqStockPrices { get; set; } = new();
-        public Dictionary<string, UsStock> NasdaqStockInfo { get; set; } = new();
-        public Dictionary<string, StockQuote> NyseStockPrices { get; set; } = new();
-        public Dictionary<string, UsStock> NyseStockInfo { get; set; } = new();
+        public Dictionary<string, CachedStock> NasdaqStocks { get; set; } = new();
+        public Dictionary<string, CachedStock> NyseStocks { get; set; } = new();
         public Dictionary<string, Crypto> CryptoPrices { get; set; } = new();
     }
 }

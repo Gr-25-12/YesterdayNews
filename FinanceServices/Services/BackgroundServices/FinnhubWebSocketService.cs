@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -15,7 +16,7 @@ namespace FinanceServices.Services.BackgroundServices
     public class FinnhubWebSocketService : BackgroundService
     {
 
-        public event Action<Dictionary<string, object>>? OnPriceUpdate;
+        public event Func<Task> OnPriceUpdate;
         private readonly string _apiKey;
         private readonly MarketDataCache _cache;
         private readonly ILogger<FinnhubWebSocketService> _logger;
@@ -72,7 +73,7 @@ namespace FinanceServices.Services.BackgroundServices
 
                         if (result != null)
                         {
-                            UpdateResult(result, buffer);
+                            await UpdateResult(result, buffer);
                         }
                     }
                 }
@@ -101,7 +102,7 @@ namespace FinanceServices.Services.BackgroundServices
                 //_logger.LogInformation("Subscribed to {Symbol}", sym);
             }
         }
-        private void UpdateResult(WebSocketReceiveResult result, byte[] buffer)
+        private async Task UpdateResult(WebSocketReceiveResult result, byte[] buffer)
         {
             var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
             try
@@ -110,8 +111,7 @@ namespace FinanceServices.Services.BackgroundServices
                 if (response?.Data != null && response.Data.Count > 0)
                 {
                     UpdateCachedPrices(response.Data);
-                    var updates = MergeStocksAndCryptos();
-                    RaisePriceUpdate(updates);
+                    await RaisePriceUpdate();
                 }
             }
             catch (Exception ex)
@@ -119,19 +119,18 @@ namespace FinanceServices.Services.BackgroundServices
                 _logger.LogError(ex, "Failed to parse WebSocket message: {Json}", json);
             }
         }
-        private void RaisePriceUpdate(Dictionary<string, object> updates)
+        private async Task RaisePriceUpdate()
         {
-            OnPriceUpdate?.Invoke(updates);
+            await OnPriceUpdate?.Invoke();
         }
         private void UpdateCachedPrices(List<TradeData> data)
         {
             foreach (var trade in data)
             {
-                if (_cache.StockQuotes.ContainsKey(trade.Symbol))
+                if (_cache.Stocks.ContainsKey(trade.Symbol))
                 {
-                    var stock = _cache.StockQuotes[trade.Symbol];
+                    var stock = _cache.Stocks[trade.Symbol];
                     stock.CurrentPrice = trade.Price;
-                    stock.TimeStamp = trade.TimeStamp;
                 }
                 else if (_cache.CryptoQuotes.ContainsKey(trade.Symbol))
                 {
@@ -140,29 +139,6 @@ namespace FinanceServices.Services.BackgroundServices
                     crypto.TimeStamp = trade.TimeStamp;
                 }
             }
-        }
-        private Dictionary<string, object> MergeStocksAndCryptos()
-        {
-            var updates = new Dictionary<string, object>();
-            foreach (var stockQuote in _cache.StockQuotes)
-            {
-                updates[stockQuote.Key] = new
-                {
-                    stockQuote.Value.CurrentPrice,
-                    stockQuote.Value.Change,
-                    stockQuote.Value.PercentageChange,
-                };
-            }
-            foreach (var crypto in _cache.CryptoQuotes)
-            {
-                updates[crypto.Key] = new
-                {
-                    crypto.Value.CurrentPrice,
-                    crypto.Value.Change,
-                    crypto.Value.PercentageChange,
-                };
-            }
-            return updates;
         }
     }
 }

@@ -10,6 +10,7 @@ namespace FinanceServices.Models.API
 
         [JsonIgnore]
         public DateTime DateTime => DateTimeOffset.FromUnixTimeSeconds(TimeStamp/1000).UtcDateTime;
+
         public decimal Change => ClosingPrice != 0 ? CurrentPrice - ClosingPrice : 0;
 
         public decimal PercentageChange => ClosingPrice != 0

@@ -66,22 +66,24 @@ public class Program
         StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
         //Finance Services
-        //Singletons
-        builder.Services.AddSingleton<MarketDataCache>();
-        builder.Services.AddSingleton<FinnhubApiCallsCounter>();
-        builder.Services.AddSingleton<FinnhubApiService>();
-        builder.Services.AddSingleton<FinnhubWebSocketService>();
-        builder.Services.AddSingleton<CryptoSnapshotService>();
-            //HostetService
-        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubApiService>());
-        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubWebSocketService>());
-        builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
 
         //register SignalR for the financeHub
         builder.Services.AddSignalR().AddJsonProtocol(options =>
         {
             options.PayloadSerializerOptions.PropertyNamingPolicy = null;
         });
+
+        //Singletons
+        builder.Services.AddSingleton<MarketDataCache>();
+        builder.Services.AddSingleton<FinnhubApiCallsCounter>();
+        builder.Services.AddSingleton<FinnhubApiService>();
+        builder.Services.AddSingleton<FinnhubWebSocketService>();
+        builder.Services.AddSingleton<CryptoSnapshotService>();
+        builder.Services.AddSingleton<FinanceEventHandler>();
+        //HostetService
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubApiService>());
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubWebSocketService>());
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
 
         var app = builder.Build();
 
@@ -104,25 +106,20 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        //setting up the financeHub so price updates can be sent real time
-        var hubContext = app.Services.GetRequiredService<IHubContext<FinanceHub>>();
-        var finnhubService = app.Services.GetRequiredService<FinnhubWebSocketService>();
-
-        finnhubService.OnPriceUpdate += async updates =>
-        {
-            try
-            {
-                await hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
-            }
-            catch (Exception ex)
-            {
-                app.Logger.LogError(ex, "Broadcast failed");
-            }
-
-        };
+        //setting up the financeHub
         app.MapHub<FinanceHub>("/financeHub"); //endpoint clients will connect to this using JS
 
-        app.MapControllerRoute(
+        var handler = app.Services.GetRequiredService<FinanceEventHandler>();
+        var finnhubService = app.Services.GetRequiredService<FinnhubWebSocketService>();
+        var finnhubApiService = app.Services.GetRequiredService<FinnhubApiService>();
+        
+
+        finnhubService.OnPriceUpdate += handler.HandlePriceUpdate;
+        finnhubApiService.OnApiMarketStatusError += handler.HandleMarketStatusApiError;
+
+
+
+    app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
         app.MapRazorPages();

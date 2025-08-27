@@ -22,16 +22,19 @@ namespace FinanceServices.Services
         public MarketDto GetMarketsModel(string[] symbols = null)
         {
             string marketStatus = "Status Unknown";
-            if (_marketDataCache.MarketStatus.TryGetValue(FinanceConstants.US, out var value))
+            var value = _marketDataCache.GetCachedMarketStatus(FinanceConstants.US);
+            if (value != null)
             {
                 marketStatus = GetMarketStatusAsString(value);
             }
-            string[] stockSymbols = _marketDataCache.StockQuotes.Keys.ToArray();
-            string[] cryptoSymbols = _marketDataCache.CryptoQuotes.Keys.ToArray();
-            string[] allSymbols = stockSymbols.Concat(cryptoSymbols).ToArray();
+
+            var allSymbols = _marketDataCache.Stocks.Keys
+                .Concat(_marketDataCache.CryptoQuotes.Keys)
+                .ToArray();
 
             MarketDto model = new MarketDto();
             model.UsMarketStatus = marketStatus;
+            //use allsymbols if symbols are null
             var symbolsToUse = (symbols == null || symbols.Length == 0) ? allSymbols : symbols;
 
             if (symbolsToUse != null)
@@ -75,30 +78,27 @@ namespace FinanceServices.Services
 
         private void SetMarketModel(ref MarketDto model, string symbol)
         {
-            var stockinfo = _marketDataCache.GetCachedUsStock(symbol);
-
-            if (stockinfo != null)
+            var stockInfo = _marketDataCache.GetCachedStock(symbol);
+            if (stockInfo != null)
             {
-                var quote = _marketDataCache.GetCachedStockQuote(symbol);
-                if (quote != null)
+                if(stockInfo.Exchange == FinanceConstants.NASDAQ)
                 {
-                    if (stockinfo.Mic == FinanceConstants.NASDAQ)
-                    {
-                        model.NasdaqStockPrices[symbol] = quote;
-                        model.NasdaqStockInfo[symbol] = stockinfo;
-                    }
-                    else if (stockinfo.Mic == FinanceConstants.NYSE)
-                    {
-                        model.NyseStockPrices[symbol] = quote;
-                        model.NyseStockInfo[symbol] = stockinfo;
-                    }
+                    model.NasdaqStocks[symbol] = stockInfo;
+                }
+                else if(stockInfo.Exchange == FinanceConstants.NYSE)
+                {
+                    model.NyseStocks[symbol] = stockInfo;
                 }
             }
-            var cryptoInfo = _marketDataCache.GetCachedCryptoQuote(symbol);
-            if (cryptoInfo != null)
+            else
             {
-                model.CryptoPrices[symbol] = cryptoInfo;
+                var cryptoInfo = _marketDataCache.GetCachedCryptoQuote(symbol);
+                if (cryptoInfo != null)
+                {
+                    model.CryptoPrices[symbol] = cryptoInfo;
+                }
             }
+
         }
     }
 }
