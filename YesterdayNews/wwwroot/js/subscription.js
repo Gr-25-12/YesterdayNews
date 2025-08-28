@@ -51,7 +51,7 @@ function loadDataTable(status) {
 function Delete(url) {
     Swal.fire({
         title: "Are you sure?",
-        text: "If Payment is confirmed, refund will be issued for the customer!",
+        text: "No refunds as per policy, you will continue reading the news anyway 😅!",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3A2512",
@@ -117,12 +117,43 @@ function userSelect() {
     });
 }
 
+//function updateExpiresText() {
+//    if (!window.location.pathname.includes('/Subscription/Create')) return;
+
+//    const date = new Date(createdInput.value);
+//    if (!isNaN(date)) {
+//        date.setFullYear(date.getFullYear() + 1);
+//        const expiresValue = date.toISOString().split('T')[0];
+//        expiresText.value = expiresValue;
+//        document.getElementById('Expires').value = expiresValue;
+//    } else {
+//        expiresText.value = "";
+//        document.getElementById('Expires').value = "";
+//    }
+//}
 function updateExpiresText() {
     if (!window.location.pathname.includes('/Subscription/Create')) return;
 
     const date = new Date(createdInput.value);
     if (!isNaN(date)) {
-        date.setFullYear(date.getFullYear() + 1);
+        const subscriptionTypeSelect = document.getElementById("SubscriptionTypeId");
+        const selectedOption = subscriptionTypeSelect.options[subscriptionTypeSelect.selectedIndex];
+        const plan = selectedOption.getAttribute("data-plan");
+
+        // Set expiration date based on plan type
+        if (plan === "Weekly") {
+            date.setDate(date.getDate() + 7); 
+        } else if (plan === "Monthly") {
+            date.setMonth(date.getMonth() + 1); 
+        } else if (plan === "Quarterly") {
+            date.setMonth(date.getMonth() + 3); 
+        } else if (plan === "Yearly") {
+            date.setFullYear(date.getFullYear() + 1); 
+        } else {
+            
+            date.setDate(date.getDate() + 1);
+        }
+
         const expiresValue = date.toISOString().split('T')[0];
         expiresText.value = expiresValue;
         document.getElementById('Expires').value = expiresValue;
@@ -149,9 +180,9 @@ function setupPriceDisplay() {
         if (plan && price && access) {
             planSpan.textContent = plan;
             priceSpan.textContent = price + " kr";
-            accessSpan.textContent = access;
+            accessSpan.innerHTML = access;
 
-            priceRow.style.display = "block";
+            updateExpiresText();
         } else {
             priceRow.style.display = "none";
         }

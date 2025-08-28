@@ -29,8 +29,12 @@ namespace YesterdayNews.Utils
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
                                 Name = "Yesterday News " + plan.TypeName + " Subscription 👍",
-                                Description = plan.Description,
-                              
+                                Description = System.Text.RegularExpressions.Regex.Replace(
+                                    plan.Description,
+                                    "<.*?>",
+                                    string.Empty
+                                ),
+
                             },
                         },
                         Quantity = 1,
@@ -38,7 +42,7 @@ namespace YesterdayNews.Utils
                 },
                 Mode = "payment",
                 SuccessUrl = $"{domain}subscriptions/success?session_Id={{CHECKOUT_SESSION_ID}}",
-                CancelUrl = $"{domain}identity/account/manage",
+                CancelUrl = $"{domain}Identity/Account/Manage/Subscription",
                 CustomerEmail = email,
                 Metadata = new Dictionary<string, string>
                 {
