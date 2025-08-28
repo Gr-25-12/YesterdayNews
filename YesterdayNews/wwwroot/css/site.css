@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap');
+
+
 html {
   font-size: 14px;
 }
@@ -18,7 +21,8 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 0px;
+    font-family: 'Playfair Display', 'Montserrat', sans-serif;
 }
 
 p {

@@ -4,7 +4,6 @@ using FinanceServices.Services.BackgroundServices;
 using FinanceServices.Services.IServices;
 using FinanceServices.Utilities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
@@ -39,12 +38,14 @@ public class Program
 
         builder.Services.AddScoped<IArticleServices, ArticleServices>();
         builder.Services.AddScoped<IFileServices, FileServices>();
-        builder.Services.AddScoped<IEmailSender, EmailSender>();
+        builder.Services.AddTransient<IEmailSender, EmailSender>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
         builder.Services.AddScoped<ILikeService, LikeService>();
         builder.Services.AddScoped<IStripe, StripeServices>();
+        builder.Services.AddScoped<IPdfService, PdfService>();
+
         builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
 
         builder.Services.AddHttpClient();
