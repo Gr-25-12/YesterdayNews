@@ -23,7 +23,7 @@ namespace YesterdayNews.Utils
                                     <body>
                                         <div class='header' style=""background-color: #3A2512; padding: 20px; text-align: center;"">
                                 <div style=""display: inline-block; vertical-align: middle;"">
-                                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png' 
+                                    <img src={StaticConsts.YN_LOGO} 
                                          alt='Yesterday News Logo' 
                                          style=""height: 30px; width: auto; vertical-align: middle; margin-right: 10px;"">
                                     <span style=""color: #f8f9fa; font-size: 20px; font-weight: bold; vertical-align: middle;"">
@@ -80,7 +80,7 @@ namespace YesterdayNews.Utils
                     <body>
                          <div class='header' style=""background-color: #3A2512; padding: 20px; text-align: center;"">
                                 <div style=""display: inline-block; vertical-align: middle;"">
-                                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png' 
+                                    <img src={StaticConsts.YN_LOGO}
                                          alt='Yesterday News Logo' 
                                          style=""height: 30px; width: auto; vertical-align: middle; margin-right: 10px;"">
                                     <span style=""color: #f8f9fa; font-size: 20px; font-weight: bold; vertical-align: middle;"">
@@ -156,7 +156,7 @@ namespace YesterdayNews.Utils
             <body>
                <div class='header' style=""background-color: #3A2512; padding: 20px; text-align: center;"">
                 <div style=""display: inline-block; vertical-align: middle;"">
-                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png' 
+                    <img src={StaticConsts.YN_LOGO} 
                          alt='Yesterday News Logo' 
                          style=""height: 30px; width: auto; vertical-align: middle; margin-right: 10px;"">
                     <span style=""color: #f8f9fa; font-size: 20px; font-weight: bold; vertical-align: middle;"">
@@ -271,7 +271,7 @@ namespace YesterdayNews.Utils
                     </head>
                     <body>
                     <div style=""display: inline-block; vertical-align: left;"">
-                    <img src='https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png' 
+                    <img src={StaticConsts.YN_LOGO}
                          alt='Yesterday News Logo' 
                          style=""height: 30px; width: auto; vertical-align: middle; margin-right: 10px;"">
                    
@@ -325,6 +325,50 @@ namespace YesterdayNews.Utils
                         </div>
                     </body>
                     </html>";
+        }
+
+        public static string GenerateSubscriptionReminderEmail(string userName, DateTime? endDate, string HomeUrl)
+        {
+            return $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #3A2512; max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    .header {{ background-color: #3A2512; padding: 20px; text-align: center; }}
+                    .header img {{ max-height: 50px; }}
+                    .content {{ padding: 30px; background-color: #f9f9f9; }}
+                    .button {{ background-color: #3A2512; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 15px 0; }}
+                    .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
+                    .highlight-box {{ background-color: #fff4e5; border-left: 4px solid #ffa726; padding: 15px; margin: 20px 0; }}
+                </style>
+            </head>
+            <body>
+                <div class='header'>
+                    <img src={StaticConsts.YN_LOGO} alt='Yesterday News Logo'>
+                </div>
+                <div class='content'>
+                    <h2>Subscription Expiration Notice</h2>
+                    <p>Dear {userName},</p>
+                    
+                    <div class='highlight-box'>
+                        <p>Your Yesterday News subscription will expire on <strong>{endDate:MMMM dd, yyyy}</strong>.</p>
+                    </div>
+                    
+                    <p>To continue enjoying uninterrupted access to our premium content and features, please renew your subscription before it expires.</p>
+                    
+                    <p style='text-align: center;'>
+                        <a href='{HomeUrl}/' class='button'>Renew Subscription Now</a>
+                    </p>
+                    
+                    <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+                </div>
+                <div class='footer'>
+                    <p>© {DateTime.Now.Year} Yesterday News. All rights reserved.</p>
+                    <p>This is an automated message. Please do not reply to this email.</p>
+                </div>
+            </body>
+            </html>";
         }
     }
 
