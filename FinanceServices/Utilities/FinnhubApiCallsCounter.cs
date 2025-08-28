@@ -8,8 +8,8 @@ namespace FinanceServices.Utilities
         private static int SecondCounter { get; set; } = 0;
         private static int MinuteCounter { get; set; } = 0;
         private static int DayCounter { get; set; } = 0;
-        private const int MAX_CALL_PERSECOND = 3; //30
-        private const int MAX_CALL_PERMINUTE = 6; //60
+        private const int MAX_CALL_PERSECOND = 1; //30
+        private const int MAX_CALL_PERMINUTE = 5; //60
         private const int MAX_CALL_PERDAY = 50;   //500
 
         private static DateTime lastSecondReset = DateTime.UtcNow;

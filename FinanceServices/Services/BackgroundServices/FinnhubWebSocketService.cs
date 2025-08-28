@@ -4,9 +4,6 @@ using FinanceServices.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -29,9 +26,24 @@ namespace FinanceServices.Services.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var symbolsList = FinanceConstants.LargeSymbolsList;
+            
             while (!stoppingToken.IsCancellationRequested)
             {
+                var symbolsList = _cache.Stocks.Keys.Concat(_cache.CryptoQuotes.Keys).ToArray();
+                if (!symbolsList.Any())
+                {
+                    _logger.LogInformation("No stocks or crypto in cache. Waiting 1 minute before retry...");
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        _logger.LogError("Task Cancelled in FinnhubWebSocketService!");
+                        return;
+                    }
+                    continue;
+                }
                 using var websocket = new ClientWebSocket();
                 var url = $"wss://ws.finnhub.io?token={_apiKey}";
 
@@ -93,7 +105,7 @@ namespace FinanceServices.Services.BackgroundServices
                 }
             }
         }
-        private async void SubscribeToWebsocket(string[] symbolsList,ClientWebSocket websocket ,CancellationToken stoppingToken)
+        private async void SubscribeToWebsocket(string[] symbolsList, ClientWebSocket websocket ,CancellationToken stoppingToken)
         {
             foreach (var sym in symbolsList)
             {

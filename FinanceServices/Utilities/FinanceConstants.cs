@@ -22,7 +22,7 @@ namespace FinanceServices.Utilities
             "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:XRPUSDT",
             "BINANCE:BNBUSDT", "BINANCE:SOLUSDT", "BINANCE:DOGEUSDT",
             "BINANCE:TRXUSDT", "BINANCE:ADAUSDT", "BINANCE:LINKUSDT",
-            "BINANCE:HYPEUSDT"
+            "BINANCE:XMLUSDT"
         };
         public static readonly string[] SmallSymbolsList =
         {

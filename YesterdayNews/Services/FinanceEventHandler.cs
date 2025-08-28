@@ -32,7 +32,6 @@ namespace YesterdayNews.Services
                     //STOCKS
                     if (!_cache.Stocks.IsNullOrEmpty() )
                     {
-                        //var dtoDict = _cache.Stocks.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToDto());
                         await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.Stocks);
                     }         
                 }
