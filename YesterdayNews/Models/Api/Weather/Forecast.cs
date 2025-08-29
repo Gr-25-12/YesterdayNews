@@ -1,6 +1,6 @@
-﻿namespace YesterdayNews.Models.Api
+﻿namespace YesterdayNews.Models.Api.Weather
 {
-    public class Weather
+    public class Forecast
     {
         public string Summary { get; set; }
         public string City { get; set; }

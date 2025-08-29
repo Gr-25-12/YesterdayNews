@@ -1,4 +1,4 @@
-﻿namespace YesterdayNews.Models.Api
+﻿namespace YesterdayNews.Models.Api.Weather.Weather
 {
     public class GeoLocation
     {
@@ -13,6 +13,7 @@
             public double Lon { get; set; }
 
             public string Country { get; set; }
+
         
 
     }

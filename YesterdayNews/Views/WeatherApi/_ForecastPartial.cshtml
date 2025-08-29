@@ -1,0 +1,30 @@
+﻿@model List<YesterdayNews.Models.ViewModels.ForecastVM>
+
+<h3>@Model.First().City</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Temperature (°C / °F)</th>
+            <th>Summary</th>
+            <th>Icon</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Date.ToString("g")</td>
+                <td>@item.TemperatureC °C / @item.TemperatureF °F</td>
+                <td>@item.Summary</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.IconUrl))
+                    {
+                        <img src="@item.IconUrl" alt="Weather icon" width="50" />
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

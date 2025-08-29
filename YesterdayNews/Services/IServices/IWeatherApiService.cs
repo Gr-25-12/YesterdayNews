@@ -1,11 +1,11 @@
-﻿using YesterdayNews.Models.Api;
+﻿using YesterdayNews.Models.Api.Weather;
 
 namespace YesterdayNews.Services.IServices
 {
     public interface IWeatherApiService
-    {
-        Task<List<Weather>> GetWeatherByCityAsync(string city);
-        Weather GetCurrentForecast(List<Weather> forecasts);
+    {   
+        Task<DailyForecast.Rootobject>GetForecastByCityAsync(string city);
+     
 
     }
 }

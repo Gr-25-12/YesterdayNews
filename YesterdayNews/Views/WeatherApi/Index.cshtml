@@ -1,12 +1,21 @@
-﻿@model YesterdayNews.Models.Api.Weather
+﻿@model List<YesterdayNews.Models.ViewModels.ForecastVM>
+
+@{
+    ViewData["Title"] = "Weather Forecast";
+}
 
 <h2>Weather Forecast</h2>
 
-<p>City: @Model.City</p>
-<p>Summary: @Model.Summary</p>
-<p>Temperature (C): @Model.TemperatureC</p>
-<p>Temperature (F): @Model.TemperatureF</p>
-<p>Humidity: @Model.Humidity</p>
-<p>Wind Speed: @Model.WindSpeed</p>
-<p>Date: @Model.Date.ToShortDateString()</p>
-<p><img src="@Model.Icon?.Url" alt="Weather icon" /></p>
+<form method="get" asp-controller="WeatherApi" asp-action="Index">
+    <input type="text" name="city" placeholder="Enter city name" />
+    <button type="submit">Search</button>
+</form>
+
+@if (!Model.Any())
+{
+    <p>@ViewBag.Message</p>
+}
+else
+{
+    @await Html.PartialAsync("_ForecastPartial", Model)
+}

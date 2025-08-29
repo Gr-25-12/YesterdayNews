@@ -1,5 +1,5 @@
-﻿
-using YesterdayNews.Models.Api;
+﻿using System;
+using YesterdayNews.Models.Api.Weather;
 using YesterdayNews.Services.IServices;
 
 namespace YesterdayNews.Services
@@ -7,55 +7,59 @@ namespace YesterdayNews.Services
     public class WeatherApiService : IWeatherApiService
     { 
         private readonly HttpClient _httpClient;
+        private readonly string _apiKey;
 
 
-        public WeatherApiService(HttpClient httpClient)
+        public WeatherApiService(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;
+            _apiKey = "" + config["OpenMap:ApiKey"];
         }
-
-        public async Task<List<Weather>> GetWeatherByCityAsync(string city)
+        public async Task<DailyForecast.Rootobject>GetForecastByCityAsync(string city)
         {
             if (string.IsNullOrEmpty(city))
                 return null;
 
-            var url = $"https://weatherapi.dreammaker-it.se/Forecast/24Hours?location={Uri.EscapeDataString(city)}&lang=english";
-            var forecasts = await _httpClient.GetFromJsonAsync<List<Weather>>(url);
+            try {
+            var url = $"https://api.openweathermap.org/data/2.5/forecast?q={Uri.EscapeDataString(city)}&appid={_apiKey}&units=metric";
+            var response = await _httpClient.GetFromJsonAsync<DailyForecast.Rootobject>(url);
+            if (response?.list == null)
+                return new DailyForecast.Rootobject
+                {
+                    city = new DailyForecast.City { name = "stockholm", country = "SE" },
+                    list = Array.Empty<DailyForecast.List>()
+                };
+            return response;
+            }
 
-            if (forecasts == null)
-                return null;
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Http error :{ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexcpected error :{ex.Message}");
+            }
+            return new DailyForecast.Rootobject
+            {
+                city = new DailyForecast.City { name = "stockholm", country = "SE" },
+                list = Array.Empty<DailyForecast.List>()
+            };
 
-            return FilterForecasts(forecasts);
+
         }
 
 
-        private List<Weather> FilterForecasts(List<Weather> forecasts)
-        {
-            if (forecasts == null || forecasts.Count == 0)
-                return new List<Weather>();
-
-            int[] targetHours = new int[] { 6, 9, 12, 15, 18, 21, 0, 3 };
-            var today = DateTime.Now.Date;
-
-            return forecasts
-                .Where(f => f.Date.Date == today && targetHours.Contains(f.Date.Hour))
-                .OrderBy(f => f.Date.Hour)
-                .ToList();
-        }
 
 
-        public Weather GetCurrentForecast(List<Weather> forecasts)
-        {
 
-            if (forecasts == null || !forecasts.Any())
-                return null;
 
-            var now = DateTime.Now;
-            var closestForecast = forecasts
-                .OrderBy(f => Math.Abs((f.Date - now).TotalMinutes))
-                .FirstOrDefault();
-            return closestForecast;
-        }
+
+
+
+
+
+
 
 
     }
