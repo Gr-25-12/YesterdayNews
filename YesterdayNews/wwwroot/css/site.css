@@ -398,6 +398,7 @@ form-control::placeholder,
         font-weight: bold;
         font-size: 0.75rem;
         white-space: wrap;
+        padding-top: 0.5rem;
     }
 
         #marketTable th:nth-child(1),
