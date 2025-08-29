@@ -122,6 +122,7 @@ public class Program
 
         finnhubService.OnPriceUpdate += handler.HandlePriceUpdate;
         finnhubApiService.OnApiMarketStatusError += handler.HandleMarketStatusApiError;
+        finnhubApiService.OnStockUpdate += handler.HandleStockUpdateError;
 
 
 

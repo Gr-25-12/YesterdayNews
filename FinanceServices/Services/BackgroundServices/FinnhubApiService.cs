@@ -24,6 +24,7 @@ namespace FinanceServices.Services.BackgroundServices
         private static ConcurrentDictionary<string, UsStock>? UsStocksFiltered { get; set; } = new(); //List of stocks based on SymbolList
         private static List<Crypto>? BinanceList { get; set; }
         public event Func<string, Task> OnApiMarketStatusError;
+        public event Func<string, string, Task> OnStockUpdate;
         private Dictionary<string, bool> StockErrors = new();
 
         public FinnhubApiService(FinnhubApiCallsCounter finnhubApiCallsCounter, HttpClient httpClient, IConfiguration config, MarketDataCache cache, ILogger<FinnhubApiService> logger)
@@ -175,6 +176,7 @@ namespace FinanceServices.Services.BackgroundServices
                     };
                     _cache.Stocks[newStock.Symbol] = newStock;
                     _logger.LogInformation($"Added {newStock.Symbol} to cached stocks");
+                    await OnStockUpdate?.Invoke(newStock.Symbol, newStock.DisplayName);
                 }
                 // Wait 1 minute between symbols
                 await Task.Delay(TimeSpan.FromSeconds(2));

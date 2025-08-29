@@ -62,6 +62,22 @@ namespace YesterdayNews.Services
             try
             {
                 await _hubContext.Clients.All.SendAsync("NoMarketStatus", error);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error broadcast failed");
+            }
+        }
+        public async Task HandleStockUpdateError(string symbol, string description)
+        {
+            try
+            {
+                await _hubContext.Clients.All.SendAsync("updateStock", symbol, description);
+                if (!_cache.Stocks.IsNullOrEmpty())
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.Stocks);
+                }
             }
             catch (Exception ex)
             {

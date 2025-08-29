@@ -3,18 +3,18 @@ document.addEventListener("DOMContentLoaded", () => {
         .withUrl("/financeHub")
         .build();
 
-    //function updateStockDescription(symbol, description) {
-    //    const markets = document.querySelector("#marketTable");
-    //    if (!markets) return;
+    connection.on("updateStock", (symbol, description) => {
+        const markets = document.querySelector("#marketTable");
+        if (!markets) return;
 
-    //    const row = document.querySelector(`tr[data-symbol='${symbol}']`);
-    //    if (row) {
-    //        const descCell = row.querySelector(".description");
-    //        if (descCell) {
-    //            descCell.textContent = description || "(Missing data)";
-    //        }
-    //    }
-    //}
+        const row = document.querySelector(`tr[data-symbol='${symbol}']`);
+        if (row) {
+            const descCell = row.querySelector(".description");
+            if (descCell) {
+                descCell.textContent = description || "(Missing data)";
+            }
+        }
+    });
 
     //sends realtime data from websocket to update the elements in the view
     connection.on("ReceivePriceUpdates", (priceData) => {
