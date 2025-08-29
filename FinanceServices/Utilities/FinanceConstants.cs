@@ -36,7 +36,19 @@ namespace FinanceServices.Utilities
                     "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:XRPUSDT",
                     "OANDA:EUR_USD","OANDA:USD_JPY", "OANDA:GBP_USD", "OANDA:XAU_USD","OANDA:XAG_USD",
         };
-
+        public static readonly ConcurrentDictionary<string, string> cryptoDescriptionList = new ConcurrentDictionary<string, string>(new[]
+        {
+            new KeyValuePair<string, string>("BINANCE:BTCUSDT", "Bitcoin (BTC/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:ETHUSDT", "Etherium (USD/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:XRPUSDT", "Xrp / Ripple (XRP/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:BNBUSDT", "Binance (BNB/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:SOLUSDT", "Solana (SOL/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:DOGEUSDT", "Dodgecoin(DOGE/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:TRXUSDT",  "Tron (TRX/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:ADAUSDT", "Cardano (ADA/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:LINKUSDT", "Chainlink (LINK/USDT)"),
+            new KeyValuePair<string, string>("BINANCE:SUIUSDT", "Sui (SUI/USDT)")
+        });
         public static readonly ConcurrentDictionary<string, string> usdForex = new ConcurrentDictionary<string, string>(new[]
         {
             new KeyValuePair<string, string>("OANDA:EUR_USD", "Euro (EUR/USD)"),

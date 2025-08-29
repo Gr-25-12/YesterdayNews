@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .withUrl("/financeHub")
         .build();
 
-    connection.on("updateStock", (symbol, description) => {
+    connection.on("updateDescription", (symbol, description) => {
         const markets = document.querySelector("#marketTable");
         if (!markets) return;
 
@@ -11,7 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (row) {
             const descCell = row.querySelector(".description");
             if (descCell) {
-                descCell.textContent = description || "(Missing data)";
+                if (description) {
+                    descCell.textContent = description;
+                    descCell.classList.remove("text-danger");
+                } 
             }
         }
     });
@@ -31,30 +34,35 @@ document.addEventListener("DOMContentLoaded", () => {
             if (priceCell) {
                 if (trade != null && trade.CurrentPrice != null && trade.CurrentPrice != 0) {
                     priceCell.textContent = trade.CurrentPrice.toFixed(2);
+                    priceCell.classList.remove("text-danger");
                 }
                 else {
-                    priceCell.textContent = " (Error)";
-                    priceCell.className = "text-danger";
+                    priceCell.textContent = "(Error)";
+                    priceCell.classList.add("text-danger");
                 }
 
             }
             if (changeCell) {
                 if (trade.ClosingPrice != 0) {
                     changeCell.textContent = `${trade.Change >= 0 ? "+" : ""}${trade.Change.toFixed(2)}`;
+                    changeCell.classList.remove("text-danger");
                 }
                 else {
-                    changeCell.textContent = " (Error)";
-                    changeCell.className = "text-danger";
+                    changeCell.textContent = "(Error)";
+                    changeCell.classList.add("text-danger");
                 }
             } 
             if (percentageCell) {
                 if (trade.ClosingPrice != 0) {
                     percentageCell.textContent = `(${trade.PercentageChange.toFixed(2)}%)`;
                     percentageCell.className = `percentage ${trade.PercentageChange >= 0 ? "text-success" : "text-danger"}`;
+                    percentageCell.classList.remove("text-danger");
+                    percentageCell.classList.add("text-success");
                 }
                 else {
-                    percentageCell.textContent = " (Error)";
-                    percentageCell.className = "text-danger";
+                    percentageCell.textContent = "(Error)";
+                    percentageCell.classList.remove("text-success");
+                    percentageCell.classList.add("text-danger");
                 }
             }
         }
@@ -67,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const statusBars = document.querySelectorAll(".status-bar");
         statusBars.forEach(bar => {
             bar.textContent = "(Missing data)";
-            bar.className = "text-danger";
+            bar.classList.add("text-danger");
         });
 
     });

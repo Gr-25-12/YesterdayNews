@@ -24,7 +24,7 @@ namespace FinanceServices.Services.BackgroundServices
         private static ConcurrentDictionary<string, UsStock>? UsStocksFiltered { get; set; } = new(); //List of stocks based on SymbolList
         private static List<Crypto>? BinanceList { get; set; }
         public event Func<string, Task> OnApiMarketStatusError;
-        public event Func<string, string, Task> OnStockUpdate;
+        public event Func<string, string, Task> OnCachedUpdate;
         private Dictionary<string, bool> StockErrors = new();
 
         public FinnhubApiService(FinnhubApiCallsCounter finnhubApiCallsCounter, HttpClient httpClient, IConfiguration config, MarketDataCache cache, ILogger<FinnhubApiService> logger)
@@ -70,18 +70,18 @@ namespace FinanceServices.Services.BackgroundServices
                     //Forex CURRENCIES (just caching preset strings since there is only tradedata, no base data)
                     if (_cache.Currencies.Count() == 0)
                     {
-                        CacheCurrencies();
+                        await CacheCurrencies();
                     }
                     //Forex COMMODITIES (just caching preset strings since there is only tradedata, no base data)
                     if (_cache.Commodities.Count() == 0)
                     {
-                        CacheCommodities();
+                        await CacheCommodities();
                     }
                     if (UsStocksRaw.Count > 0 && BinanceList.Count > 0)
                     {
                         //CRYPTOS
                         if (_cache.CryptoQuotes.Count() == 0)
-                            CacheCryptos();
+                            await CacheCryptos();
 
                         //STOCKS
                         foreach (var symbol in FinanceConstants.LargeSymbolsList)
@@ -108,48 +108,53 @@ namespace FinanceServices.Services.BackgroundServices
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
         }
-        private void CacheCurrencies()
+        private async Task CacheCurrencies()
         {
             var usdPair = FinanceConstants.usdForex;
             foreach (var pair in usdPair)
             {
                 string displaySymbol = pair.Key.Split(':')[1];
-                _cache.Currencies[pair.Key] = new Forex()
+                var forex = new Forex()
                 {
                     Symbol = pair.Key,
                     DisplaySymbol = displaySymbol,
                     Description = pair.Value,
+                    CurrentPrice = 0
                 };
+                _cache.Currencies[pair.Key] = forex;
+                await OnCachedUpdate?.Invoke(forex.Symbol, forex.DisplaySymbol);
             }
         }
-        private void CacheCommodities()
+        private async Task CacheCommodities()
         {
             var usdPair = FinanceConstants.usdComm;
             foreach (var pair in usdPair)
             {
                 string displaySymbol = pair.Key.Split(':')[1];
-                _cache.Commodities[pair.Key] = new Forex()
+                var forex = new Forex()
                 {
                     Symbol = pair.Key,
                     DisplaySymbol = displaySymbol,
                     Description = pair.Value,
+                    CurrentPrice = 0
                 };
+                _cache.Commodities[pair.Key] = forex;
+                await OnCachedUpdate?.Invoke(forex.Symbol, forex.DisplaySymbol);
             }
         }
-        private void CacheCryptos()
+        private async Task CacheCryptos()
         {
-            var symbolList = FinanceConstants.LargeSymbolsList;
-            foreach (var symbol in symbolList)
+            foreach (var pair in FinanceConstants.cryptoDescriptionList)
             {
-                if (symbol.Contains("BINANCE"))
+                foreach (var item in BinanceList)
                 {
-                    foreach (var item in BinanceList)
+                    if (item.Symbol == pair.Key)
                     {
-                        if (item.Symbol == symbol)
-                        {
-                            _cache.CryptoQuotes[symbol] = item;
-                            _logger.LogInformation($"Added {item.DisplaySymbol} to cached crypto");
-                        }
+                        item.CurrentPrice = 0;
+                        item.Description = pair.Value;
+                        _cache.CryptoQuotes[pair.Key] = item;
+                        await OnCachedUpdate?.Invoke(item.Symbol, item.Description);
+                        _logger.LogInformation($"Added {item.DisplaySymbol} to cached crypto");
                     }
                 }
             }
@@ -161,7 +166,7 @@ namespace FinanceServices.Services.BackgroundServices
                 if (_cache.Stocks.ContainsKey(usStock.Symbol))
                     continue; //skip if it's already cached
 
-                var quote = await GetStockQuote(usStock.Symbol); //symbolList size nr API calls
+                var quote = await GetStockQuote(usStock.Symbol); //1 API call for each stock
                 if (quote == null)
                     throw new Exception($"No stock quote for symbol: {usStock.Symbol}");
                 else
@@ -176,7 +181,7 @@ namespace FinanceServices.Services.BackgroundServices
                     };
                     _cache.Stocks[newStock.Symbol] = newStock;
                     _logger.LogInformation($"Added {newStock.Symbol} to cached stocks");
-                    await OnStockUpdate?.Invoke(newStock.Symbol, newStock.DisplayName);
+                    await OnCachedUpdate?.Invoke(newStock.Symbol, newStock.DisplayName);
                 }
                 // Wait 1 minute between symbols
                 await Task.Delay(TimeSpan.FromSeconds(2));
@@ -298,18 +303,6 @@ namespace FinanceServices.Services.BackgroundServices
                 return new MarketStatus();
             }
         }
-
-        //public async Task<string> GetForexQuotes(string exchangeName)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public async Task<CompanyProfile> GetCompanyProfile(string tickerSymbol)
-        //{
-        //    string profileLink = $"/stock/profile2?symbol={tickerSymbol}";
-        //    var url = $"{_baseUrl}{profileLink}{_apiKey}";
-        //    var profile = await _httpClient.GetFromJsonAsync<CompanyProfile>(url);
-        //    return profile;
-        //}
 
         //public async Task<string> GetCompanyFinancials(string tickerSymbol)
         //{

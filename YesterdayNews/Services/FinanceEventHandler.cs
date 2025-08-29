@@ -69,14 +69,41 @@ namespace YesterdayNews.Services
                 _logger.LogError(ex, "Error broadcast failed");
             }
         }
-        public async Task HandleStockUpdateError(string symbol, string description)
+        public async Task HandleUpdateError(string symbol, string description)
         {
             try
             {
-                await _hubContext.Clients.All.SendAsync("updateStock", symbol, description);
-                if (!_cache.Stocks.IsNullOrEmpty())
+                if (FinanceConstants.SortedCryptoReference.Contains(symbol))
                 {
-                    await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.Stocks);
+                    await _hubContext.Clients.All.SendAsync("updateDescription", symbol, description);
+                    if (!_cache.CryptoQuotes.IsNullOrEmpty())
+                    {
+                        await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.CryptoQuotes);
+                    }
+                }
+                else if(FinanceConstants.SortedCurrenciesReference.Contains(symbol))
+                {
+                    await _hubContext.Clients.All.SendAsync("updateDescription", symbol, description);
+                    if (!_cache.Currencies.IsNullOrEmpty())
+                    {
+                        await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.Currencies);
+                    }
+                }
+                else if (FinanceConstants.SortedCommoditiesReference.Contains(symbol))
+                {
+                    await _hubContext.Clients.All.SendAsync("updateDescription", symbol, description);
+                    if (!_cache.Commodities.IsNullOrEmpty())
+                    {
+                        await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.Commodities);
+                    }
+                }
+                else
+                {
+                    await _hubContext.Clients.All.SendAsync("updateDescription", symbol, description);
+                    if (!_cache.Stocks.IsNullOrEmpty())
+                    {
+                        await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.Stocks);
+                    }
                 }
             }
             catch (Exception ex)

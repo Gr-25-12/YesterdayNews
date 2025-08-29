@@ -412,7 +412,7 @@ Dropdown Divider
 
         #marketTable th:nth-child(1),
         #marketTable td:nth-child(1) {
-            width: 55%; /* Company */
+            width: 54%; /* Company */
             white-space: wrap;
         }
 
@@ -428,7 +428,7 @@ Dropdown Divider
 
         #marketTable th:nth-child(4),
         #marketTable td:nth-child(4) {
-            width: 13%; /* % */
+            width: 14%; /* % */
         }
 
 

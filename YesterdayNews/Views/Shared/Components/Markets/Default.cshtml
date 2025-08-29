@@ -35,8 +35,8 @@
 					{
 						if (stock == null) continue;
 						<tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
-							<td class="description">
-								@(string.IsNullOrWhiteSpace(stock?.DisplayName) ? "(No data)" : stock.DisplayName)
+							<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
+								@stock.DisplayName
 							</td>
 							@if (Model.UsMarketStatus != "Closed")
 							{
@@ -86,8 +86,8 @@
 					{
 						if (stock == null) continue;
 						<tr data-exchange="NYSE" data-symbol="@stock.Symbol">
-							<td class="description">
-								@(string.IsNullOrWhiteSpace(stock?.DisplayName) ? "(No data)" : stock.DisplayName)
+							<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
+								@stock.DisplayName
 							</td>
 							@if (Model.UsMarketStatus != "Closed")
 							{
@@ -136,8 +136,8 @@
 					{
 						if (crypto == null) continue;
 						<tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
-							<td class="description">
-								@(string.IsNullOrWhiteSpace(crypto?.DisplaySymbol) ? "(No data)" : crypto.DisplaySymbol)
+							<td class="description @(crypto.Description == "(Missing data)" ? "text-danger" : "")">
+								@crypto.Description
 							</td>
 							<td class="price">
 								@(crypto.CurrentPrice != 0 ? crypto.CurrentPrice.ToString("0.##") : " - ")
@@ -175,8 +175,8 @@
 					{
 						if (forex == null) continue;
 						<tr data-exchange="FOREX" data-symbol="@forex.Symbol">
-							<td class="description">
-								@(string.IsNullOrWhiteSpace(forex?.Description) ? "(No data)" : forex.Description)
+							<td class="description @(forex.Description == "(Missing data)" ? "text-danger" : "")">
+								@forex.Description
 							</td>
 							<td class="price">
 								@(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : " - ")
@@ -210,15 +210,15 @@
 							<td> - </td>
 						</tr>
 					}
-					@foreach (var forex in Model.Commodities)
+					@foreach (var comm in Model.Commodities)
 					{
-						if (forex == null) continue;
-						<tr data-exchange="COMMODITIES" data-symbol="@forex.Symbol">
-							<td class="description">
-								@(string.IsNullOrWhiteSpace(forex?.Description) ? "(No data)" : forex.Description)
+						if (comm == null) continue;
+						<tr data-exchange="COMMODITIES" data-symbol="@comm.Symbol">
+							<td class="description @(comm.Description == "(Missing data)" ? "text-danger" : "")">
+								@comm.Description
 							</td>
 							<td class="price">
-								@(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : " - ")
+								@(comm.CurrentPrice != 0 ? comm.CurrentPrice.ToString("0.##") : " - ")
 							</td>
 							<td class="change"> - </td>
 							<td class="percentage"> - </td>

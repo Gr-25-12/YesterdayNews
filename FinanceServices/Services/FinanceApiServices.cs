@@ -32,9 +32,13 @@ namespace FinanceServices.Services
             var allSymbols = _marketDataCache.GetAllSymbols();
 
             MarketDto model = new MarketDto();
-            if (symbols == null)
+            if (symbols != null)
             {
-                CreateModelLists(ref model); //create full lists for full view
+                CreateSmallModelList(ref model, symbols); //create lists for component view
+            }
+            else
+            {
+                CreateFullModelLists(ref model); //create full lists for full view
             }
             model.UsMarketStatus = marketStatus;
 
@@ -109,31 +113,96 @@ namespace FinanceServices.Services
                 UpdateCommodity(ref model, commInfo);
             }
         }
-        private void CreateModelLists(ref MarketDto model)
+        private void CreateSmallModelList(ref MarketDto model, string[] symbols)
+        {
+            foreach (var symbol in symbols)
+            {
+                
+                if (FinanceConstants.SortedNasdaqReference.Contains(symbol))
+                {
+                    var stock = new CachedStock { 
+                        Symbol = symbol, 
+                        DisplayName = "(Missing data)"
+                    };
+                    model.NasdaqStocks.Add(stock);
+                }
+                else if (FinanceConstants.SortedNyseReference.Contains(symbol))
+                {
+                    var stock = new CachedStock { 
+                        Symbol = symbol,
+                        DisplayName = "(Missing data)"
+                    };
+                    model.NyseStocks.Add(stock);
+                }
+                else if (FinanceConstants.SortedCryptoReference.Contains(symbol))
+                {
+                    var crypto = new Crypto { 
+                        Symbol = symbol,
+                        Description = "(Missing data)"
+                    };
+                    model.CryptoPrices.Add(crypto);
+                }
+                else if (FinanceConstants.SortedCommoditiesReference.Contains(symbol))
+                {
+                    var forex = new Forex { 
+                        Symbol = symbol,
+                        Description = "(Missing data)"
+                    };
+                    model.Commodities.Add(forex);
+                }
+                else if (FinanceConstants.SortedCurrenciesReference.Contains(symbol))
+                {
+                    var forex = new Forex { 
+                        Symbol = symbol,
+                        Description = "(Missing data)"
+                    };
+                    model.Currencies.Add(forex);
+                }
+            }
+        }
+        private void CreateFullModelLists(ref MarketDto model)
         {
             foreach (var key in FinanceConstants.SortedNasdaqReference)
             {
-                var stock = new CachedStock { Symbol = key };
+                var stock = new CachedStock
+                {
+                    Symbol = key,
+                    DisplayName = "(Missing data)"
+                };
                 model.NasdaqStocks.Add(stock);
             }
             foreach (var key in FinanceConstants.SortedNyseReference)
             {
-                var stock = new CachedStock { Symbol = key };
+                var stock = new CachedStock
+                {
+                    Symbol = key,
+                    DisplayName = "(Missing data)"
+                };
                 model.NyseStocks.Add(stock);
             }
             foreach (var key in FinanceConstants.SortedCryptoReference)
             {
-                var crypto = new Crypto { Symbol = key };
+                var crypto = new Crypto
+                {
+                    Symbol = key,
+                    Description = "(Missing data)"
+                };
                 model.CryptoPrices.Add(crypto);
             }
             foreach (var key in FinanceConstants.SortedCommoditiesReference)
             {
-                var forex = new Forex { Symbol = key };
+                var forex = new Forex { 
+                    Symbol = key,
+                    Description = "(Missing data)"
+                };
                 model.Commodities.Add(forex);
             }
             foreach (var key in FinanceConstants.SortedCurrenciesReference)
             {
-                var forex = new Forex { Symbol = key };
+                var forex = new Forex { 
+                    Symbol = key,
+                    Description = "(Missing data)"
+                };
                 model.Currencies.Add(forex);
             }
         }
