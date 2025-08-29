@@ -4,9 +4,9 @@ using FinanceServices.Services.BackgroundServices;
 using FinanceServices.Services.IServices;
 using FinanceServices.Utilities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+
 using Stripe;
 using YesterdayNews.Data;
 using YesterdayNews.Hubs;
@@ -39,14 +39,19 @@ public class Program
 
         builder.Services.AddScoped<IArticleServices, ArticleServices>();
         builder.Services.AddScoped<IFileServices, FileServices>();
-        builder.Services.AddScoped<IEmailSender, EmailSender>();
+        builder.Services.AddTransient<IEmailSender, EmailSender>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
         builder.Services.AddScoped<ILikeService, LikeService>();
         builder.Services.AddScoped<IStripe, StripeServices>();
-        builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
+        builder.Services.AddScoped<IPdfService, PdfService>();
 
+        builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
+        builder.Services.AddScoped<IExternalNewsService, ExternalNewsService>();
+
+        builder.Services.AddHttpClient<ExternalNewsService>();
+   
         builder.Services.AddHttpClient();
 
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
@@ -85,6 +90,7 @@ public class Program
         builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubWebSocketService>());
         builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
 
+        builder.Services.AddMemoryCache();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -124,6 +130,6 @@ public class Program
             pattern: "{controller=Home}/{action=Index}/{id?}");
         app.MapRazorPages();
 
-        app.Run();
-    }
+        app.Run();    
+}
 }

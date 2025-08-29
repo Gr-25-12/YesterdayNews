@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/financeHub")
         .build();

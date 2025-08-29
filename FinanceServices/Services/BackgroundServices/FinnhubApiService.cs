@@ -56,6 +56,10 @@ namespace FinanceServices.Services.BackgroundServices
                 }
                 await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
             }
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await UpdateMarketStatus(stoppingToken);
+            }
         }
 
         private async Task RunUpdateListsLoop(CancellationToken stoppingToken)

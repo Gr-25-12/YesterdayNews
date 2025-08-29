@@ -1,4 +1,4 @@
-﻿using FinanceServices.Models.API;
+using FinanceServices.Models.API;
 
 namespace FinanceServices.Models
 {
