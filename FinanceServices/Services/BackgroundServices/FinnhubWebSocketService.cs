@@ -26,10 +26,9 @@ namespace FinanceServices.Services.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            
             while (!stoppingToken.IsCancellationRequested)
             {
-                var symbolsList = _cache.Stocks.Keys.Concat(_cache.CryptoQuotes.Keys).ToArray();
+                var symbolsList = _cache.GetAllSymbols();
                 if (!symbolsList.Any())
                 {
                     _logger.LogInformation("No stocks or crypto in cache. Waiting 1 minute before retry...");
@@ -69,12 +68,12 @@ namespace FinanceServices.Services.BackgroundServices
                         catch (TaskCanceledException)
                         {
                             _logger.LogInformation("Shutting down WebSocket (task canceled).");
-                            return; 
+                            return;
                         }
                         catch (WebSocketException wsex)
                         {
                             _logger.LogError(wsex, "WebSocket error");
-                            break; 
+                            break;
                         }
 
                         if (result?.MessageType == WebSocketMessageType.Close)
@@ -105,7 +104,7 @@ namespace FinanceServices.Services.BackgroundServices
                 }
             }
         }
-        private async void SubscribeToWebsocket(string[] symbolsList, ClientWebSocket websocket ,CancellationToken stoppingToken)
+        private async void SubscribeToWebsocket(string[] symbolsList, ClientWebSocket websocket, CancellationToken stoppingToken)
         {
             foreach (var sym in symbolsList)
             {
@@ -149,6 +148,19 @@ namespace FinanceServices.Services.BackgroundServices
                     var crypto = _cache.CryptoQuotes[trade.Symbol];
                     crypto.CurrentPrice = trade.Price;
                     crypto.TimeStamp = trade.TimeStamp;
+                }
+                else if (_cache.Currencies.ContainsKey(trade.Symbol)) 
+                {
+                    
+                    var forex = _cache.Currencies[trade.Symbol];
+                    forex.CurrentPrice = trade.Price;
+                    forex.TimeStamp = trade.TimeStamp;
+                }
+                else if (_cache.Commodities.ContainsKey(trade.Symbol))
+                {
+                    var forex = _cache.Commodities[trade.Symbol];
+                    forex.CurrentPrice = trade.Price;
+                    forex.TimeStamp = trade.TimeStamp;
                 }
             }
         }

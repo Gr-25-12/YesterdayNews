@@ -40,6 +40,16 @@ namespace YesterdayNews.Services
                 {
                     await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.CryptoQuotes);
                 }
+                //Currencies
+                if (!_cache.Currencies.IsNullOrEmpty())
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.Currencies);
+                }
+                //Ccommodities
+                if (!_cache.Commodities.IsNullOrEmpty())
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceivePriceUpdates", _cache.Commodities);
+                }
             }
             catch (Exception ex)
             {

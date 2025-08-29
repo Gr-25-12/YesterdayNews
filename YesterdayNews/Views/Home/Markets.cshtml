@@ -18,13 +18,13 @@
 						<thead class="border-bottom"> 
 							<tr>
 								<th>Company</th>
-								<th>Price</th>
+								<th>Price (USD)</th>
 								<th>Diff</th>
 								<th>In %</th>
 							</tr>
 						</thead>
 						<tbody>
-							@if(Model.NasdaqStocks.Count <= 0)
+							@if (Model.NasdaqStocks.Count <= 0 && Model.UsMarketStatus != "Closed")
 							{
 								<tr>
 									<td class="text-danger"> (Error, No data loaded)</td>
@@ -33,12 +33,10 @@
 									<td> - </td>
 								</tr>
 							}
-							@foreach (var kvp in Model.NasdaqStocks)
-							{
-								var symbol = kvp.Key;
-								var stock = kvp.Value;							
+							@foreach (var stock in Model.NasdaqStocks)
+							{						
 								if (stock == null) continue;
-								<tr data-exchange="NASDAQ" data-symbol="@symbol">
+								<tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
 									<td class="description">
 										@(string.IsNullOrWhiteSpace(stock?.DisplayName) ? "(No data)" : stock.DisplayName)
 									</td>
@@ -82,13 +80,13 @@
 						<thead class="border-bottom">
 							<tr>
 								<th>Company</th>
-								<th>Price</th>
+								<th>Price (USD)</th>
 								<th>Diff</th>
 								<th>In %</th>
 							</tr>
 						</thead>
 						<tbody>
-							@if (Model.NyseStocks.Count <= 0)
+							@if (Model.NyseStocks.Count <= 0 && Model.UsMarketStatus != "Closed")
 							{
 								<tr>
 									<td class="text-danger"> (Error, No data loaded)</td>
@@ -97,12 +95,10 @@
 									<td> - </td>
 								</tr>
 							}
-							@foreach (var kvp in Model.NyseStocks)
+							@foreach (var stock in Model.NyseStocks)
 							{
-								var symbol = kvp.Key;
-								var stock = kvp.Value;
 								if (stock == null) continue;
-								<tr data-exchange="NYSE" data-symbol="@symbol">
+								<tr data-exchange="NYSE" data-symbol="@stock.Symbol">
 									<td class="description">
 										@(string.IsNullOrWhiteSpace(stock?.DisplayName) ? "(No data)" : stock.DisplayName)
 									</td>
@@ -147,7 +143,7 @@
 						<thead class="border-bottom">
 							<tr>
 								<th>Company</th>
-								<th>Price</th>
+								<th>Price (USD)</th>
 								<th>Diff</th>
 								<th>In %</th>
 							</tr>
@@ -162,17 +158,121 @@
 									<td> - </td>
 								</tr>
 							}
-							@foreach (var kvp in Model.CryptoPrices)
+							@foreach (var crypto in Model.CryptoPrices)
 							{
-								var symbol = kvp.Key;
-								var crypto = kvp.Value;
 								if (crypto == null) continue;
-								<tr data-exchange="CRYPTO" data-symbol="@symbol">
+								<tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
 									<td class="description">
 										@(string.IsNullOrWhiteSpace(crypto?.DisplaySymbol) ? "(No data)" : crypto.DisplaySymbol)
 									</td>
 									<td class="price">
 										@(crypto.CurrentPrice != 0 ? crypto.CurrentPrice.ToString("0.##") : " - ")
+									</td>
+									<td class="change"> - </td>
+									<td class="percentage"> - </td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<small>
+						(Price changes are calculated from prices 24 hours ago)
+					</small>
+				</div>
+			</div>
+			@* Oanada / Forex Currencies *@
+			<div class="card p-3 mb-3">
+				<div class="d-flex align-items-center mb-2">
+					<h3 class="me-2">
+						Currencies -
+						<span class="status-bar text-success" )">
+							( Open )
+						</span>
+					</h3>
+				</div>
+				<div class="table-responsive">
+					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
+						<thead class="border-bottom">
+							<tr>
+								<th>Currencies</th>
+								<th>Price (USD)</th>
+								<th>Diff</th>
+								<th>In %</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.Currencies.Count <= 0)
+							{
+								<tr>
+									<td class="text-danger"> (Error, No data loaded)</td>
+									<td> - </td>
+									<td> - </td>
+									<td> - </td>
+								</tr>
+							}
+							@foreach (var forex in Model.Currencies)
+							{
+								if (forex == null) continue;
+								<tr data-exchange="FOREX" data-symbol="@forex.Symbol">
+									<td class="description">
+										@(string.IsNullOrWhiteSpace(forex?.Description) ? "(No data)" : forex.Description)
+									</td>
+									<td class="price">
+										@(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : " - ")
+									</td>
+									<td class="change"> - </td>
+									<td class="percentage"> - </td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<small>
+						(Price changes are calculated from prices 24 hours ago)
+					</small>
+				</div>
+			</div>
+			@* Oanada / Forex Commodities *@
+			<div class="card p-3 mb-3">
+				<div class="d-flex align-items-center mb-2">
+					<h3 class="me-2">
+						Commodities -
+						<span class="status-bar text-success" )">
+							( Open )
+						</span>
+					</h3>
+				</div>
+				<div class="table-responsive">
+					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
+						<thead class="border-bottom">
+							<tr>
+								<th>Oil & Metals</th>
+								<th>Price (USD)</th>
+								<th>Diff</th>
+								<th>In %</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.Commodities.Count <= 0)
+							{
+								<tr>
+									<td class="text-danger"> (Error, No data loaded)</td>
+									<td> - </td>
+									<td> - </td>
+									<td> - </td>
+								</tr>
+							}
+							@foreach (var comm in Model.Commodities)
+							{
+								if (comm == null) continue;
+								<tr data-exchange="FOREX" data-symbol="@comm.Symbol">
+									<td class="description">
+										@(string.IsNullOrWhiteSpace(comm?.Description) ? "(No data)" : comm.Description)
+									</td>
+									<td class="price">
+										@(comm.CurrentPrice != 0 ? comm.CurrentPrice.ToString("0.##") : " - ")
 									</td>
 									<td class="change"> - </td>
 									<td class="percentage"> - </td>

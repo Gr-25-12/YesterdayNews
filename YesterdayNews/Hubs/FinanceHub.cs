@@ -45,7 +45,7 @@ namespace YesterdayNews.Hubs
 
                 if (stock == null)
                 {
-                    //DO something?
+                    //DO something? maybe oif stock not found our stock price is (error) / null
                     //await _eventHandler.HandleStockquoteApiError(symbol, "Stock info not found");
                     continue;
                 }

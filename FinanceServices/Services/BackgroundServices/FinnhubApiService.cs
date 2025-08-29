@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net.Http.Json;
 
 
@@ -35,7 +36,6 @@ namespace FinanceServices.Services.BackgroundServices
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
             var statusTask = RunMarketStatusLoop(stoppingToken);
             var listTask = RunUpdateListsLoop(stoppingToken);
 
@@ -48,7 +48,7 @@ namespace FinanceServices.Services.BackgroundServices
             {
                 try
                 {
-                    await UpdateMarketStatus(stoppingToken);
+                    await UpdateMarketStatus();
                 }
                 catch (Exception ex)
                 {
@@ -57,7 +57,7 @@ namespace FinanceServices.Services.BackgroundServices
                 await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
             }
         }
-           
+
         private async Task RunUpdateListsLoop(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -65,6 +65,17 @@ namespace FinanceServices.Services.BackgroundServices
                 try
                 {
                     await UpdateLists();
+
+                    //Forex CURRENCIES (just caching preset strings since there is only tradedata, no base data)
+                    if (_cache.Currencies.Count() == 0)
+                    {
+                        CacheCurrencies();
+                    }
+                    //Forex COMMODITIES (just caching preset strings since there is only tradedata, no base data)
+                    if (_cache.Commodities.Count() == 0)
+                    {
+                        CacheCommodities();
+                    }
                     if (UsStocksRaw.Count > 0 && BinanceList.Count > 0)
                     {
                         //CRYPTOS
@@ -74,17 +85,16 @@ namespace FinanceServices.Services.BackgroundServices
                         //STOCKS
                         foreach (var symbol in FinanceConstants.LargeSymbolsList)
                         {
-                            if (!symbol.Contains("BINANCE") )
+                            if (!symbol.Contains("BINANCE") && !symbol.Contains(FinanceConstants.OANDA))
                             {
                                 var usStockInfo = GetUsStockRaw(symbol);
-                                if(usStockInfo == null)
+                                if (usStockInfo == null)
                                     throw new Exception($"No stock info for symbol: {symbol}");
                                 UsStocksFiltered[symbol] = usStockInfo;
-                            }     
+                            }
                         }
 
                         await CacheStocks();
-
                         _logger.LogWarning("ALL CRYPTOS AND STOCKS CACHED!"); //warning cause easier to spot
                         // success, break out of loop
                         break;
@@ -95,6 +105,34 @@ namespace FinanceServices.Services.BackgroundServices
                     _logger.LogWarning($"{ex}, Failed Updating Lists");
                 }
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+            }
+        }
+        private void CacheCurrencies()
+        {
+            var usdPair = FinanceConstants.usdForex;
+            foreach (var pair in usdPair)
+            {
+                string displaySymbol = pair.Key.Split(':')[1];
+                _cache.Currencies[pair.Key] = new Forex()
+                {
+                    Symbol = pair.Key,
+                    DisplaySymbol = displaySymbol,
+                    Description = pair.Value,
+                };
+            }
+        }
+        private void CacheCommodities()
+        {
+            var usdPair = FinanceConstants.usdComm;
+            foreach (var pair in usdPair)
+            {
+                string displaySymbol = pair.Key.Split(':')[1];
+                _cache.Commodities[pair.Key] = new Forex()
+                {
+                    Symbol = pair.Key,
+                    DisplaySymbol = displaySymbol,
+                    Description = pair.Value,
+                };
             }
         }
         private void CacheCryptos()
@@ -143,19 +181,20 @@ namespace FinanceServices.Services.BackgroundServices
             }
         }
 
-        private async Task UpdateMarketStatus(CancellationToken stoppingToken)
+        private async Task UpdateMarketStatus()
         {
             try
             {
+
                 var marketStatus = await GetMarketStatus(FinanceConstants.US);
+                if (marketStatus == null)
+                    throw new Exception("null");
                 _cache.MarketStatus[FinanceConstants.US] = marketStatus;
             }
             catch (Exception ex)
             {
                 _logger.LogWarning($"Error fetching market status: {ex.Message}");
             }
-
-            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
         }
         private async Task UpdateLists()
         {
@@ -194,7 +233,7 @@ namespace FinanceServices.Services.BackgroundServices
             // returns null or a copy so original can't be altered
             if (UsStocksFiltered == null)
                 return new Dictionary<string, UsStock>();
-            return new Dictionary<string, UsStock>(UsStocksFiltered); 
+            return new Dictionary<string, UsStock>(UsStocksFiltered);
         }
         private async Task<List<Crypto>> GetBinanceCryptoList()
         {
@@ -233,18 +272,6 @@ namespace FinanceServices.Services.BackgroundServices
                 return null;
 
             foreach (var stock in UsStocksRaw)
-            {
-                if (stock.Symbol == symbol)
-                    return stock;
-            }
-            return null;
-        }
-        private UsStock GetUsStockFiltered(string symbol)
-        {
-            if (UsStocksFiltered == null)
-                return null;
-
-            foreach (var stock in UsStocksFiltered.Values)
             {
                 if (stock.Symbol == symbol)
                     return stock;
