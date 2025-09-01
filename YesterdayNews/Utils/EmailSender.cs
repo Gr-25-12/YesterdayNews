@@ -48,6 +48,11 @@ namespace YesterdayNews.Utils
             );
         }
 
+        Task Microsoft.AspNetCore.Identity.UI.Services.IEmailSender.SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            return SendEmailAsync(email, subject, htmlMessage);
+        }
+
 
 
 
