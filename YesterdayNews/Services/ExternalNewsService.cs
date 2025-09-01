@@ -21,8 +21,8 @@ namespace YesterdayNews.Services
         public async Task<List<ExternalNewsVM>> GetTopNewsAsync()
         {
 
-
-            var url = BASE_URL;
+            var apiKey = _config["NewsAPI:ApiKey"]!;
+            var url = $"https://newsapi.org/v2/top-headlines?country=us&pageSize=100&apiKey={apiKey}";
             var response = await _httpClient.GetAsync(url);
             //Only there to check if the API is reachable and throw meaningful error if not
             var content = await response.Content.ReadAsStringAsync();
