@@ -39,8 +39,9 @@ public class Program
 
         builder.Services.AddScoped<IArticleServices, ArticleServices>();
         builder.Services.AddScoped<IFileServices, FileServices>();
-        builder.Services.AddTransient<IEmailSender, EmailSender>();
-        builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
+        builder.Services.AddTransient<EmailSender>();
+        builder.Services.AddTransient<YesterdayNews.Utils.IEmailSender>(sp => sp.GetRequiredService<EmailSender>());
+        builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender>(sp => sp.GetRequiredService<EmailSender>());
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
