@@ -1,4 +1,5 @@
-﻿using Stripe;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Stripe;
 using Stripe.Checkout;
 using YesterdayNews.Models.Db;
 
@@ -29,8 +30,12 @@ namespace YesterdayNews.Utils
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
                                 Name = "Yesterday News " + plan.TypeName + " Subscription 👍",
-                                Description = plan.Description,
-                              
+                                Description = System.Text.RegularExpressions.Regex.Replace(
+                                    plan.Description,
+                                    "<.*?>",
+                                    string.Empty
+                                ),
+
                             },
                         },
                         Quantity = 1,

@@ -1,12 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
+using FinanceServices.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using YesterdayNews.Models;
-using YesterdayNews.Models.Db;
 using YesterdayNews.Models.ViewModels;
-using YesterdayNews.Services;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
 
@@ -17,14 +14,16 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly IArticleServices _articleServices;
     private readonly ILikeService _likeServices;
+    private readonly IFinanceApiServices _financeApiServices;
     private readonly ISubscriptionServices _subscriptionServices;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices ,UserManager<IdentityUser> userManager , ISubscriptionServices subscriptionServices)
+    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices, IFinanceApiServices financeApiServices ,UserManager<IdentityUser> userManager, ISubscriptionServices subscriptionServices)
     {
         _logger = logger;
         _articleServices = articleServices;
         _likeServices = likeServices;
+        _financeApiServices = financeApiServices;
         _userManager = userManager;
         _subscriptionServices = subscriptionServices;
     }
@@ -94,6 +93,11 @@ public class HomeController : Controller
         return RedirectToAction("Details",  new { id });
 
 
+    }
+    public IActionResult Markets()
+    {
+        var models = _financeApiServices.GetMarketsModel();
+        return View(models);
     }
 
     public IActionResult Privacy()

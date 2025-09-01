@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
+VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YesterdayNews", "YesterdayNews\YesterdayNews.csproj", "{1B93BB34-CB25-4777-AEA3-E3396A60C02F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceServices", "FinanceServices\FinanceServices.csproj", "{3421165B-3B76-C040-114B-FA53382F7275}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionReminderFunction", "SubscriptionReminderFunction\SubscriptionReminderFunction.csproj", "{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{1B93BB34-CB25-4777-AEA3-E3396A60C02F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B93BB34-CB25-4777-AEA3-E3396A60C02F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B93BB34-CB25-4777-AEA3-E3396A60C02F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3421165B-3B76-C040-114B-FA53382F7275}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3421165B-3B76-C040-114B-FA53382F7275}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3421165B-3B76-C040-114B-FA53382F7275}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3421165B-3B76-C040-114B-FA53382F7275}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
