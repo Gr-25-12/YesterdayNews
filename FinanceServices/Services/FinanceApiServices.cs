@@ -59,7 +59,7 @@ namespace FinanceServices.Services
         }
         public string GetMarketStatus(string exchange)
         {
-            if (exchange.ToUpper() == "US" || exchange.ToUpper() == FinanceConstants.US)
+            if (exchange.ToUpper() == FinanceConstants.US)
             {
                 if (_marketDataCache.MarketStatus.TryGetValue(FinanceConstants.US, out var value))
                 {
@@ -78,6 +78,10 @@ namespace FinanceServices.Services
                 reply = "Open";
             else if (value.Session == "pre-market" || value.Session == "post-market")
                 reply = value.Session;
+            else if(!value.IsOpen && value.Holiday != string.Empty)
+            {
+                reply = "Closed - " + value.Holiday;
+            }
             else
                 reply = "Closed";
             return reply;
