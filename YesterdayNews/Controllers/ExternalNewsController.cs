@@ -22,7 +22,7 @@ namespace YesterdayNews.Controllers
             if (!_cache.TryGetValue("TopNewsCache", out List<ExternalNewsVM> news))
             {
                 news = await _externalnews.GetTopNewsAsync();
-                _cache.Set("TopNewsCache", news, TimeSpan.FromMinutes(10));
+                _cache.Set("TopNewsCache", news, TimeSpan.FromHours(2));
             }
 
             return View(news);
