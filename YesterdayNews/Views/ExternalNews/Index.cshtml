@@ -12,7 +12,7 @@
     var hasActiveSubscription = user != null && SubscriptionService.HasActiveSubscription(user.Id);
 }
 
-@if (User.Identity.IsAuthenticated && hasActiveSubscription || User.IsInRole(StaticConsts.Role_Admin))
+@if (User.Identity.IsAuthenticated && hasActiveSubscription || User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist))
 {
     <div class="container my-4">
 

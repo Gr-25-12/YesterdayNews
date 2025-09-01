@@ -1,22 +1,23 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
-
+using System.Threading.Tasks;
 
 namespace FinanceServices.Models.API
 {
-    public class Crypto
+    public class Forex
     {
-        [JsonPropertyName("description")] public string? Description { get; set; }
-        [JsonPropertyName("displaySymbol")] public string? DisplaySymbol { get; set; }
-        [JsonPropertyName("symbol")] public string? Symbol { get; set; }
+        public string? Symbol { get; set; }
+        public string? DisplaySymbol { get; set; }
 
         private readonly object _lock = new(); // for thread-safety
         private readonly Queue<decimal> priceSnapshots24 = new();
         private const int MAX_SNAPSHOTS = 1440; //1440 (change to 1 for testing)
-
         public decimal CurrentPrice { get; set; }
+        public string Description { get; set; }
         public decimal Price24HoursAgo { get; private set; }
-        
         public long TimeStamp { private get; set; }
 
         [JsonIgnore]
