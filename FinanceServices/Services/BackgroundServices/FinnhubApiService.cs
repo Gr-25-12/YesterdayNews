@@ -1,9 +1,13 @@
 using FinanceServices.Data;
+using FinanceServices.Models;
 using FinanceServices.Models.API;
 using FinanceServices.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net.Http.Json;
 
 
@@ -16,11 +20,12 @@ namespace FinanceServices.Services.BackgroundServices
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly MarketDataCache _cache;
-
-        bool dataIsCached = false;
-        private static List<UsStock>? NasdaqList { get; set; }
-        private static List<UsStock>? NyseList { get; set; }
+        private static List<UsStock>? UsStocksRaw { get; set; } //full list
+        private static ConcurrentDictionary<string, UsStock>? UsStocksFiltered { get; set; } = new(); //List of stocks based on SymbolList
         private static List<Crypto>? BinanceList { get; set; }
+        public event Func<string, Task> OnApiMarketStatusError;
+        public event Func<string, string, Task> OnCachedUpdate;
+        private Dictionary<string, bool> StockErrors = new();
 
         public FinnhubApiService(FinnhubApiCallsCounter finnhubApiCallsCounter, HttpClient httpClient, IConfiguration config, MarketDataCache cache, ILogger<FinnhubApiService> logger)
         {
@@ -32,103 +37,210 @@ namespace FinanceServices.Services.BackgroundServices
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (dataIsCached == false)
-            {
-                //do initial API calls
-                await InitializeCachedData();
-            }
+            var statusTask = RunMarketStatusLoop(stoppingToken);
+            var listTask = RunUpdateListsLoop(stoppingToken);
+
+            await Task.WhenAll(statusTask, listTask);
+        }
+        private async Task RunMarketStatusLoop(CancellationToken stoppingToken)
+        {
+
             while (!stoppingToken.IsCancellationRequested)
             {
-                await UpdateMarketStatus(stoppingToken);
+                try
+                {
+                    await UpdateMarketStatus();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"{ex}, Failed Updating MarketStatus");
+                }
+                await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
             }
         }
-        private async Task InitializeCachedData()
-        {
-            try
-            {
-                var symbolList = FinanceConstants.LargeSymbolsList;
-                NasdaqList = await GetNasdaqStockList(); //1 API call
-                NyseList = await GetNyseStockList();    // 1 API call
-                BinanceList = await GetBinanceCryptoList(); // 1 API call
 
-                foreach (var symbol in symbolList)
+        private async Task RunUpdateListsLoop(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
                 {
-                    if (symbol.Contains("BINANCE"))
+                    await UpdateLists();
+
+                    //Forex CURRENCIES (just caching preset strings since there is only tradedata, no base data)
+                    if (_cache.Currencies.Count() == 0)
                     {
-                        foreach (var item in BinanceList)
+                        await CacheCurrencies();
+                    }
+                    //Forex COMMODITIES (just caching preset strings since there is only tradedata, no base data)
+                    if (_cache.Commodities.Count() == 0)
+                    {
+                        await CacheCommodities();
+                    }
+                    if (UsStocksRaw.Count > 0 && BinanceList.Count > 0)
+                    {
+                        //CRYPTOS
+                        if (_cache.CryptoQuotes.Count() == 0)
+                            await CacheCryptos();
+
+                        //STOCKS
+                        foreach (var symbol in FinanceConstants.LargeSymbolsList)
                         {
-                            if (item.Symbol == symbol)
+                            if (!symbol.Contains("BINANCE") && !symbol.Contains(FinanceConstants.OANDA))
                             {
-                                _cache.CryptoQuotes[symbol] = item;
+                                var usStockInfo = GetUsStockRaw(symbol);
+                                if (usStockInfo == null)
+                                    throw new Exception($"No stock info for symbol: {symbol}");
+                                UsStocksFiltered[symbol] = usStockInfo;
                             }
                         }
-                    }
-                    else
-                    {
-                        var quote = await GetStockQuote(symbol); //symbolList size nr API calls
-                        if (quote == null)
-                            throw new Exception($"No stock quote for symbol: {symbol}");
-                        _cache.StockQuotes[symbol] = quote;
 
-                        //slow operation (loops through thousands of stocks)
-                        var info = GetNasdaqStock(symbol) ?? GetNyseStock(symbol)
-                            ?? throw new Exception($"No stock info for symbol: {symbol}");
-                        _cache.UsStocks[symbol] = info;
+                        await CacheStocks();
+                        _logger.LogWarning("ALL CRYPTOS AND STOCKS CACHED!"); //warning cause easier to spot
+                        // success, break out of loop
+                        break;
                     }
-
                 }
-                dataIsCached = true;
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"{ex}, Failed Updating Lists");
+                }
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
-            catch (Exception ex)
+        }
+        private async Task CacheCurrencies()
+        {
+            var usdPair = FinanceConstants.usdForex;
+            foreach (var pair in usdPair)
             {
-                dataIsCached = false;
-                _logger.LogWarning($"{ex}, Failed to cache data at startup");
+                string displaySymbol = pair.Key.Split(':')[1];
+                var forex = new Forex()
+                {
+                    Symbol = pair.Key,
+                    DisplaySymbol = displaySymbol,
+                    Description = pair.Value,
+                    CurrentPrice = 0
+                };
+                _cache.Currencies[pair.Key] = forex;
+                await OnCachedUpdate?.Invoke(forex.Symbol, forex.DisplaySymbol);
+            }
+        }
+        private async Task CacheCommodities()
+        {
+            var usdPair = FinanceConstants.usdComm;
+            foreach (var pair in usdPair)
+            {
+                string displaySymbol = pair.Key.Split(':')[1];
+                var forex = new Forex()
+                {
+                    Symbol = pair.Key,
+                    DisplaySymbol = displaySymbol,
+                    Description = pair.Value,
+                    CurrentPrice = 0
+                };
+                _cache.Commodities[pair.Key] = forex;
+                await OnCachedUpdate?.Invoke(forex.Symbol, forex.DisplaySymbol);
+            }
+        }
+        private async Task CacheCryptos()
+        {
+            foreach (var pair in FinanceConstants.cryptoDescriptionList)
+            {
+                foreach (var item in BinanceList)
+                {
+                    if (item.Symbol == pair.Key)
+                    {
+                        item.CurrentPrice = 0;
+                        item.Description = pair.Value;
+                        _cache.CryptoQuotes[pair.Key] = item;
+                        await OnCachedUpdate?.Invoke(item.Symbol, item.Description);
+                        _logger.LogInformation($"Added {item.DisplaySymbol} to cached crypto");
+                    }
+                }
+            }
+        }
+        private async Task CacheStocks()
+        {
+            foreach (var usStock in UsStocksFiltered.Values)
+            {
+                if (_cache.Stocks.ContainsKey(usStock.Symbol))
+                    continue; //skip if it's already cached
+
+                var quote = await GetStockQuote(usStock.Symbol); //1 API call for each stock
+                if (quote == null)
+                    throw new Exception($"No stock quote for symbol: {usStock.Symbol}");
+                else
+                {
+                    CachedStock newStock = new CachedStock
+                    {
+                        Symbol = usStock.Symbol,
+                        DisplayName = usStock.Description,
+                        Exchange = usStock.Mic,
+                        CurrentPrice = quote.CurrentPrice,
+                        ClosingPrice = quote.ClosingPrice
+                    };
+                    _cache.Stocks[newStock.Symbol] = newStock;
+                    _logger.LogInformation($"Added {newStock.Symbol} to cached stocks");
+                    await OnCachedUpdate?.Invoke(newStock.Symbol, newStock.DisplayName);
+                }
+                // Wait 1 minute between symbols
+                await Task.Delay(TimeSpan.FromSeconds(2));
             }
         }
 
-        private async Task UpdateMarketStatus(CancellationToken stoppingToken)
+        private async Task UpdateMarketStatus()
         {
             try
             {
+
                 var marketStatus = await GetMarketStatus(FinanceConstants.US);
+                if (marketStatus == null)
+                    throw new Exception("null");
                 _cache.MarketStatus[FinanceConstants.US] = marketStatus;
             }
             catch (Exception ex)
             {
                 _logger.LogWarning($"Error fetching market status: {ex.Message}");
             }
-
-            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
         }
-        private async Task<List<UsStock>> GetNasdaqStockList()
+        private async Task UpdateLists()
+        {
+            if (UsStocksRaw == null || UsStocksRaw.Count == 0)
+            {
+                _logger.LogInformation("Updating UsStocksRaw ");
+                UsStocksRaw = await GetUsStockList();
+                if (UsStocksRaw == null || UsStocksRaw.Count == 0)
+                    throw new Exception($"UsStocksRaw not loaded");
+            }
+            if (BinanceList == null || BinanceList.Count == 0)
+            {
+                _logger.LogInformation("Updating BinanceList ");
+                BinanceList = await GetBinanceCryptoList();
+                if (BinanceList == null || BinanceList.Count == 0)
+                    throw new Exception($"BinanceList not loaded");
+            }
+        }
+        private async Task<List<UsStock>> GetUsStockList()
         {
             if (_apiCallsCounter.IsCallPossible())
             {
                 string baseUrl = FinanceConstants.BaseUrl;
-                string Nasdaq = "stock/symbol?exchange=US&mic=XNAS";
-                var url = $"{baseUrl}{Nasdaq}&token={_apiKey}";
+                string us = "stock/symbol?exchange=US";
+                var url = $"{baseUrl}{us}&token={_apiKey}";
                 var list = await _httpClient.GetFromJsonAsync<List<UsStock>>(url) ?? new List<UsStock>();
                 return list;
             }
             else
             {
-                throw new Exception("Api Calls Limit reached!");
+                return null;
             }
         }
-        private async Task<List<UsStock>> GetNyseStockList()
+        public static IReadOnlyDictionary<string, UsStock> GetFilteredStocks()
         {
-            if (_apiCallsCounter.IsCallPossible())
-            {
-                string baseUrl = FinanceConstants.BaseUrl;
-                string Nyse = "stock/symbol?exchange=US&mic=XNYS";
-                var url = $"{baseUrl}{Nyse}&token={_apiKey}";
-                var list = await _httpClient.GetFromJsonAsync<List<UsStock>>(url) ?? new List<UsStock>();
-                return list;
-            }
-            else
-            {
-                throw new Exception("Api Calls Limit reached!");
-            }
+            // returns null or a copy so original can't be altered
+            if (UsStocksFiltered == null)
+                return new Dictionary<string, UsStock>();
+            return new Dictionary<string, UsStock>(UsStocksFiltered);
         }
         private async Task<List<Crypto>> GetBinanceCryptoList()
         {
@@ -142,42 +254,31 @@ namespace FinanceServices.Services.BackgroundServices
             }
             else
             {
-                throw new Exception("Api Calls Limit reached!");
+                return null;
             }
         }
-        private async Task<StockQuote> GetStockQuote(string tickerSymbol)
+        private async Task<StockQuote> GetStockQuote(string symbol)
         {
             if (_apiCallsCounter.IsCallPossible())
             {
                 string baseUrl = FinanceConstants.BaseUrl;
-                string stockQuote = $"quote?symbol={tickerSymbol}";
+                string stockQuote = $"quote?symbol={symbol}";
                 var url = $"{baseUrl}{stockQuote}&token={_apiKey}";
                 var quote = await _httpClient.GetFromJsonAsync<StockQuote>(url);
                 return quote;
             }
             else
             {
-                throw new Exception("Api Calls Limit reached!");
+                StockErrors[symbol] = true;
+                return null;
             }
         }
-        private UsStock GetNasdaqStock(string symbol)
+        private UsStock GetUsStockRaw(string symbol)
         {
-            if (NasdaqList == null)
+            if (UsStocksRaw == null)
                 return null;
 
-            foreach (var stock in NasdaqList)
-            {
-                if (stock.Symbol == symbol)
-                    return stock;
-            }
-            return null;
-        }
-        private UsStock GetNyseStock(string symbol)
-        {
-            if (NyseList == null)
-                return null;
-
-            foreach (var stock in NyseList)
+            foreach (var stock in UsStocksRaw)
             {
                 if (stock.Symbol == symbol)
                     return stock;
@@ -190,7 +291,7 @@ namespace FinanceServices.Services.BackgroundServices
             if (_apiCallsCounter.IsCallPossible())
             {
                 string baseUrl = FinanceConstants.BaseUrl;
-                
+
                 string marketStatus = $"stock/market-status?exchange={exchange}";
                 var url = $"{baseUrl}{marketStatus}&token={_apiKey}";
                 var status = await _httpClient.GetFromJsonAsync<MarketStatus>(url);
@@ -198,21 +299,10 @@ namespace FinanceServices.Services.BackgroundServices
             }
             else
             {
-                throw new Exception("Api Calls Limit reached!");
+                await OnApiMarketStatusError?.Invoke("Api Calls Limit reached!");
+                return new MarketStatus();
             }
         }
-
-        //public async Task<string> GetForexQuotes(string exchangeName)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public async Task<CompanyProfile> GetCompanyProfile(string tickerSymbol)
-        //{
-        //    string profileLink = $"/stock/profile2?symbol={tickerSymbol}";
-        //    var url = $"{_baseUrl}{profileLink}{_apiKey}";
-        //    var profile = await _httpClient.GetFromJsonAsync<CompanyProfile>(url);
-        //    return profile;
-        //}
 
         //public async Task<string> GetCompanyFinancials(string tickerSymbol)
         //{

@@ -11,6 +11,8 @@ namespace FinanceServices.Services.BackgroundServices
 
         private readonly MarketDataCache _cache;
         private ConcurrentDictionary<string, Crypto> Cryptos;
+        private ConcurrentDictionary<string, Forex> Currencies;
+        private ConcurrentDictionary<string, Forex> Commodities;
         private const int SNAPSHOT_INTERVAL = 60000; // 60000 ms = 1 minute
         public CryptoSnapshotService(MarketDataCache cache)
         {
@@ -22,19 +24,35 @@ namespace FinanceServices.Services.BackgroundServices
             while (!stoppingToken.IsCancellationRequested)
             {
                 Cryptos = _cache.CryptoQuotes;
-                if (Cryptos != null)
-                {
-                    UpdateAllSnapshots();
-                }
+                Currencies = _cache.Currencies;
+                Commodities = _cache.Commodities;
+                UpdateAllSnapshots();
                 await Task.Delay(SNAPSHOT_INTERVAL, stoppingToken);
             }
         }
 
         private void UpdateAllSnapshots()
         {
-            foreach (var crypto in Cryptos.Values)
+            if (Cryptos != null)
             {
-                crypto.UpdateSnapshots();
+                foreach (var crypto in Cryptos.Values)
+                {
+                    crypto.UpdateSnapshots();
+                }
+            }
+            if (Currencies != null)
+            {
+                foreach (var forex in Currencies.Values)
+                {
+                    forex.UpdateSnapshots();
+                }
+            }
+            if (Commodities != null)
+            {
+                foreach (var forex in Commodities.Values)
+                {
+                    forex.UpdateSnapshots();
+                }
             }
         }
     }
