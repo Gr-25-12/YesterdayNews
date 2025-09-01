@@ -161,6 +161,7 @@ namespace YesterdayNews.Areas.Identity.Pages.Account
                     // Admin-created account flow
                     var generatedPassword = GenerateRandomPassword();
                     result = await _userManager.CreateAsync(user, generatedPassword);
+                    user.EmailConfirmed = true; 
 
                     if (result.Succeeded)
                     {
