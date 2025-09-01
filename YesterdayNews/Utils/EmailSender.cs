@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity.UI.Services;
+﻿
 using SendWithBrevo;
 
 namespace YesterdayNews.Utils
 {
-    public class EmailSender : IEmailSender
+    public class EmailSender : IEmailSender , Microsoft.AspNetCore.Identity.UI.Services.IEmailSender
     {
         private readonly BrevoClient _client;
         private readonly string _fromEmail;
