@@ -3,7 +3,7 @@
 public class ExternalNewsVM
 {
     [JsonPropertyName("title")]
-    public string Title { get; set; } 
+    public string? Title { get; set; } 
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -53,5 +53,40 @@ public class NewsApiResponse
     public int TotalResults { get; set; }
 
     [JsonPropertyName("articles")]
+    public List<ExternalNewsVM> Articles { get; set; } = new List<ExternalNewsVM>();
+}
+
+
+public class ExternalNewsVMProd
+{
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = string.Empty;
+
+    [JsonPropertyName("image_url")]
+    public string? UrlToImage { get; set; }
+
+    [JsonPropertyName("published_at")]
+    public DateTime? PublishedAt { get; set; }
+
+    [JsonPropertyName("snippet")]
+    public string? Content { get; set; }
+
+    [JsonPropertyName("source")]
+    public string? Source { get; set; }
+
+}
+
+
+
+public class NewsApiResponseProd
+{
+
+    [JsonPropertyName("data")]
     public List<ExternalNewsVM> Articles { get; set; } = new List<ExternalNewsVM>();
 }

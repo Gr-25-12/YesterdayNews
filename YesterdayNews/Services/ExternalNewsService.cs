@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using YesterdayNews.Services.IServices;
 
 namespace YesterdayNews.Services
@@ -7,45 +8,89 @@ namespace YesterdayNews.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
-        private string BASE_URL { get; set; } 
+        private string BASE_URL { get; set; }
 
         public ExternalNewsService(HttpClient httpClient, IConfiguration config)
         {
-           _httpClient = httpClient;
-            _config=config;
+            _httpClient = httpClient;
+            _config = config;
             BASE_URL = _config["NewsAPI:URL"]!;
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "YesterdayNewsApp/1.0");
         }
 
 
-        public async Task<List<ExternalNewsVM>> GetTopNewsAsync()
-        {
 
-            var apiKey = _config["NewsAPI:ApiKey"]!;
-            var url = $"https://newsapi.org/v2/top-headlines?country=us&pageSize=100&apiKey={apiKey}";
+        public async Task<List<ExternalNewsVM>> GetTopNewsAsync([FromServices] IWebHostEnvironment env)
+        {
+            var url = string.Empty;
+            var apiKeyProd = _config["NewsAPI:ApiKey"]!;
+            var apiKeyDev = _config["NewsAPI:ApiKeyDev"]!;
+
+            if (env.IsProduction())
+            {
+                url = $"https://api.thenewsapi.com/v1/news/top?api_token={apiKeyProd}&locale=us&limit=3";
+            }
+            else
+            {
+                url = $"https://newsapi.org/v2/top-headlines?country=us&pageSize=100&apiKey={apiKeyDev}";
+            }
+
             var response = await _httpClient.GetAsync(url);
-            //Only there to check if the API is reachable and throw meaningful error if not
             var content = await response.Content.ReadAsStringAsync();
+
             if (!response.IsSuccessStatusCode)
             {
                 Console.WriteLine($"API Error: {response.StatusCode}");
-                
+                return new List<ExternalNewsVM>();
             }
 
-
             var json = await response.Content.ReadAsStringAsync();
-            var apiResponse = JsonSerializer.Deserialize<NewsApiResponse>(json, new JsonSerializerOptions
+
+            // Toggling
+            if (env.IsProduction())
             {
-                PropertyNameCaseInsensitive = true
-            });
+
+                var prodApiResponse = JsonSerializer.Deserialize<NewsApiResponseProd>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
 
+                return ConvertProdToStandard(new List<ExternalNewsVMProd>());
+            }
+            else
+            {
 
-            return apiResponse.Articles;
+                var devApiResponse = JsonSerializer.Deserialize<NewsApiResponse>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
+                return devApiResponse?.Articles ?? new List<ExternalNewsVM>();
+            }
         }
 
-    }
-    }
 
+        private List<ExternalNewsVM> ConvertProdToStandard(List<ExternalNewsVMProd> prodArticles)
+        {
+            return prodArticles.Select(prodArticle => new ExternalNewsVM
+            {
+                Title = prodArticle.Title ?? string.Empty,
+                Description = prodArticle.Description,
+                Url = prodArticle.Url ?? string.Empty,
+                UrlToImage = prodArticle.UrlToImage,
+                PublishedAt = prodArticle.PublishedAt,
+                Author = null,
+                Content = prodArticle.Content,
+                Source = new NewsSource
+                {
+                    Name = prodArticle.Source ?? "Unknown Source",
+                    Id = null
+                }
+            }).ToList();
+        }
+
+
+    }
+}
 
