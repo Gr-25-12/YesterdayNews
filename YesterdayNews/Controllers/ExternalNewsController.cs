@@ -11,17 +11,20 @@ namespace YesterdayNews.Controllers
     {
         private readonly ExternalNewsService _externalnews;
         private readonly IMemoryCache _cache;
-        public ExternalNewsController(ExternalNewsService externalnews, IMemoryCache cache)
+        private readonly IWebHostEnvironment _environment;
+
+        public ExternalNewsController(ExternalNewsService externalnews, IMemoryCache cache, IWebHostEnvironment environment)
         {
             _externalnews = externalnews;
             _cache = cache;
+            _environment = environment;
         }
 
         public async Task<IActionResult> Index()
         {
             if (!_cache.TryGetValue("TopNewsCache", out List<ExternalNewsVM> news))
             {
-                news = await _externalnews.GetTopNewsAsync();
+                news = await _externalnews.GetTopNewsAsync(_environment);
                 _cache.Set("TopNewsCache", news, TimeSpan.FromHours(2));
             }
 

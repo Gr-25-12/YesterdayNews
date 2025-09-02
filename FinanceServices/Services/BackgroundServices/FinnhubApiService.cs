@@ -154,7 +154,7 @@ namespace FinanceServices.Services.BackgroundServices
                         item.Description = pair.Value;
                         _cache.CryptoQuotes[pair.Key] = item;
                         await OnCachedUpdate?.Invoke(item.Symbol, item.Description);
-                        _logger.LogInformation($"Added {item.DisplaySymbol} to cached crypto");
+                        //_logger.LogInformation($"Added {item.DisplaySymbol} to cached crypto");
                     }
                 }
             }
@@ -180,7 +180,7 @@ namespace FinanceServices.Services.BackgroundServices
                         ClosingPrice = quote.ClosingPrice
                     };
                     _cache.Stocks[newStock.Symbol] = newStock;
-                    _logger.LogInformation($"Added {newStock.Symbol} to cached stocks");
+                    //_logger.LogInformation($"Added {newStock.Symbol} to cached stocks");
                     await OnCachedUpdate?.Invoke(newStock.Symbol, newStock.DisplayName);
                 }
                 // Wait 1 minute between symbols
@@ -207,14 +207,14 @@ namespace FinanceServices.Services.BackgroundServices
         {
             if (UsStocksRaw == null || UsStocksRaw.Count == 0)
             {
-                _logger.LogInformation("Updating UsStocksRaw ");
+                //_logger.LogInformation("Updating UsStocksRaw ");
                 UsStocksRaw = await GetUsStockList();
                 if (UsStocksRaw == null || UsStocksRaw.Count == 0)
                     throw new Exception($"UsStocksRaw not loaded");
             }
             if (BinanceList == null || BinanceList.Count == 0)
             {
-                _logger.LogInformation("Updating BinanceList ");
+                //_logger.LogInformation("Updating BinanceList ");
                 BinanceList = await GetBinanceCryptoList();
                 if (BinanceList == null || BinanceList.Count == 0)
                     throw new Exception($"BinanceList not loaded");

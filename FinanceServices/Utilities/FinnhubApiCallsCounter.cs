@@ -40,7 +40,7 @@ namespace FinanceServices.Utilities
                     return false;
                 }
                 IncrementCounters();
-                PrintToConsole();
+                //PrintToConsole();
                 return true;
             }
         }
