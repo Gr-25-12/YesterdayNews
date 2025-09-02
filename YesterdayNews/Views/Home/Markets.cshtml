@@ -24,7 +24,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							@if (Model.NasdaqStocks.Count <= 0 && Model.UsMarketStatus != "Closed")
+							@if (Model.NasdaqStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
 							{
 								<tr>
 									<td class="text-danger"> (Error, No data loaded)</td>
@@ -40,7 +40,7 @@
 									<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
 										@stock.DisplayName
 									</td>
-									@if (Model.UsMarketStatus != "Closed")
+									@if (Model.UsMarketStatus.Contains("Closed") == false)
 									{
 										<td class="price">
 											@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
@@ -86,7 +86,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							@if (Model.NyseStocks.Count <= 0 && Model.UsMarketStatus != "Closed")
+							@if (Model.NyseStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
 							{
 								<tr>
 									<td class="text-danger"> (Error, No data loaded)</td>
@@ -102,7 +102,7 @@
 									<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
 										@stock.DisplayName
 									</td>
-									@if(Model.UsMarketStatus != "Closed")
+									@if (Model.UsMarketStatus.Contains("Closed") == false)
 									{
 										<td class="price">
 											@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
