@@ -26,7 +26,7 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         builder.Services.ConfigureApplicationCookie(options =>
         {
@@ -39,7 +39,9 @@ public class Program
 
         builder.Services.AddScoped<IArticleServices, ArticleServices>();
         builder.Services.AddScoped<IFileServices, FileServices>();
-        builder.Services.AddTransient<IEmailSender, EmailSender>();
+        builder.Services.AddTransient<EmailSender>();
+        builder.Services.AddTransient<YesterdayNews.Utils.IEmailSender>(sp => sp.GetRequiredService<EmailSender>());
+        builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender>(sp => sp.GetRequiredService<EmailSender>());
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();

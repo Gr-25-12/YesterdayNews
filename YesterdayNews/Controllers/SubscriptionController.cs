@@ -225,7 +225,7 @@ namespace YesterdayNews.Controllers
 
         [HttpGet("subscriptions/success")]
         [AllowAnonymous]
-        public IActionResult Success(string session_id)
+        public IActionResult Success(string session_id, [FromServices] IWebHostEnvironment env)
         {
             var session = _stripe.GetSession(session_id);
             if (session == null || session.PaymentStatus != "paid")
@@ -271,15 +271,17 @@ namespace YesterdayNews.Controllers
 
                 TempData["Success"] = "Subscription activated successfully!";
 
-                // GenerateAnd send PDF receipt
-                var pdfService = new PdfService(); 
+                if (env.IsDevelopment())
+                {
+
+
+                    // GenerateAnd send PDF receipt
+                    var pdfService = new PdfService(); 
                 var pdfBytes = pdfService.GenerateReceiptPdf(user.FullName, plan.TypeName, plan.Price, session.Id);
                 var pdfFileName = $"Receipt_YesterdayNews_{plan.TypeName}_{DateTime.UtcNow:yyyyMMdd}.pdf";
 
                
                 var emailBody = EmailTemplate.GetConfirmationSubscriptionEmail(user.FullName, plan.TypeName, plan.Price, session.Id, StaticConsts.Home_URL);
-
-                // Use the new method that supports PDF attachments
                
                      _emailSender.SendEmailWithPdfAsync(
                         user.Email,
@@ -289,9 +291,12 @@ namespace YesterdayNews.Controllers
                         pdfFileName
                     ).GetAwaiter().GetResult();
               
-                //// logic to send the emails will be handled later
-                //var emailBody = EmailTemplate.GetConfirmationSubscriptionEmail(user.FullName, plan.TypeName, plan.Price, session.Id,StaticConsts.Home_URL_DEV);
-                //_emailSender.SendEmailAsync(user.Email, "Your Payment Receipt - Yesterday News", emailBody);
+                }else
+                {
+                    // logic to send the emails will be handled later
+                    var emailBody = EmailTemplate.GetConfirmationSubscriptionEmail(user.FullName, plan.TypeName, plan.Price, session.Id,StaticConsts.Home_URL);
+                    _emailSender.SendEmailAsync(user.Email, "Your Payment Receipt - Yesterday News", emailBody);
+                }
                 return View("Success");
             }
 
