@@ -629,17 +629,6 @@ description-container {
         flex-shrink: 0;
     }
 
-  /*  .btn-accept, .btn-necessary {
-        padding: 0.5rem 1rem;
-        border: 1px solid #1d4ed8;
-        color: #1d4ed8;
-        border-radius: 8px;
-        background-color: transparent;
-        cursor: pointer;
-        font-size: 0.85rem;
-        transition: all 0.2s ease;
-    }*/
-
         .btn-accept:hover, .btn-necessary:hover {
             background-color: #1d4ed8;
             color: #fff;

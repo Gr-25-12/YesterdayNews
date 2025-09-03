@@ -1,7 +1,4 @@
 ﻿<div id="cookieConsent" class="cookie-banner hidden">
-    <button id="closeCookieBanner" class="absolute top-2 right-2 text-gray-600 hover:text-black">
-        ✕
-    </button>
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
         <div>
             <p class="mb-2">
@@ -24,12 +21,9 @@
         </div>
     </div>
 </div>
-
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const banner = document.getElementById("cookieConsent");
-        const closeBtn = document.getElementById("closeCookieBanner");
         const acceptAll = document.getElementById("acceptAllCookies");
         const acceptNecessary = document.getElementById("acceptNecessaryCookies");
 
@@ -41,16 +35,7 @@
             setTimeout(() => banner.classList.add("show"), 10); // slide up
         }
 
-        // Close banner (session only)
-        if (closeBtn) {
-            closeBtn.addEventListener("click", function () {
-                sessionStorage.setItem("cookieBannerDismissed", "true");
-                banner.classList.remove("show");
-                setTimeout(() => banner.classList.add("hidden"), 500);
-            });
-        }
-
-        // Accept all cookies
+             // Accept all cookies
         if (acceptAll) {
             acceptAll.addEventListener("click", function () {
                 localStorage.setItem("cookieConsent", JSON.stringify({
@@ -74,7 +59,6 @@
             });
         }
     });
-
 </script>
 
 
