@@ -1,0 +1,721 @@
+﻿@model YesterdayNews.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .dashboard-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 20px;
+    }
+
+    .recent-item {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.3s ease;
+    }
+
+        .recent-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+
+<!-- Header with Switch Button -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 fw-bold text-primary">Admin Dashboard</h1>
+                <p class="text-muted">Welcome back! Here's what's happening with Yesterday's News.</p>
+            </div>
+            <div>
+                <a href="@Url.Action("Index", "Subscription")" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                @foreach (var subscription in Model.RecentSubscriptions)
+                {
+                    <div class="recent-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">@subscription.UserName</h6>
+                                <small class="text-muted">@subscription.UserEmail</small>
+                                <div class="mt-1">
+                                    <span class="badge bg-info status-badge">@subscription.SubscriptionType</span>
+                                    <span class="text-success ms-2 fw-bold">$@subscription.Amount.ToString("N0")</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">@subscription.CreatedDate.ToString("MMM dd")</small>
+                                @if (subscription.PaymentComplete)
+                                {
+                                    <div><i class="bi bi-check-circle text-success"></i></div>
+                                }
+                                else
+                                {
+                                    <div><i class="bi bi-clock text-warning"></i></div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performing Articles Row -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Most Viewed Articles</h5>
+            </div>
+            <div class="card-body p-0">
+                @foreach (var article in Model.MostViewedArticles)
+                {
+                    <div class="recent-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">@article.Headline</h6>
+                                <small class="text-muted">by @article.AuthorName • @article.CategoryName</small>
+                                <div class="mt-1">
+                                    <span class="text-primary"><i class="bi bi-eye"></i> @article.Views views</span>
+                                    <span class="text-danger ms-2"><i class="bi bi-heart"></i> @article.Likes likes</span>
+                                </div>
+                            </div>
+                            <small class="text-muted">@article.DatePublished.ToString("MMM dd")</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Most Liked Articles</h5>
+            </div>
+            <div class="card-body p-0">
+                @foreach (var article in Model.MostLikedArticles)
+                {
+                    <div class="recent-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">@article.Headline</h6>
+                                <small class="text-muted">by @article.AuthorName • @article.CategoryName</small>
+                                <div class="mt-1">
+                                    <span class="text-danger"><i class="bi bi-heart"></i> @article.Likes likes</span>
+                                    <span class="text-primary ms-2"><i class="bi bi-eye"></i> @article.Views views</span>
+                                </div>
+                            </div>
+                            <small class="text-muted">@article.DatePublished.ToString("MMM dd")</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+                // Chart.js configuration and initialization
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Subscriptions Trend Chart
+                    const subscriptionsTrendCtx = document.getElementById('subscriptionsTrendChart').getContext('2d');
+                    const subscriptionsTrendData = @Html.Raw(Json.Serialize(Model.SubscriptionsByDay));
+
+                    new Chart(subscriptionsTrendCtx, {
+                        type: 'line',
+                        data: {
+                            labels: subscriptionsTrendData.map(d => d.label),
+                            datasets: [{
+                                label: 'Subscriptions',
+                                data: subscriptionsTrendData.map(d => d.value),
+                                borderColor: '#007bff',
+                                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Revenue Trend Chart
+                    const revenueTrendCtx = document.getElementById('revenueTrendChart').getContext('2d');
+                    const revenueTrendData = @Html.Raw(Json.Serialize(Model.RevenueByDay));
+
+                    new Chart(revenueTrendCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: revenueTrendData.map(d => d.label),
+                            datasets: [{
+                                label: 'Revenue ($)',
+                                data: revenueTrendData.map(d => d.value),
+                                backgroundColor: '#28a745',
+                                borderColor: '#28a745',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '.Action("SwitchToCustomerView", "Home")" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-eye me-2"></i>Switch to Customer View
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards Row 1 -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card dashboard-card bg-primary text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-newspaper stat-icon"></i>
+                        <h3 class="fw-bold">@Model.TotalArticles</h3>
+                        <p class="card-text">Total Articles</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card dashboard-card bg-success text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people stat-icon"></i>
+                        <h3 class="fw-bold">@Model.TotalUsers</h3>
+                        <p class="card-text">Total Users</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card dashboard-card bg-warning text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-credit-card stat-icon"></i>
+                        <h3 class="fw-bold">@Model.ActiveSubscriptions</h3>
+                        <p class="card-text">Active Subscriptions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card dashboard-card bg-info text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-currency-dollar stat-icon"></i>
+                        <h3 class="fw-bold">$@Model.TotalRevenue.ToString("N0")</h3>
+                        <p class="card-text">Total Revenue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards Row 2 -->
+        <div class="row mb-4">
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-muted">Last 7 Days</h6>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="text-primary">@Model.SubscriptionsLast7Days</h4>
+                                <small>Subscriptions</small>
+                            </div>
+                            <div class="text-end">
+                                <h4 class="text-success">$@Model.RevenueLastWeek.ToString("N0")</h4>
+                                <small>Revenue</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-muted">Last 30 Days</h6>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="text-primary">@Model.SubscriptionsLast30Days</h4>
+                                <small>Subscriptions</small>
+                            </div>
+                            <div class="text-end">
+                                <h4 class="text-success">$@Model.RevenueLastMonth.ToString("N0")</h4>
+                                <small>Revenue</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-muted">Last 6 Months</h6>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="text-primary">@Model.SubscriptionsLast6Months</h4>
+                                <small>Subscriptions</small>
+                            </div>
+                            <div class="text-end">
+                                <h4 class="text-success">$@Model.RevenueLast6Months.ToString("N0")</h4>
+                                <small>Revenue</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Subscriptions Trend (Last 7 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="subscriptionsTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Revenue Trend (Last 7 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="revenueTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-lg-4 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Articles by Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="articlesStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Users by Role</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="usersRoleChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Subscriptions by Type</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="subscriptionTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities Row -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Recent Articles</h5>
+                        <a href="@Url.Action("Index", "Article")" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+        @foreach (var article in Model.RecentArticles)
+        {
+                                <div class="recent-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">@article.Headline</h6>
+                                            <small class="text-muted">by @article.AuthorName</small>
+                                            <div class="mt-1">
+                                                <span class="badge status-badge
+                                            @(article.Status == "Published" ? "bg-success" :
+                                              article.Status == "Draft" ? "bg-secondary" :
+                                              article.Status == "PendingReview" ? "bg-warning" :
+                                              article.Status == "Rejected" ? "bg-danger" : "bg-dark")">
+                                @article.Status
+                                                </span>
+                                                <small class="text-muted ms-2">@article.CategoryName</small>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">@article.DateCreated.ToString("MMM dd")</small>
+                                    </div>
+                                </div>
+        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Recent Subscriptions</h5>
+                        <a href="@Url + value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Articles by Status Pie Chart
+                    const articlesStatusCtx = document.getElementById('articlesStatusChart').getContext('2d');
+                    const articlesStatusData = @Html.Raw(Json.Serialize(Model.ArticlesByStatus));
+
+                    new Chart(articlesStatusCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: articlesStatusData.map(d => d.label),
+                            datasets: [{
+                                data: articlesStatusData.map(d => d.value),
+                                backgroundColor: articlesStatusData.map(d => d.color),
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+
+                    // Users by Role Pie Chart
+                    const usersRoleCtx = document.getElementById('usersRoleChart').getContext('2d');
+                    const usersRoleData = @Html.Raw(Json.Serialize(Model.UsersByRole));
+
+                    new Chart(usersRoleCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: usersRoleData.map(d => d.label),
+                            datasets: [{
+                                data: usersRoleData.map(d => d.value),
+                                backgroundColor: usersRoleData.map(d => d.color),
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+
+                    // Subscriptions by Type Pie Chart
+                    const subscriptionTypeCtx = document.getElementById('subscriptionTypeChart').getContext('2d');
+                    const subscriptionTypeData = @Html.Raw(Json.Serialize(Model.SubscriptionsByType));
+
+                    new Chart(subscriptionTypeCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: subscriptionTypeData.map(d => d.label),
+                            datasets: [{
+                                data: subscriptionTypeData.map(d => d.value),
+                                backgroundColor: subscriptionTypeData.map(d => d.color),
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                });
+    </script>
+}.Action("SwitchToCustomerView", "Home")" class="btn btn-outline-primary btn-lg">
+<i class="bi bi-eye me-2"></i>Switch to Customer View
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards Row 1 -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card dashboard-card bg-primary text-white h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-newspaper stat-icon"></i>
+                <h3 class="fw-bold">@Model.TotalArticles</h3>
+                <p class="card-text">Total Articles</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card dashboard-card bg-success text-white h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-people stat-icon"></i>
+                <h3 class="fw-bold">@Model.TotalUsers</h3>
+                <p class="card-text">Total Users</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card dashboard-card bg-warning text-white h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-credit-card stat-icon"></i>
+                <h3 class="fw-bold">@Model.ActiveSubscriptions</h3>
+                <p class="card-text">Active Subscriptions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card dashboard-card bg-info text-white h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-currency-dollar stat-icon"></i>
+                <h3 class="fw-bold">$@Model.TotalRevenue.ToString("N0")</h3>
+                <p class="card-text">Total Revenue</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards Row 2 -->
+<div class="row mb-4">
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card dashboard-card">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Last 7 Days</h6>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="text-primary">@Model.SubscriptionsLast7Days</h4>
+                        <small>Subscriptions</small>
+                    </div>
+                    <div class="text-end">
+                        <h4 class="text-success">$@Model.RevenueLastWeek.ToString("N0")</h4>
+                        <small>Revenue</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card dashboard-card">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Last 30 Days</h6>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="text-primary">@Model.SubscriptionsLast30Days</h4>
+                        <small>Subscriptions</small>
+                    </div>
+                    <div class="text-end">
+                        <h4 class="text-success">$@Model.RevenueLastMonth.ToString("N0")</h4>
+                        <small>Revenue</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card dashboard-card">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Last 6 Months</h6>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="text-primary">@Model.SubscriptionsLast6Months</h4>
+                        <small>Subscriptions</small>
+                    </div>
+                    <div class="text-end">
+                        <h4 class="text-success">$@Model.RevenueLast6Months.ToString("N0")</h4>
+                        <small>Revenue</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Subscriptions Trend (Last 7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="subscriptionsTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Revenue Trend (Last 7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Articles by Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="articlesStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Users by Role</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="usersRoleChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Subscriptions by Type</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="subscriptionTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities Row -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Articles</h5>
+                <a href="@Url.Action("Index", "Article")" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                @foreach (var article in Model.RecentArticles)
+                {
+                    <div class="recent-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">@article.Headline</h6>
+                                <small class="text-muted">by @article.AuthorName</small>
+                                <div class="mt-1">
+                                    <span class="badge status-badge
+                                        @(article.Status == "Published" ? "bg-success" :
+                                          article.Status == "Draft" ? "bg-secondary" :
+                                          article.Status == "PendingReview" ? "bg-warning" :
+                                          article.Status == "Rejected" ? "bg-danger" : "bg-dark")">
+                                        @article.Status
+                                    </span>
+                                    <small class="text-muted ms-2">@article.CategoryName</small>
+                                </div>
+                            </div>
+                            <small class="text-muted">@article.DateCreated.ToString("MMM dd")</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Subscriptions</h5>
+                <a href=" @Url
