@@ -1,27 +1,41 @@
-﻿function fetchWeather(lat, lon) {
-    fetch(`/api/weather?lat=${lat}&lon=${lon}`)
-        .then(res => res.json())
-        .then(data => renderWeatherData(data))
-        .catch(err => {
-            console.error("Error:", err);
-            fetchDefaultWeather(); // e.g., for Stockholm
-        });
-}
+﻿(async function () {
+    //if (!window.location.pathname.startsWith('/weather')) return;
+    const path = window.location.pathname;
+    if ((path === '/' || path.startsWith('/weather'))) return;
 
-function fetchDefaultWeather() {
-    fetch(`/api/weather?city=Stockholm`)
-        .then(res => res.json())
-        .then(data => renderWeatherData(data))
-        .catch(err => {
-            document.getElementById("weather-output").innerText = "Unable to fetch weather.";
-        });
-}
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentCityInUrl = urlParams.get('city');
+    const normalize = str => str.trim().toLowerCase();
 
-function renderWeatherData(data) {
-    if (!data || data.length === 0) {
-        document.getElementById("weather-output").innerText = "No weather data.";
-        return;
+    if (!navigator.geolocation) return;
+
+    try {
+        const position = await new Promise((res, rej) =>
+            navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 })
+        );
+
+        const lat = position.coords.latitude.toFixed(6);
+        const lon = position.coords.longitude.toFixed(6);
+
+        const resp = await fetch(`/api/weather/current?lat=${lat}&lon=${lon}`);
+        if (!resp.ok) return;
+
+        const data = await resp.json();
+
+        const detectedCity = data.city;
+
+        const reloadFlag = sessionStorage.getItem('weatherReloaded');
+
+        if (detectedCity && normalize(detectedCity) !== normalize(currentCityInUrl || '') && !reloadFlag) {
+            sessionStorage.setItem('weatherReloaded', 'true');
+            window.location.href = `/weather?city=${encodeURIComponent(detectedCity)}`;
+        } else {
+            // Update widget without reload
+            const widgetResp = await fetch(`/Weather/component?lat=${lat}&lon=${lon}`);
+            const html = await widgetResp.text();
+            document.getElementById("weather-widget").innerHTML = html;
+        }
+    } catch (error) {
+        console.debug('Geolocation error or denied:', error);
     }
-
-    // Render JSON data (loop through weather items etc.)
-}
+})();

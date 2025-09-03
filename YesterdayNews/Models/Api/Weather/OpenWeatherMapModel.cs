@@ -1,7 +1,7 @@
 ﻿namespace YesterdayNews.Models.Api.Weather
 {
-    public class DailyForecast
-    {
+    public class OpenWeatherMapModel
+    { 
 
 
         public class Rootobject

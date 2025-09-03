@@ -2,18 +2,37 @@
 
 @{
     ViewData["Title"] = "Weather Forecast";
+    var searchedCity = Context.Request.Query["city"];
 }
 
 <h2>Weather Forecast</h2>
 
 <form method="get" asp-controller="WeatherApi" asp-action="Index">
-    <input type="text" name="city" placeholder="Enter city name" />
+    <input type="text" name="city" placeholder="Enter city name" value="@searchedCity" />
     <button type="submit">Search</button>
 </form>
 
+<!-- Widget container controlled by JS -->
+<div id="weather-widget">
+    <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Loading weather data...</p>
+    </div>
+</div>
+
+<!-- Fallback for users without JS -->
+<noscript>
+    <div id="weather-widget">
+        @await Component.InvokeAsync("WeatherApi")
+    </div>
+</noscript>
+
 @if (!Model.Any())
 {
-    <p>@ViewBag.Message</p>
+    <div class="alert alert-warning mt-4 text-center">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        @ViewBag.Message ?? "No forecast data found."
+    </div>
 }
 else
 {

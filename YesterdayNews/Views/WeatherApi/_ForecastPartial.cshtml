@@ -1,30 +1,221 @@
 ﻿@model List<YesterdayNews.Models.ViewModels.ForecastVM>
 
-<h3>@Model.First().City</h3>
+@{
+    if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-danger text-center p-5">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3 d-block"></i>
+            <h4>No Weather Data Available</h4>
+            <p class="mb-0">Unable to load weather forecast. Please try again later.</p>
+        </div>
+        ;
+        return;
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Temperature (°C / °F)</th>
-            <th>Summary</th>
-            <th>Icon</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+    var now = DateTime.Now;
+    var grouped = Model
+        .GroupBy(f => f.Date.Date)
+        .OrderBy(g => g.Key)
+        .Take(6)
+        .ToList();
+}
+
+<div class="weather-forecast">
+
+    <!-- Location & Time -->
+    <div class="text-center mb-4 p-4 bg-primary text-white rounded-3 shadow">
+        <h2 class="mb-2">
+            <i class="fas fa-map-marker-alt me-2"></i>@Model.First().City
+        </h2>
+        <p class="mb-0 opacity-75">
+            <i class="fas fa-clock me-1"></i>Last updated: @DateTime.UtcNow.ToString("MMM dd, yyyy HH:mm UTC")
+        </p>
+    </div>
+
+    <!-- Day Tabs -->
+    <ul class="nav nav-pills nav-fill mb-4" id="forecast-tabs">
+        @for (int i = 0; i < grouped.Count; i++)
         {
-            <tr>
-                <td>@item.Date.ToString("g")</td>
-                <td>@item.TemperatureC °C / @item.TemperatureF °F</td>
-                <td>@item.Summary</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(item.IconUrl))
-                    {
-                        <img src="@item.IconUrl" alt="Weather icon" width="50" />
-                    }
-                </td>
-            </tr>
+            var groupDate = grouped[i].Key;
+            var isToday = groupDate == now.Date;
+            var label = isToday ? "Today" : groupDate.ToString("dddd");
+            var formattedDate = groupDate.ToString("MMM dd");
+
+            <li class="nav-item">
+                <button type="button"
+                        class="nav-link fw-bold @(i == 0 ? "active" : "")"
+                        onclick="showForecastDay(@i)">
+                    <i class="fas fa-calendar-alt me-1"></i>@label
+                    <br><small class="opacity-75">@formattedDate</small>
+                </button>
+            </li>
         }
-    </tbody>
-</table>
+    </ul>
+
+    <!-- Forecast Panels -->
+    <div id="forecast-content">
+        @for (int i = 0; i < grouped.Count; i++)
+        {
+            var forecasts = grouped[i].OrderBy(f => f.Date).ToList();
+            var day = forecasts.First().Date.Date;
+            var isToday = day == now.Date;
+            var isVisible = i == 0;
+
+            <div class="forecast-day @(isVisible ? "" : "d-none")" data-forecast-index="@i">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white text-center py-3">
+                        <h4 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            @(isToday ? "Today's Forecast" : day.ToString("dddd") + "'s Forecast")
+                            <br />
+                            <small class="opacity-75">@day.ToString("MMMM dd, yyyy")</small>
+                        </h4>
+                    </div>
+
+                    <div class="card-body p-3">
+                        <div class="row g-2">
+                            @foreach (var forecast in forecasts)
+                            {
+                                var isPast = isToday && forecast.Date < now;
+                                var isCurrent = isToday && Math.Abs((forecast.Date - now).TotalMinutes) <= 90;
+                                var displayTime = forecast.Date.Hour == 0 && forecast.Date.Minute == 0 ? "23:59" : forecast.Date.ToString("HH:mm");
+
+                                <div class="col-6 col-lg-4 col-xl-3">
+                                    <div class="card h-100 @(isPast ? "bg-light text-muted" : "") @(isCurrent ? "bg-warning bg-opacity-25 border-warning" : "border-light") position-relative">
+                                        @if (isCurrent)
+                                        {
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
+                                                NOW
+                                            </span>
+                                        }
+
+                                        <div class="card-body text-center p-3">
+                                            <div class="fw-bold mb-2 @(isPast ? "text-muted" : "text-primary")">
+                                                @displayTime
+                                                @if (isPast)
+                                                {
+                                                    <br />
+                                                    <small class="text-muted"><i class="fas fa-history"></i> Past</small>
+                                                }
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <img src="@forecast.IconUrl"
+                                                     alt="@forecast.Summary"
+                                                     class="img-fluid @(isPast ? "opacity-50" : "")"
+                                                     style="width: 45px; height: 45px;" />
+                                            </div>
+
+                                            <div class="h6 @(isPast ? "text-muted" : "text-primary") fw-bold mb-1 temp-display" data-celsius="@forecast.TemperatureC">
+                                                @forecast.TemperatureC°C
+                                            </div>
+
+                                            <div class="small @(isPast ? "text-muted" : "text-dark") text-capitalize">
+                                                @forecast.Summary
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Summary Footer -->
+                        <div class="mt-3 pt-3 border-top">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <small class="text-muted">Min Temp</small>
+                                    <div class="fw-bold text-info temp-display" data-celsius="@forecasts.Min(f => f.TemperatureC)">
+                                        @forecasts.Min(f => f.TemperatureC)°C
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">Max Temp</small>
+                                    <div class="fw-bold text-danger temp-display" data-celsius="@forecasts.Max(f => f.TemperatureC)">
+                                        @forecasts.Max(f => f.TemperatureC)°C
+                                    </div>
+                                </div>
+                                <div class="col-4">
+
+                                    <button class="btn btn-outline-primary btn-sm fw-bold temp-toggle" onclick="toggleTemperatureUnit()">
+                                        °F
+                                    </button>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+
+    let isShowingFahrenheit = false;
+
+    function showForecastDay(selectedIndex) {
+        // Remove 'active' class from all tab buttons
+        const tabButtons = document.querySelectorAll('#forecast-tabs .nav-link');
+        tabButtons.forEach(button => button.classList.remove('active'));
+
+        // Add 'active' class to clicked button
+        tabButtons[selectedIndex].classList.add('active');
+
+        // Hide all forecast day panels
+        const forecastDays = document.querySelectorAll('.forecast-day');
+        forecastDays.forEach(panel => panel.classList.add('d-none'));
+
+        // Show the selected forecast day panel
+        const selectedPanel = document.querySelector(`[data-forecast-index="${selectedIndex}"]`);
+        if (selectedPanel) {
+            selectedPanel.classList.remove('d-none');
+
+            // Add a smooth fade-in effect
+            selectedPanel.style.opacity = '0';
+            selectedPanel.style.transition = 'opacity 0.3s ease-in-out';
+            setTimeout(() => {
+                selectedPanel.style.opacity = '1';
+            }, 50);
+        }
+    }
+
+    function toggleTemperatureUnit() {
+        isShowingFahrenheit = !isShowingFahrenheit;
+
+        const tempDisplays = document.querySelectorAll('.temp-display');
+
+        tempDisplays.forEach(tempDisplay => {
+            const celsiusValue = parseFloat(tempDisplay.getAttribute('data-celsius'));
+
+            if (isShowingFahrenheit) {
+                const fahrenheitValue = Math.round((celsiusValue * 9 / 5) + 32);
+                tempDisplay.textContent = fahrenheitValue + '°F';
+            } else {
+                tempDisplay.textContent = celsiusValue + '°C';
+            }
+        });
+
+        // Update ALL toggle buttons
+        const toggleButtons = document.querySelectorAll('.temp-toggle');
+        toggleButtons.forEach(button => {
+            if (isShowingFahrenheit) {
+                button.textContent = '°C';
+                button.classList.remove('btn-outline-primary');
+                button.classList.add('btn-primary');
+            } else {
+                button.textContent = '°F';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-outline-primary');
+            }
+        });
+    }
+
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure the first tab is active and visible on load
+        showForecastDay(0);
+    });
+</script>
