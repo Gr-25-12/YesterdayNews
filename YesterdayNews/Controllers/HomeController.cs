@@ -30,7 +30,7 @@ public class HomeController : Controller
 
     public IActionResult Index(int categoryId = 0)
     {
-        var latest = _articleServices.GetAllAsArticleVM(0, 3, categoryId);
+        var latest = _articleServices.GetAllAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
         return View(latest);
     }
