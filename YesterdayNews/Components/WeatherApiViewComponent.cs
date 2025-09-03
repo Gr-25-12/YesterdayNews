@@ -37,7 +37,7 @@ namespace YesterdayNews.Components
                 }
                 else
                 {
-                    forecast = await _weatherApiService.GetForecastByCityAsync(); // default city or geolocation
+                    forecast = await _weatherApiService.GetForecastByCityAsync(); 
                 }
 
                 System.Console.WriteLine($"Got {forecast?.Count ?? 0} forecast items");

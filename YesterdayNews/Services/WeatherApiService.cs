@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using YesterdayNews.Models.Api.Weather;
@@ -69,6 +69,8 @@ namespace YesterdayNews.Services
 
         private static List<ForecastVM> ProjectForecastData(OpenWeatherMapModel.Rootobject response)
         {
+            var cleanCityName = CleanCityName(response.city.name);
+            
             return response.list
                .GroupBy(f => DateTime.Parse(f.dt_txt).Date)
                .OrderBy(g => g.Key)
@@ -79,7 +81,7 @@ namespace YesterdayNews.Services
                        var weather = f.weather.FirstOrDefault();
                        return new ForecastVM
                        {
-                           City = response.city.name,
+                           City = cleanCityName,
                            Date = DateTime.Parse(f.dt_txt),
                            Summary = weather?.description ?? "No description",
                            TemperatureC = (int)Math.Round(f.main.temp),
@@ -122,6 +124,8 @@ namespace YesterdayNews.Services
         private static List<ForecastVM> ProjectCurrentForecastData(OpenWeatherMapModel.Rootobject response)
         {
             var now = DateTime.Now;
+            var cleanCityName = CleanCityName(response.city.name);
+            
             var closestForecast = response.list  
                 .Select(f => new
                 {
@@ -138,7 +142,7 @@ namespace YesterdayNews.Services
             var weather = closestForecast.Item.weather.FirstOrDefault();
             var currentWeather = new ForecastVM
             {
-                City = response.city.name,  
+                City = cleanCityName,  
                 Date = closestForecast.ForecastTime,
                 Summary = weather?.description ?? "No description",
                 TemperatureC = (int)Math.Round(closestForecast.Item.main.temp),
@@ -161,6 +165,26 @@ namespace YesterdayNews.Services
             var data = JsonConvert.DeserializeObject<OpenWeatherMapModel.Rootobject>(response);
 
             return ProjectCurrentForecastData(data!);  
+        }
+
+    
+        private static string CleanCityName(string cityName)
+        {
+            if (string.IsNullOrWhiteSpace(cityName))
+                return cityName;
+                
+            // Remove common municipality suffixes
+            var suffixesToRemove = new[] { " Municipality", " Kommune", " Kommun" };
+            
+            foreach (var suffix in suffixesToRemove)
+            {
+                if (cityName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return cityName.Substring(0, cityName.Length - suffix.Length).Trim();
+                }
+            }
+            
+            return cityName;
         }
 
 

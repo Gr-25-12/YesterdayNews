@@ -1,13 +1,17 @@
-﻿(async function () {
+﻿﻿(async function () {
     //if (!window.location.pathname.startsWith('/weather')) return;
-    const path = window.location.pathname;
-    if ((path === '/' || path.startsWith('/weather'))) return;
+    // Run geolocation on all pages since this is a sidebar component
 
     const urlParams = new URLSearchParams(window.location.search);
     const currentCityInUrl = urlParams.get('city');
     const normalize = str => str.trim().toLowerCase();
 
-    if (!navigator.geolocation) return;
+    
+    
+    if (!navigator.geolocation) {
+        console.log('Geolocation not supported');
+        return;
+    }
 
     try {
         const position = await new Promise((res, rej) =>
@@ -23,17 +27,26 @@
         const data = await resp.json();
 
         const detectedCity = data.city;
-
+      
         const reloadFlag = sessionStorage.getItem('weatherReloaded');
+       
 
-        if (detectedCity && normalize(detectedCity) !== normalize(currentCityInUrl || '') && !reloadFlag) {
-            sessionStorage.setItem('weatherReloaded', 'true');
-            window.location.href = `/weather?city=${encodeURIComponent(detectedCity)}`;
-        } else {
-            // Update widget without reload
+        // Always update widget with geolocation data
+        const widgetElement = document.getElementById("weather-widget");
+        if (widgetElement) {
             const widgetResp = await fetch(`/Weather/component?lat=${lat}&lon=${lon}`);
             const html = await widgetResp.text();
-            document.getElementById("weather-widget").innerHTML = html;
+            widgetElement.innerHTML = html;
+        }
+        
+        // On weather page, also redirect to show full forecast for detected city
+        if (window.location.pathname.startsWith('/weather') && detectedCity && 
+            normalize(detectedCity) !== normalize(currentCityInUrl || '') && !reloadFlag) {
+            // Clean the city name before using it in URL
+            const cleanCityName = detectedCity.replace(/ Municipality$/i, '').replace(/ Kommune$/i, '').replace(/ Kommun$/i, '').trim();
+            console.log('Redirecting to:', `/weather?city=${encodeURIComponent(cleanCityName)}`);
+            sessionStorage.setItem('weatherReloaded', 'true');
+            window.location.href = `/weather?city=${encodeURIComponent(cleanCityName)}`;
         }
     } catch (error) {
         console.debug('Geolocation error or denied:', error);

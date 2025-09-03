@@ -42,8 +42,6 @@ namespace YesterdayNews.Controllers
 
             if (forecast == null || !forecast.Any())
                 return NotFound();
-
-            // Return city name and forecast list (usually one item for current)
             return Json(new
             {
                 city = forecast.First().City,

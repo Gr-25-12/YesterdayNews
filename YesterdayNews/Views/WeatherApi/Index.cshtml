@@ -7,25 +7,17 @@
 
 <h2>Weather Forecast</h2>
 
-<form method="get" asp-controller="WeatherApi" asp-action="Index">
-    <input type="text" name="city" placeholder="Enter city name" value="@searchedCity" />
-    <button type="submit">Search</button>
-</form>
+<div class="m-2 mb-4 p-1 d-flex bg-primary rounded">
+    <form method="get" asp-controller="WeatherApi" asp-action="Index" class="d-flex w-100">
+        <input type="text" name="city" class="form-control me-2" placeholder="Enter city name" value="@(Model.Any() ? "" : searchedCity)" />
 
-<!-- Widget container controlled by JS -->
-<div id="weather-widget">
-    <div class="text-center py-4">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2">Loading weather data...</p>
-    </div>
+        <button type="submit" class="btn btn-secondary">
+            <i class="bi bi-search"></i>
+        </button>
+    </form>
 </div>
 
-<!-- Fallback for users without JS -->
-<noscript>
-    <div id="weather-widget">
-        @await Component.InvokeAsync("WeatherApi")
-    </div>
-</noscript>
+
 
 @if (!Model.Any())
 {

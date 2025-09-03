@@ -1,35 +1,42 @@
 ﻿@model List<YesterdayNews.Models.ViewModels.ForecastVM>
 
-@if (Model?.Any() == true)
-{
-    var f = Model.First(); // Only take the closest/current forecast
+    <a asp-controller="Weather" asp-action="Index" class="flex-grow-1 text-decoration-none d-block">
+<article class="mb-4 border p-3 pb-0 rounded shadow-sm" id="weather-widget">
 
-    <div class="forecast-summary text-center mb-3">
-        @{
+
+        @if (Model?.Any() == true)
+        {
+            var f = Model.First();
             string cityName = f.City;
             if (cityName.EndsWith(" Municipality"))
             {
                 cityName = cityName.Replace(" Municipality", "");
             }
-        }
-        <h4>@cityName</h4>
-    </div>
 
-    <div class="forecast-list d-flex justify-content-center gap-3 flex-wrap">
-        <div class="forecast-day card p-3 text-center" style="min-width: 120px;">
+            <div class="flex justify-between">
+            <h5 class="text-secondary">Weather</h5>
             <div class="small text-muted">@f.Date.ToString("ddd, MMM dd")</div>
-            @if (!string.IsNullOrEmpty(f.IconUrl))
-            {
-                <img src="@f.IconUrl" alt="@f.Summary" class="mx-auto d-block" style="width: 50px; height: 50px;" />
-            }
-            <div class="fw-bold">@f.TemperatureC°C</div>
-            <div class="small">@f.Summary</div>
-        </div>
-    </div>
-}
-else
-{
-    <div class="text-center text-muted">
-        <div>Loading weather data...</div>
-    </div>
-}
+            </div>
+
+            <hr class="my-2" />
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Left: City and Date -->
+                <div>
+                    <h4  style="font-size: 1.15rem;">@cityName</h4>
+                    
+                    <img src="@f.IconUrl" alt="@f.Summary ?? " Weather Icon"" style="width: 100px; height: 100px; margin: 0;" />
+                </div>
+
+                <!-- Right: Icon, Temp, Summary -->
+                <div class="text-end d-flex flex-column align-items-end justify-content-center">
+                    <div class="fw-bold">@f.TemperatureC°C</div>
+                    <h3 class="small text-muted ">@f.Summary</h3>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted">Loading weather data...</div>
+        }
+</article>
+    </a>
