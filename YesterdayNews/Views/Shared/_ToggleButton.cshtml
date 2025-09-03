@@ -1,4 +1,22 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@{
+	bool isAdminViewingCustomer = StaticConsts.AdminView;
+
+}
+
+<div class="d-flex justify-content-end ">
+@if (isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin))
+{
+
+		<a   asp-action="AdminView" asp-controller="Home" class= "btn btn-outline-light text-light hover-bg-secondary w-100">
+			Switch to Admin Dashboard
+		</a>
+
+
+} 
+else if (!isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin))
+{
+	<a asp-action="SwitchToCustomerView" asp-controller="Home" class="btn btn-outline-light text-light hover-bg-secondary w-100">
+		Switch to Customer View
+                </a>
+}
+	</div>

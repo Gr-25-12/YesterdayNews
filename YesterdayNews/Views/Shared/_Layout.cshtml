@@ -6,7 +6,7 @@
 
 @{
 	var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
-	bool isAdminViewingCustomer = StaticConsts.AdminView;
+	bool isAdminViewingCustomer = (StaticConsts.AdminView && User.IsInRole(StaticConsts.Role_Admin)) || !User.IsInRole(StaticConsts.Role_Admin);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -69,25 +69,25 @@
 				</div>
 			</div>
 			<!-- Top Navbar (including hamburger view for mobile)-->
-			
-			
+
+
 			<div class="navbar-collapse collapse d-lg-flex justify-content-start navbar-dark bg-white text-primary m-2 ">
 				<ul class="navbar-nav">
 					<li class="nav-item d-lg-none">
 						<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active" : "")"
-						asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+						   asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-fill fs-4 me-2"></i>Home</a>
 					</li>
-					@if (isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin))
+					@if (isAdminViewingCustomer)
 					{
-					@foreach (var category in categories)
-					{
-						<li class="nav-item d-lg-none">
-							<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active" : "")"
-							   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
-								@category.Name
-							</a>
-						</li>
-					}
+						@foreach (var category in categories)
+						{
+							<li class="nav-item d-lg-none">
+								<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active" : "")"
+								asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
+									@category.Name
+								</a>
+							</li>
+						}
 					}
 					@if (User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist))
 					{
@@ -115,7 +115,7 @@
 							</ul>
 						</li>
 					}
-			
+
 				</ul>
 				<div class="end-0 navbar-primary bg-white justify-content-end">
 					<partial name="_LoginPartial" />
@@ -128,29 +128,30 @@
 				<ul class="navbar-nav d-flex justify-content-center align-items-center w-100 fw-semibold">
 					<li class="nav-item">
 						<a class="nav-link text-white @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active bg-secondary" : "") hover-bg-secondary"
-						   asp-area="" asp-controller="Home" asp-action="Index">
+						asp-area="" asp-controller="Home" asp-action="Index">
 							<i class="bi bi-house-fill fs-4" ></i>
 						</a>
 					</li>
-				 @if(isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin)) 
-					 {
-					@foreach (var category in categories)
+					@if (isAdminViewingCustomer)
 					{
+						@foreach (var category in categories)
+						{
+							<li class="nav-item">
+								<a class="nav-link text-white @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active bg-secondary" : "") hover-bg-secondary"
+								asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
+									@category.Name
+								</a>
+							</li>
+						}
 						<li class="nav-item">
-							<a class="nav-link text-white @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active bg-secondary" : "") hover-bg-secondary"
-							   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
-								@category.Name
+							<a class="nav-link text-white hover-bg-secondary "
+							asp-controller="Externalnews" asp-action="Index">
+								Outsouced News
 							</a>
 						</li>
 					}
-					<li class="nav-item">
-						<a class="nav-link text-white hover-bg-secondary "
-						   asp-controller="Externalnews" asp-action="Index">
-							Outsouced News
-						</a>
-					</li>
-			}
-				</ul>
+				</ul>	
+				<partial name="_ToggleButton" />
 			</div>
 		</nav>
 		<!-- SearchBar (Mobile only) -->
@@ -165,22 +166,6 @@
 	</header>
 	<div class="container d-flex flex-column" style="margin-bottom:170px">
 		<main role="main" class="pb-3">
-			@if (isAdminViewingCustomer)
-			{
-				<div class="alert alert-info alert-dismissible fade show mt-2 " role="alert">
-					<div class="d-flex justify-content-between align-items-center">
-						<div>
-							<i class="bi bi-info-circle me-2"></i>
-							<strong>Admin View:</strong> You are currently viewing the customer experience.
-						</div>
-						<div>
-							<a asp-action="AdminView" asp-controller="Home" class="btn btn-sm btn-primary me-2">
-								<i class="bi bi-speedometer2 me-1"></i>Back to Dashboard
-							</a>
-						</div>
-					</div>
-				</div>
-			}
 			<partial name="_Notification" />
 			<partial name="_SubscriptionModalPartial" />
 			@RenderBody()
@@ -196,9 +181,12 @@
 		</div>
 	</div>
 
+	@if (isAdminViewingCustomer)
+	{	
 	<footer class="footer mt-2 py-4 bg-light-subtle  border-top">
 		<div class="container">
 			<div class="row">
+
 				<!-- Brand Section -->
 				<div class="col-lg-4 col-md-6 mb-4 mb-md-0">
 					<div class="d-flex align-items-center mb-3">
@@ -227,7 +215,6 @@
 						<li class="mb-2"><a href="#" class="text-muted text-decoration-none">Careers</a></li>
 					</ul>
 				</div>
-
 				<!-- Newsletter -->
 				<div class="col-lg-4 col-md-6">
 					<h6 class="text-primary fw-bold mb-3">Stay Updated</h6>
@@ -255,7 +242,6 @@
 					}
 				</ul>
 			</div>
-		
 			<!-- Bottom Bar -->
 			<div class="row mt-4 pt-3 border-top">
 				<div class="col-md-6 text-center text-md-start">
@@ -271,6 +257,8 @@
 			</div>
 		</div>
 	</footer>
+	}
+	
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 	<script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
