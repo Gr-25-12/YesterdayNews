@@ -150,7 +150,6 @@ public class HomeController : Controller
     {
         var latest = _articleServices.GetAllAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
-        ViewData["IsAdminViewingCustomer"] = true;
         StaticConsts.AdminView = true;
 
         return View("Index", latest);
@@ -278,7 +277,7 @@ public class HomeController : Controller
         return viewModel;
     }
 
-    private int GetUserCountByRole(List<User> users, List<Microsoft.AspNetCore.Identity.IdentityUserRole<string>> userRoles, List<Microsoft.AspNetCore.Identity.IdentityRole> roles, string roleName)
+    private int GetUserCountByRole(List<User> users, List<IdentityUserRole<string>> userRoles, List<IdentityRole> roles, string roleName)
     {
         var roleId = roles.FirstOrDefault(r => r.Name == roleName)?.Id;
         if (roleId == null) return 0;
