@@ -6,7 +6,7 @@
 
 @{
 	var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
-	bool isAdminViewingCustomer = ViewData["IsAdminViewingCustomer"] != null && (bool)ViewData["IsAdminViewingCustomer"];
+	bool isAdminViewingCustomer = StaticConsts.AdminView;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -69,15 +69,16 @@
 				</div>
 			</div>
 			<!-- Top Navbar (including hamburger view for mobile)-->
-			@if(!isAdminViewingCustomer)
-			{
-
+			
+			
 			<div class="navbar-collapse collapse d-lg-flex justify-content-start navbar-dark bg-white text-primary m-2 ">
 				<ul class="navbar-nav">
 					<li class="nav-item d-lg-none">
 						<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active" : "")"
 						asp-area="" asp-controller="Home" asp-action="Index">Home</a>
 					</li>
+					@if (isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin))
+					{
 					@foreach (var category in categories)
 					{
 						<li class="nav-item d-lg-none">
@@ -86,6 +87,7 @@
 								@category.Name
 							</a>
 						</li>
+					}
 					}
 					@if (User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist))
 					{
@@ -113,12 +115,12 @@
 							</ul>
 						</li>
 					}
+			
 				</ul>
 				<div class="end-0 navbar-primary bg-white justify-content-end">
 					<partial name="_LoginPartial" />
 				</div>
 			</div>
-			}
 		</nav>
 		<!-- bar for navigation categories -->
 		<nav class="navbar navbar-expand-lg d-none d-lg-block py-0 bg-primary mt-2">
@@ -126,8 +128,12 @@
 				<ul class="navbar-nav d-flex justify-content-center align-items-center w-100 fw-semibold">
 					<li class="nav-item">
 						<a class="nav-link text-white @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active bg-secondary" : "") hover-bg-secondary"
-						   asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+						   asp-area="" asp-controller="Home" asp-action="Index">
+							<i class="bi bi-house-fill fs-4" ></i>
+						</a>
 					</li>
+				 @if(isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin)) 
+					 {
 					@foreach (var category in categories)
 					{
 						<li class="nav-item">
@@ -143,6 +149,7 @@
 							Outsouced News
 						</a>
 					</li>
+			}
 				</ul>
 			</div>
 		</nav>
@@ -158,6 +165,22 @@
 	</header>
 	<div class="container d-flex flex-column" style="margin-bottom:170px">
 		<main role="main" class="pb-3">
+			@if (isAdminViewingCustomer)
+			{
+				<div class="alert alert-info alert-dismissible fade show mt-2 " role="alert">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<i class="bi bi-info-circle me-2"></i>
+							<strong>Admin View:</strong> You are currently viewing the customer experience.
+						</div>
+						<div>
+							<a asp-action="AdminView" asp-controller="Home" class="btn btn-sm btn-primary me-2">
+								<i class="bi bi-speedometer2 me-1"></i>Back to Dashboard
+							</a>
+						</div>
+					</div>
+				</div>
+			}
 			<partial name="_Notification" />
 			<partial name="_SubscriptionModalPartial" />
 			@RenderBody()

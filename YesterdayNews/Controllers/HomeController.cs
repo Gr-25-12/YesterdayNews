@@ -34,12 +34,14 @@ public class HomeController : Controller
         _db = db;
     }
 
-    public IActionResult Index(int categoryId = 0)
+    public IActionResult Index(int categoryId = 0 , bool? adminView = null)
     {
         var latest = _articleServices.GetAllAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
 
-        if (User.IsInRole(StaticConsts.Role_Customer))
+        bool isAdminView = adminView ?? StaticConsts.AdminView;
+
+        if (User.IsInRole(StaticConsts.Role_Customer) || isAdminView == true)
         {
         return View(latest);
 
@@ -138,6 +140,8 @@ public class HomeController : Controller
     public IActionResult AdminView()
     {
         var dashboardData = GetDashboardData();
+        StaticConsts.AdminView = false;
+
         return View(dashboardData);
     }
 
@@ -147,6 +151,8 @@ public class HomeController : Controller
         var latest = _articleServices.GetAllAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
         ViewData["IsAdminViewingCustomer"] = true;
+        StaticConsts.AdminView = true;
+
         return View("Index", latest);
     }
 
@@ -378,6 +384,13 @@ public class HomeController : Controller
             })
             .ToList();
     }
+
+    //[HttpPost]
+    //public IActionResult DismissAdminView()
+    //{
+    //    StaticConsts.AdminView = false; 
+    //    return RedirectToAction("SwitchToCustomerView");
+    //}
     #endregion
 
 
