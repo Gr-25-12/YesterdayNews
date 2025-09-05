@@ -30,7 +30,7 @@ namespace SubscriptionReminderFunction
         }
 
         [Function("Reminder")]
-        public async Task Run([TimerTrigger("0 0 9 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer)
         {
             _logger.LogInformation($"Subscription reminder function executed at: {DateTime.Now}");
 
