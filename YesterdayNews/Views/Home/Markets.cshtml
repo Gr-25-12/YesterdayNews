@@ -1,0 +1,298 @@
+@model FinanceServices.Models.MarketDto;
+@{
+	ViewData["Title"] = "Markets";
+}
+
+<div class="container my-4">
+	<div class="row justify-content-center">
+		<div class="col-12 col-md-7 col-lg-8">
+			@* NASDAQ *@
+			<div class="card p-3 mb-3">
+				<h3>Nasdaq - 
+					<span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
+						(@Model.UsMarketStatus)
+					</span>
+				</h3>
+				<div class="table-responsive">
+					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
+						<thead class="border-bottom"> 
+							<tr>
+								<th>Company</th>
+								<th>Price (USD)</th>
+								<th>Diff</th>
+								<th>In %</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.NasdaqStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
+							{
+								<tr>
+									<td class="text-danger"> (Error, No data loaded)</td>
+									<td> - </td>
+									<td> - </td>
+									<td> - </td>
+								</tr>
+							}
+							@foreach (var stock in Model.NasdaqStocks)
+							{						
+								if (stock == null) continue;
+								<tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
+									<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
+										@stock.DisplayName
+									</td>
+									@if (Model.UsMarketStatus.Contains("Closed") == false)
+									{
+										<td class="price">
+											@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
+										</td>
+										<td class="change"> - </td>
+										<td class="percentage"> - </td>
+									}
+									else
+									{
+										<td class="price">
+											@(stock.ClosingPrice != 0 ? stock.ClosingPrice.ToString("0.##") : " - ")
+										</td>
+										<td> - </td>
+										<td> - </td>
+									}
+									
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<small>
+						(Price changes are calculated from yesterdays closing prices)
+					</small>
+				</div>
+			</div>
+			@* NYSE *@
+			<div class="card p-3 mb-3">
+				<h3>New York Stock Exchange - 
+					<span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
+						(@Model.UsMarketStatus)
+					</span>
+				</h3>
+				<div class="table-responsive">
+					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
+						<thead class="border-bottom">
+							<tr>
+								<th>Company</th>
+								<th>Price (USD)</th>
+								<th>Diff</th>
+								<th>In %</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.NyseStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
+							{
+								<tr>
+									<td class="text-danger"> (Error, No data loaded)</td>
+									<td> - </td>
+									<td> - </td>
+									<td> - </td>
+								</tr>
+							}
+							@foreach (var stock in Model.NyseStocks)
+							{
+								if (stock == null) continue;
+								<tr data-exchange="NYSE" data-symbol="@stock.Symbol">
+									<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
+										@stock.DisplayName
+									</td>
+									@if (Model.UsMarketStatus.Contains("Closed") == false)
+									{
+										<td class="price">
+											@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
+										</td>
+										<td class="change"> - </td>
+										<td class="percentage"> - </td>
+									}
+									else
+									{
+										<td>
+											@(stock.ClosingPrice != 0 ? stock.ClosingPrice.ToString("0.##") : " - ")
+										</td>
+										<td> - </td>
+										<td> - </td>
+									}
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<small>
+						(Price changes are calculated from yesterdays closing prices)
+					</small>
+				</div>
+			</div>
+			@* Binance / Crypto *@
+			<div class="card p-3 mb-3">
+				<div class="d-flex align-items-center mb-2">
+					<h3 class="me-2">Binance / Crypto - 
+						<span class="status-bar text-success" )">
+							( Open )
+						</span>
+					</h3>
+				</div>
+				<div class="table-responsive">
+					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
+						<thead class="border-bottom">
+							<tr>
+								<th>Crypto Currency</th>
+								<th>Price (USD)</th>
+								<th>Diff</th>
+								<th>In %</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.CryptoPrices.Count <= 0)
+							{
+								<tr>
+									<td class="text-danger"> (Error, No data loaded)</td>
+									<td> - </td>
+									<td> - </td>
+									<td> - </td>
+								</tr>
+							}
+							@foreach (var crypto in Model.CryptoPrices)
+							{
+								if (crypto == null) continue;
+								<tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
+									<td class="description @(crypto.Description == "(Missing data)" ? "text-danger" : "")">
+										@crypto.Description
+									</td>
+									<td class="price">
+										@(crypto.CurrentPrice != 0 ? crypto.CurrentPrice.ToString("0.##") : " - ")
+									</td>
+									<td class="change"> - </td>
+									<td class="percentage"> - </td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<small>
+						(Price changes are calculated from prices 24 hours ago)
+					</small>
+				</div>
+			</div>
+			@* Oanada / Forex Currencies *@
+			<div class="card p-3 mb-3">
+				<div class="d-flex align-items-center mb-2">
+					<h3 class="me-2">
+						Currencies -
+						<span class="status-bar text-success" )">
+							( Open )
+						</span>
+					</h3>
+				</div>
+				<div class="table-responsive">
+					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
+						<thead class="border-bottom">
+							<tr>
+								<th>Currency</th>
+								<th>Price (USD)</th>
+								<th>Diff</th>
+								<th>In %</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.Currencies.Count <= 0)
+							{
+								<tr>
+									<td class="text-danger"> (Error, No data loaded)</td>
+									<td> - </td>
+									<td> - </td>
+									<td> - </td>
+								</tr>
+							}
+							@foreach (var forex in Model.Currencies)
+							{
+								if (forex == null) continue;
+								<tr data-exchange="FOREX" data-symbol="@forex.Symbol">
+									<td class="description @(forex.Description == "(Missing data)" ? "text-danger" : "")">
+										@forex.Description
+									</td>
+									<td class="price">
+										@(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : " - ")
+									</td>
+									<td class="change"> - </td>
+									<td class="percentage"> - </td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<small>
+						(Price changes are calculated from prices 24 hours ago)
+					</small>
+				</div>
+			</div>
+			@* Oanada / Forex Commodities *@
+			<div class="card p-3 mb-3">
+				<div class="d-flex align-items-center mb-2">
+					<h3 class="me-2">
+						Commodities -
+						<span class="status-bar text-success" )">
+							( Open )
+						</span>
+					</h3>
+				</div>
+				<div class="table-responsive">
+					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
+						<thead class="border-bottom">
+							<tr>
+								<th>Oil & Metals</th>
+								<th>Price (USD)</th>
+								<th>Diff</th>
+								<th>In %</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.Commodities.Count <= 0)
+							{
+								<tr>
+									<td class="text-danger"> (Error, No data loaded)</td>
+									<td> - </td>
+									<td> - </td>
+									<td> - </td>
+								</tr>
+							}
+							@foreach (var comm in Model.Commodities)
+							{
+								if (comm == null) continue;
+								<tr data-exchange="FOREX" data-symbol="@comm.Symbol">
+									<td class="description @(comm.Description == "(Missing data)" ? "text-danger" : "")">
+										@comm.Description
+									</td>
+									<td class="price">
+										@(comm.CurrentPrice != 0 ? comm.CurrentPrice.ToString("0.##") : " - ")
+									</td>
+									<td class="change"> - </td>
+									<td class="percentage"> - </td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<small>
+						(Price changes are calculated from prices 24 hours ago)
+					</small>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-md-5 col-lg-4">
+			@await Component.InvokeAsync("Sidebar", new { categoryId = ViewData["SelectedCategory"] ?? 0 })
+		</div>
+	</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.11/signalr.min.js"></script>
+<script src="/js/Markets.js"></script>

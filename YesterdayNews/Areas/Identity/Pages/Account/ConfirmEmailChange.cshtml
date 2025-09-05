@@ -4,5 +4,30 @@
     ViewData["Title"] = "Confirm email change";
 }
 
-<h1>@ViewData["Title"]</h1>
-<partial name="_StatusMessage" model="Model.StatusMessage" />
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-4 col-md-5 text-center">
+            <div class="mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+                    <circle cx="30" cy="30" r="28" fill="#3A2512" />
+                    <text x="30" y="40" text-anchor="middle" fill="#f8f9fa" font-size="24" font-weight="bold">✓</text>
+                </svg>
+            </div>
+
+            <h4 class="text-primary mb-3">@ViewData["Title"]</h4>
+            <partial name="_StatusMessage" model="Model.StatusMessage" />
+
+            <div class="text-center mt-4">
+                <div class="d-grid gap-3">
+                    <a href="/" class="btn btn-primary btn-lg py-3">
+                        <i class="bi bi-house-heart me-2"></i>Take Me Home, News Road!
+                    </a>
+                    <a href="/Identity/Account/Manage/Subscription" class="btn btn-outline-primary btn-lg py-3">
+                        <i class="bi bi-person-badge me-2"></i>Let Me fly to My Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

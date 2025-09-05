@@ -1,4 +1,5 @@
-﻿using Stripe;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Stripe;
 using Stripe.Checkout;
 using YesterdayNews.Models.Db;
 

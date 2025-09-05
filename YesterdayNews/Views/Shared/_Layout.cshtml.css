@@ -8,19 +8,19 @@ a.navbar-brand {
 }
 
 a {
-  color: #0077cc;
+    color: #3A2512;
 }
 
 .btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+    color: #fff;
+    background-color: #3A2512;
+    border-color: #3A2512;
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+    color: #fff;
+    background-color: #3A2512;
+    border-color: #3A2512;
 }
 
 .border-top {
@@ -40,7 +40,7 @@ button.accept-policy {
 }
 
 .footer {
-  position: absolute;
+  position:  relative;
   bottom: 0;
   width: 100%;
   white-space: nowrap;
