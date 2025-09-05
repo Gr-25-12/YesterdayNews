@@ -1,9 +1,9 @@
 ﻿<div id="cookieConsent"
-     class="position-fixed bottom-0 start-0 w-100 shadow bg-light p-3 d-none"
+     class="position-fixed bottom-0 start-0 w-100 shadow bg-light py-3 px-4 fade d-none"
      style="z-index: 1050;">
     <div class="container d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
         <div>
-            <p class="mb-2">
+            <p class="mb-2 mb-md-0">
                 At <strong class="text-primary">YesterdayNews</strong>, we use cookies to make the website work as well as possible for you.
                 We also use cookies for web analytics to make the website better.
             </p>
@@ -22,7 +22,6 @@
     </div>
 </div>
 
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const banner = document.getElementById("cookieConsent");
@@ -31,10 +30,16 @@
 
         if (!banner) return;
 
-        // Show banner only if not accepted
+        // Show banner if not accepted yet
         if (!localStorage.getItem("cookieConsent")) {
-            banner.classList.remove("d-none");
-            banner.classList.add("animate__animated", "animate__fadeInUp"); // optional if you load Animate.css
+            banner.classList.remove("d-none");   // unhide
+            setTimeout(() => banner.classList.add("show"), 50); // trigger fade in
+        }
+
+        // Hide with fade
+        function hideBanner() {
+            banner.classList.remove("show"); // triggers fade-out
+            setTimeout(() => banner.classList.add("d-none"), 150); // fully hide after transition
         }
 
         if (acceptAll) {
@@ -43,8 +48,7 @@
                     choice: "all",
                     date: new Date().toISOString()
                 }));
-                banner.classList.add("animate__fadeOutDown");
-                setTimeout(() => banner.classList.add("d-none"), 500);
+                hideBanner();
             });
         }
 
@@ -54,8 +58,7 @@
                     choice: "necessary",
                     date: new Date().toISOString()
                 }));
-                banner.classList.add("animate__fadeOutDown");
-                setTimeout(() => banner.classList.add("d-none"), 500);
+                hideBanner();
             });
         }
     });
