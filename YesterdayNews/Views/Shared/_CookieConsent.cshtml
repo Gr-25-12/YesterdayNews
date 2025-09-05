@@ -1,26 +1,29 @@
-﻿<div id="cookieConsent" class="cookie-banner hidden">
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+﻿<div id="cookieConsent"
+     class="cookie-banner position-fixed bottom-0 start-50 translate-middle-x w-100 w-md-auto shadow rounded-3 bg-light p-3 mb-3 d-none"
+     style="z-index: 1050; max-width: 650px;">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
         <div>
             <p class="mb-2">
-                At <strong class="text-blue-800">YesterdayNews</strong>, we use cookies to make the website work as well as possible for you.
+                At <strong class="text-primary">YesterdayNews</strong>, we use cookies to make the website work as well as possible for you.
                 We also use cookies for web analytics to make the website better.
             </p>
-            <a href="/Home/Privacy" class="text-blue-600 hover:text-blue-800 underline text-sm">
+            <a href="/Home/Privacy" class="text-decoration-underline small text-primary">
                 Learn more about how YesterdayNews uses cookies
             </a>
         </div>
-        <div class="flex gap-2 mt-3 md:mt-0">
+        <div class="d-flex gap-2">
             <button id="acceptAllCookies"
-                    class="border border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white px-4 py-2 rounded-lg">
+                    class="btn btn-outline-primary">
                 Yes, I agree to all cookies
             </button>
             <button id="acceptNecessaryCookies"
-                    class="border border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white px-4 py-2 rounded-lg">
+                    class="btn btn-outline-primary">
                 No, I only agree to necessary cookies
             </button>
         </div>
     </div>
 </div>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const banner = document.getElementById("cookieConsent");
@@ -29,38 +32,32 @@
 
         if (!banner) return;
 
-        // Show banner only if not accepted or dismissed
-        if (!localStorage.getItem("cookieConsent") && !sessionStorage.getItem("cookieBannerDismissed")) {
-            banner.classList.remove("hidden");
-            setTimeout(() => banner.classList.add("show"), 10); // slide up
+        // Show banner only if not accepted
+        if (!localStorage.getItem("cookieConsent")) {
+            banner.classList.remove("d-none");
+            banner.classList.add("animate__animated", "animate__fadeInUp"); // optional if you load Animate.css
         }
 
-             // Accept all cookies
         if (acceptAll) {
             acceptAll.addEventListener("click", function () {
                 localStorage.setItem("cookieConsent", JSON.stringify({
                     choice: "all",
                     date: new Date().toISOString()
                 }));
-                banner.classList.remove("show");
-                setTimeout(() => banner.classList.add("hidden"), 500);
+                banner.classList.add("animate__fadeOutDown");
+                setTimeout(() => banner.classList.add("d-none"), 500);
             });
         }
 
-        // Accept only necessary cookies
         if (acceptNecessary) {
             acceptNecessary.addEventListener("click", function () {
                 localStorage.setItem("cookieConsent", JSON.stringify({
                     choice: "necessary",
                     date: new Date().toISOString()
                 }));
-                banner.classList.remove("show");
-                setTimeout(() => banner.classList.add("hidden"), 500);
+                banner.classList.add("animate__fadeOutDown");
+                setTimeout(() => banner.classList.add("d-none"), 500);
             });
         }
     });
 </script>
-
-
-
-
