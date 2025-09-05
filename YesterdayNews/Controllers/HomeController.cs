@@ -40,8 +40,9 @@ public class HomeController : Controller
         ViewData["SelectedCategory"] = categoryId;
 
         bool isAdminView = adminView ?? StaticConsts.AdminView;
+        var isStaff = (User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist));
 
-        if (User.IsInRole(StaticConsts.Role_Customer) || isAdminView == true)
+        if (!isStaff || isAdminView == true)
         {
         return View(latest);
 
