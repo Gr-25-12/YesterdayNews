@@ -33,9 +33,9 @@ namespace YesterdayNews.Controllers
         }
 
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<Article> articles = _articleServices.GetAll();
+            List<Article> articles = await _articleServices.GetAll().ToListAsync();
             return View(articles);
         }
         public IActionResult Details(int id)
