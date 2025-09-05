@@ -30,7 +30,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index(int categoryId = 0)
     {
-        var latest = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0, 3, categoryId);
+        var latest = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
         return View(latest);
     }
