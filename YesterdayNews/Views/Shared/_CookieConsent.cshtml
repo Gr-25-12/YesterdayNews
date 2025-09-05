@@ -1,7 +1,7 @@
 ﻿<div id="cookieConsent"
-     class="cookie-banner position-fixed bottom-0 start-50 translate-middle-x w-100 w-md-auto shadow rounded-3 bg-light p-3 mb-3 d-none"
-     style="z-index: 1050; max-width: 650px;">
-    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+     class="position-fixed bottom-0 start-0 w-100 shadow bg-light p-3 d-none"
+     style="z-index: 1050;">
+    <div class="container d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
         <div>
             <p class="mb-2">
                 At <strong class="text-primary">YesterdayNews</strong>, we use cookies to make the website work as well as possible for you.
@@ -12,17 +12,16 @@
             </a>
         </div>
         <div class="d-flex gap-2">
-            <button id="acceptAllCookies"
-                    class="btn btn-outline-primary">
+            <button id="acceptAllCookies" class="btn btn-outline-primary">
                 Yes, I agree to all cookies
             </button>
-            <button id="acceptNecessaryCookies"
-                    class="btn btn-outline-primary">
+            <button id="acceptNecessaryCookies" class="btn btn-outline-primary">
                 No, I only agree to necessary cookies
             </button>
         </div>
     </div>
 </div>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
