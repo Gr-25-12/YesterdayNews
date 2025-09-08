@@ -146,7 +146,7 @@
 		@{
 			var query = Context.Request.Query["query"].ToString();
 			var archived = Context.Request.Query["archived"] == "true";
-			var currentAction = ((ControllerActionDescriptor)ViewContext.ActionDescriptor).ActionName; //chatGPT shit
+			var currentAction = (ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ActionName ?? "";//chatGPT shit
 		}
 		<!-- SearchBar (Mobile only) -->
 		<div class="collapse mt-2 d-lg-none mx-3 p-1 bg-primary rounded @(currentAction == "Search" ? "show" : "")" id="mobileSearch">
