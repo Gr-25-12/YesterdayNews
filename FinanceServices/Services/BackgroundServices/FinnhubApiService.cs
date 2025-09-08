@@ -44,7 +44,7 @@ namespace FinanceServices.Services.BackgroundServices
         }
         private async Task RunMarketStatusLoop(CancellationToken stoppingToken)
         {
-
+            int retryTime = 30;
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -53,14 +53,15 @@ namespace FinanceServices.Services.BackgroundServices
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"{ex}, Failed Updating MarketStatus");
+                    _logger.LogWarning($"{ex}, Failed Updating MarketStatus, Trying again in {retryTime} seconds.");
                 }
-                await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(retryTime), stoppingToken);
             }
         }
 
         private async Task RunUpdateListsLoop(CancellationToken stoppingToken)
         {
+            int retryDelay = 1;
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -100,12 +101,22 @@ namespace FinanceServices.Services.BackgroundServices
                         // success, break out of loop
                         break;
                     }
+                    retryDelay = 1;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"{ex}, Failed Updating Lists");
+                    
+                    if(ex is HttpRequestException && ex.Message.Contains("429"))
+                    {
+                        retryDelay = Math.Min(retryDelay * 2, 300);
+                        _logger.LogWarning($"Finnhub API limit reached. Trying again in {retryDelay} seconds");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"{ex}, Failed Updating Lists. Trying again in {retryDelay} seconds");
+                    }
                 }
-                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(retryDelay), stoppingToken);
             }
         }
         private async Task CacheCurrencies()

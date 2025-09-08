@@ -45,24 +45,21 @@ document.addEventListener("DOMContentLoaded", () => {
             if (changeCell) {
                 if (trade.ClosingPrice != 0) {
                     changeCell.textContent = `${trade.Change >= 0 ? "+" : ""}${trade.Change.toFixed(2)}`;
-                    changeCell.classList.remove("text-danger");
+                    changeCell.className = `change ${ trade.Change >= 0 ? "text-success" : "text-danger" }`;
                 }
                 else {
                     changeCell.textContent = "(Error)";
-                    changeCell.classList.add("text-danger");
+                    changeCell.className = "change text-danger";
                 }
             } 
             if (percentageCell) {
                 if (trade.ClosingPrice != 0) {
-                    percentageCell.textContent = `(${trade.PercentageChange.toFixed(2)}%)`;
+                    percentageCell.textContent = `${trade.PercentageChange.toFixed(2)}%`;
                     percentageCell.className = `percentage ${trade.PercentageChange >= 0 ? "text-success" : "text-danger"}`;
-                    percentageCell.classList.remove("text-danger");
-                    percentageCell.classList.add("text-success");
                 }
                 else {
                     percentageCell.textContent = "(Error)";
-                    percentageCell.classList.remove("text-success");
-                    percentageCell.classList.add("text-danger");
+                    percentageCell.className = "percentage text-danger";
                 }
             }
         }

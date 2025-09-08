@@ -11,9 +11,9 @@ namespace YesterdayNews.Components
         {
             _articleServices = articleServices;
         }
-        public IViewComponentResult Invoke()
+        public async Task<IViewComponentResult> InvokeAsync()
         {
-            var articles = _articleServices.GetMostLikedArticleVM(5);
+            var articles = await _articleServices.GetMostLikedArticleVM(5);
             return View(articles);
         }
     }
