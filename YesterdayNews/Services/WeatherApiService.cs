@@ -145,7 +145,7 @@ namespace YesterdayNews.Services
                 })
                 .GroupBy(x => x.Date.Date)
                 .OrderBy(g => g.Key)
-                .Take(6)  // match frontend
+                .Take(6)  
                 .SelectMany(dayGroup => dayGroup
                     .OrderBy(x => x.Date)
                     .Select(x =>
@@ -167,7 +167,7 @@ namespace YesterdayNews.Services
 
         private static List<ForecastVM> ProjectCurrentForecastData(OpenWeatherMapModel.Rootobject response)
         {
-            // Return empty list if response or forecast list is null
+           
             if (response == null || response.list == null)
                 return new List<ForecastVM>();
 
@@ -178,16 +178,16 @@ namespace YesterdayNews.Services
             var now = DateTime.Now;
 
 
-            // Find the forecast item closest to now but not earlier (nearest future forecast)
+           
             var closestForecast = response.list
-                // Parse datetime and pair with forecast item
+               
                 .Select(f => new {
                     ForecastTime = DateTime.Parse(f.dt_txt),
                     Forecast = f
                 })
-                // Filter out forecasts that are before current time
+             
                 .Where(x => x.ForecastTime >= now)
-                // Order by forecast time ascending to find the nearest
+             
                 .OrderBy(x => x.ForecastTime)
                 .FirstOrDefault();
 
@@ -196,7 +196,7 @@ namespace YesterdayNews.Services
 
             var weather = closestForecast.Forecast.weather?.FirstOrDefault();
 
-            // Map the nearest forecast item to ForecastVM
+      
             var currentWeather = new ForecastVM
             {
                 City = city,
@@ -226,7 +226,7 @@ namespace YesterdayNews.Services
             {
                 try
                 {
-                    // Fetch the raw forecast data once per city
+                 
                     var rawData = await FetchForecastDataAsync(city);
 
                     if (rawData == null)
@@ -235,11 +235,11 @@ namespace YesterdayNews.Services
                         continue;
                     }
 
-                    // Project multi-day forecast list and cache it with key "weather_{city}"
+                   
                     var multiDay = ProjectMultiForecastData(rawData);
                     _cache.Set($"weather_{city.ToLowerInvariant()}", multiDay, _cacheDuration);
 
-                    // Project current weather forecast and cache it with key "weather_current_{city}"
+                   
                     var current = ProjectCurrentForecastData(rawData);
                     _cache.Set($"weather_current_{city.ToLowerInvariant()}", current, _cacheDuration);
                 }

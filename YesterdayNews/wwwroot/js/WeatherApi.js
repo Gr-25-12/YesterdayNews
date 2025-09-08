@@ -16,15 +16,15 @@
         const lat = position.coords.latitude.toFixed(2);
         const lon = position.coords.longitude.toFixed(2);
 
-        // On main weather page without lat/lon -> redirect with lat/lon in URL
+    
         if (window.location.pathname === '/Weather' && (!latParam || !lonParam)) {
             url.searchParams.set('lat', lat);
             url.searchParams.set('lon', lon);
             window.location.href = url.toString();
-            return; // stop script after redirect
+            return; 
         }
 
-        // On other pages or when lat/lon are present, update weather widget dynamically
+        // On other pages or when lat/lon are present, update weather widget 
         const widgetElement = document.getElementById('weather-widget');
         if (widgetElement) {
             const response = await fetch(`/Weather/component?lat=${lat}&lon=${lon}`);

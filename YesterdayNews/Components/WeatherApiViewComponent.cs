@@ -23,7 +23,7 @@ namespace YesterdayNews.Components
         public async Task<IViewComponentResult> InvokeAsync(double lat, double lon)
         {
             var forecast = await _weatherApiService.GetSingleCurrentForecastByCoordAsync(lat, lon);
-            return View(forecast); // single ForecastVM model
+            return View(forecast); 
         }
 
 

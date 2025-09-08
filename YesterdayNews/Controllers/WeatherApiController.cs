@@ -37,7 +37,7 @@ namespace YesterdayNews.Controllers
 
             if (!lat.HasValue || !lon.HasValue)
             {
-                // Return an empty model or a view indicating missing parameters
+              
                 return View(new List<ForecastVM>());
             }
 
