@@ -5,9 +5,15 @@ namespace YesterdayNews.Services.IServices
 {
     public interface IWeatherApiService
     {
-        Task<List<ForecastVM>> GetForecastByCityAsync();
-        Task<List<ForecastVM>> GetForecastByCityAsync(string city);
-        Task<List<ForecastVM>> GetForecastByCoordinatesAsync(double lat, double lon);
+        // multi-day (5-day) forecast
+        Task<List<ForecastVM>> GetMultiDayForecastByCityAsync(string city);
+        Task<List<ForecastVM>> GetMultiDayForecastByCoordAsync(double lat, double lon);
+
+       //single day forecast
+        Task<ForecastVM?> GetSingleCurrentForecastByCoordAsync(double lat, double lon);
+     
+
+        //background preloads
         Task RefreshPreloadedCitiesAsync();
 
 

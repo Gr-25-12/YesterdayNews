@@ -3,6 +3,9 @@
     public class ForecastVM
     {
             public string City { get; set; }
+            public string Country { get; set; }
+            public string DisplayLocation { get; set; }
+        
             public DateTime Date { get; set; }
             public string Summary { get; set; }
             public int TemperatureC { get; set; }

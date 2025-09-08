@@ -1,36 +1,29 @@
-﻿@model List<YesterdayNews.Models.ViewModels.ForecastVM>
+﻿
 
-    <a asp-controller="Weather" asp-action="Index" class="flex-grow-1 text-decoration-none d-block">
-<article class="mb-4 border p-3 pb-0 rounded shadow-sm" id="weather-widget">
+@model YesterdayNews.Models.ViewModels.ForecastVM
 
 
-        @if (Model?.Any() == true)
+<a asp-controller="Weather" asp-action="Index" class="flex-grow-1 text-decoration-none d-block">
+    <article class="mb-4 border p-3 pb-0 rounded shadow-sm" id="weather-widget">
+        @if (Model != null && !string.IsNullOrEmpty(Model.City) )
         {
-            var f = Model.First();
-            string cityName = f.City;
-            if (cityName.EndsWith(" Municipality"))
-            {
-                cityName = cityName.Replace(" Municipality", "");
-            }
-
-            <div class="flex justify-between">
-            <h5 class="text-secondary">Weather</h5>
-            <div class="small text-muted">@f.Date.ToString("ddd, MMM dd")</div>
+            <div class="d-flex justify-content-between">
+                <h5 class="text-secondary">Weather</h5>
+                <div class="small text-muted">
+                    <time datetime="@Model.Date.ToString("yyyy-MM-dd")">@Model.Date.ToString("ddd, MMM dd")</time>
+                </div>
             </div>
 
             <hr class="my-2" />
             <div class="d-flex justify-content-between align-items-center">
-                <!-- Left: City and Date -->
                 <div>
-                    <h4  style="font-size: 1.15rem;">@cityName</h4>
-                    
-                    <img src="@f.IconUrl" alt="@f.Summary ?? " Weather Icon"" style="width: 100px; height: 100px; margin: 0;" />
+                    <h4 style="font-size: 1.15rem;">@Model.DisplayLocation</h4>
+                    <img src="@Model.IconUrl" alt="@(Model.Summary ?? "Weather Icon")" style="width: 100px; height: 100px; margin: 0;" />
                 </div>
 
-                <!-- Right: Icon, Temp, Summary -->
                 <div class="text-end d-flex flex-column align-items-end justify-content-center">
-                    <div class="fw-bold">@f.TemperatureC°C</div>
-                    <h3 class="small text-muted ">@f.Summary</h3>
+                    <div class="fw-bold">@Model.TemperatureC°C</div>
+                    <h3 class="small text-muted">@Model.Summary</h3>
                 </div>
             </div>
         }
@@ -38,5 +31,5 @@
         {
             <div class="text-center text-muted">Loading weather data...</div>
         }
-</article>
-    </a>
+    </article>
+</a>

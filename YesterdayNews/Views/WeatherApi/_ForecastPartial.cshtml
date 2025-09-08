@@ -25,7 +25,7 @@
     <!-- Location & Time -->
     <div class="text-center mb-4 p-4 bg-primary text-white rounded-3 shadow">
         <h2 class="mb-2">
-            <i class="fas fa-map-marker-alt me-2"></i>@Model.First().City
+            <i class="fas fa-map-marker-alt me-2"></i>@Model.First().DisplayLocation
         </h2>
         <p class="mb-0 opacity-75">
             <i class="fas fa-clock me-1"></i>Last updated: @DateTime.UtcNow.ToString("MMM dd, yyyy HH:mm UTC")
@@ -57,7 +57,7 @@
         @for (int i = 0; i < grouped.Count; i++)
         {
             var forecasts = grouped[i]
-            .OrderBy(f => f.Date.TimeOfDay == TimeSpan.Zero ? TimeSpan.FromHours(24) : f.Date.TimeOfDay)
+            .OrderBy(f => f.Date.TimeOfDay)
             .ToList();
 
             var day = forecasts.First().Date.Date;
@@ -84,7 +84,7 @@
                                 var displayTime = forecast.Date.Hour == 0 && forecast.Date.Minute == 0 ? "00:00" : forecast.Date.ToString("HH:mm");
 
                                 <div class="col-6 col-lg-4 col-xl-3">
-                                    <div class="card h-100 @(isPast ? "bg-light text-muted" : "") @(isCurrent ? "bg-warning bg-opacity-25 border-warning" : "border-light") position-relative">
+                                    <div class="card h-100  @(isPast ? "bg-light text-muted" : "") @(isCurrent ? "bg-warning bg-opacity-25 border-warning" : "border-light") position-relative">
                                         @if (isCurrent)
                                         {
                                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="z-index: 1050;">
@@ -93,7 +93,7 @@
 
                                         }
 
-                                        <div class="card-body text-center p-3">
+                                        <div class="card-body text-center p-3 ">
                                             <div class="fw-bold mb-2 @(isPast ? "text-muted" : "text-primary")">
                                                 @displayTime
                                                 @if (isPast)
@@ -107,7 +107,7 @@
                                                 <img src="@forecast.IconUrl"
                                                      alt="@forecast.Summary"
                                                      class="img-fluid @(isPast ? "opacity-50" : "")"
-                                                     style="width: 45px; height: 45px;" />
+                                                     style="width: 100px; height: 100px;" />
                                             </div>
 
                                             <div class="h6 @(isPast ? "text-muted" : "text-primary") fw-bold mb-1 temp-display" data-celsius="@forecast.TemperatureC">
@@ -117,14 +117,14 @@
                                             <div class="small @(isPast ? "text-muted" : "text-dark") text-capitalize">
                                                 @forecast.Summary
                                             </div>
-                                            
+
                                         </div>
                                     </div>
                                 </div>
                             }
                         </div>
 
-                        <!-- Summary Footer -->
+                        <!-- Summar Footer -->
                         <div class="mt-3 pt-3 border-top">
                             <div class="row text-center">
                                 <div class="col-4">
@@ -139,7 +139,7 @@
                                         @forecasts.Max(f => f.TemperatureC)°C
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-4">
 
                                     <button class="btn btn-outline-primary btn-sm fw-bold temp-toggle" onclick="toggleTemperatureUnit()">

@@ -45,9 +45,14 @@ public class Program
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
         builder.Services.AddScoped<ILikeService, LikeService>();
-        builder.Services.AddHttpClient();
-        builder.Services.AddScoped<IWeatherApiService, WeatherApiService>();
+        builder.Services.AddHttpClient<IWeatherApiService, WeatherApiService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.openweathermap.org/");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
         builder.Services.AddHostedService<WeatherApiBackgroundService>();
+
      
 
         builder.Services.AddScoped<IStripe, StripeServices>();

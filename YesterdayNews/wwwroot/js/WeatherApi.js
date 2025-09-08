@@ -1,54 +1,41 @@
-﻿﻿(async function () {
-    //if (!window.location.pathname.startsWith('/weather')) return;
-    // Run geolocation on all pages since this is a sidebar component
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentCityInUrl = urlParams.get('city');
-    const normalize = str => str.trim().toLowerCase();
-
-    
-    
+﻿(async function () {
     if (!navigator.geolocation) {
         console.log('Geolocation not supported');
         return;
     }
 
+    const url = new URL(window.location.href);
+    const latParam = url.searchParams.get('lat');
+    const lonParam = url.searchParams.get('lon');
+
     try {
-        const position = await new Promise((res, rej) =>
-            navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 })
+        const position = await new Promise((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject)
         );
 
-        const lat = position.coords.latitude.toFixed(6);
-        const lon = position.coords.longitude.toFixed(6);
+        const lat = position.coords.latitude.toFixed(2);
+        const lon = position.coords.longitude.toFixed(2);
 
-        const resp = await fetch(`/api/weather/current?lat=${lat}&lon=${lon}`);
-        if (!resp.ok) return;
-
-        const data = await resp.json();
-
-        const detectedCity = data.city;
-      
-        const reloadFlag = sessionStorage.getItem('weatherReloaded');
-       
-
-        // Always update widget with geolocation data
-        const widgetElement = document.getElementById("weather-widget");
-        if (widgetElement) {
-            const widgetResp = await fetch(`/Weather/component?lat=${lat}&lon=${lon}`);
-            const html = await widgetResp.text();
-            widgetElement.innerHTML = html;
+        // On main weather page without lat/lon -> redirect with lat/lon in URL
+        if (window.location.pathname === '/Weather' && (!latParam || !lonParam)) {
+            url.searchParams.set('lat', lat);
+            url.searchParams.set('lon', lon);
+            window.location.href = url.toString();
+            return; // stop script after redirect
         }
-        
-        // On weather page, also redirect to show full forecast for detected city
-        if (window.location.pathname.startsWith('/weather') && detectedCity && 
-            normalize(detectedCity) !== normalize(currentCityInUrl || '') && !reloadFlag) {
-            // Clean the city name before using it in URL
-            const cleanCityName = detectedCity.replace(/ Municipality$/i, '').replace(/ Kommune$/i, '').replace(/ Kommun$/i, '').trim();
-            console.log('Redirecting to:', `/weather?city=${encodeURIComponent(cleanCityName)}`);
-            sessionStorage.setItem('weatherReloaded', 'true');
-            window.location.href = `/weather?city=${encodeURIComponent(cleanCityName)}`;
+
+        // On other pages or when lat/lon are present, update weather widget dynamically
+        const widgetElement = document.getElementById('weather-widget');
+        if (widgetElement) {
+            const response = await fetch(`/Weather/component?lat=${lat}&lon=${lon}`);
+            if (response.ok) {
+                const html = await response.text();
+                widgetElement.innerHTML = html;
+            } else {
+                console.warn('Failed to fetch weather component');
+            }
         }
     } catch (error) {
-        console.debug('Geolocation error or denied:', error);
+        console.warn('Geolocation error:', error.message);
     }
 })();
