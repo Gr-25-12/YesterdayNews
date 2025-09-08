@@ -7,16 +7,18 @@
 @if (isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin))
 {
 
-		<a   asp-action="AdminView" asp-controller="Home" class= "btn btn-outline-light text-light hover-bg-secondary w-100">
-			Switch to Admin Dashboard
+		<a asp-action="AdminView" asp-controller="Home"
+		   class="d-flex align-items-center text-white hover-bg-secondary p-2">
+			<i class="bi bi-toggles2 me-1"></i> Admin
 		</a>
 
 
 } 
 else if (!isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin))
 {
-	<a asp-action="SwitchToCustomerView" asp-controller="Home" class="btn btn-outline-light text-light hover-bg-secondary w-100">
-		Switch to Customer View
-                </a>
+		<a asp-action="SwitchToCustomerView" asp-controller="Home"
+		   class="d-flex align-items-center text-white hover-bg-secondary p-2">
+			<i class="bi bi-toggles2 me-1"></i> Customer
+		</a>
 }
 	</div>

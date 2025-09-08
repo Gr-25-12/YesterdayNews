@@ -1,0 +1,73 @@
+﻿@using YesterdayNews.Services.IServices
+@inject ICategoryService _categoryService
+
+@{
+	var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
+
+	bool isAdmin = User.IsInRole(StaticConsts.Role_Admin);
+	bool isEditor = User.IsInRole(StaticConsts.Role_Editor);
+	bool isJournalist = User.IsInRole(StaticConsts.Role_Journalist);
+
+	
+	bool isStaff = isAdmin || isEditor || isJournalist;
+
+	
+	bool isCustomerView = (StaticConsts.AdminView && isAdmin) || !isStaff;
+}
+
+
+
+<ul class="navbar-nav d-flex d-lg-none">
+		<li class="nav-item d-lg-none">
+			<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active" : "")"
+			   asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-fill fs-4 me-2"></i>Home</a>
+		</li>
+	@if (isCustomerView)
+		{
+			@foreach (var category in categories)
+			{
+				<li class="nav-item d-lg-none">
+					<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active" : "")"
+					   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
+						@category.Name
+					</a>
+				</li>
+			}
+			<li class="nav-item">
+				<a class="nav-link text-primary hover-bg-secondary "
+				   asp-controller="Externalnews" asp-action="Index">
+					Outsouced News
+				</a>
+			</li>
+		}
+	@if (isStaff && !isCustomerView)
+		{
+			<li class="nav-item">
+				<a class="nav-link text-primary hover-bg-secondary " asp-area="" asp-controller="Article" asp-action="Index">Articles</a>
+			</li>
+
+			<li class="nav-item">
+				<a class="nav-link text-primary hover-bg-secondary " asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link text-primary hover-bg-secondary " asp-area="" asp-controller="SubscriptionType" asp-action="Index">Subscription Types</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link text-primary hover-bg-secondary " asp-area="" asp-controller="Subscription" asp-action="Index">Subscriptions</a>
+			</li>
+			<li><a class="nav-link text-primary hover-bg-secondary " asp-controller="User" asp-action="Index">User Management </a></li>
+			<li><hr class="nav-item"></li>
+		} 
+		<li class="nav-item d-lg-none  my-2">
+		<div class="d-flex justify-content-start mx-3 ">
+			<div col-6>
+				<div class="bg-primary">
+
+			<partial name="_ToggleButton"/>
+				</div>
+				</div>
+			</div>
+		</li>
+	</ul>
+	
+
