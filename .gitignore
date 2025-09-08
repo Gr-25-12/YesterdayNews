@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /YesterdayNews/appsettings.Production.json
+
+ArchiveFunctions/local.settings.json
