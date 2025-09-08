@@ -385,12 +385,7 @@ public class HomeController : Controller
             .ToList();
     }
 
-    //[HttpPost]
-    //public IActionResult DismissAdminView()
-    //{
-    //    StaticConsts.AdminView = false; 
-    //    return RedirectToAction("SwitchToCustomerView");
-    //}
+   
     #endregion
 
 

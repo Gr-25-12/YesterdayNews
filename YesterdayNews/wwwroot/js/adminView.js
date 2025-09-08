@@ -1,14 +1,26 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
-    // Check if Chart.js is loaded
+﻿
+
+document.addEventListener('DOMContentLoaded', function () {
+    
     if (typeof Chart === 'undefined') {
         console.error('Chart.js is not loaded');
         return;
     }
+    const data = window.dashboardData;
+
+    const themeColors = [
+        getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim(),      
+        getComputedStyle(document.documentElement).getPropertyValue('--bs-secondary').trim(),    
+        getComputedStyle(document.documentElement).getPropertyValue('--bs-success').trim(),      
+        getComputedStyle(document.documentElement).getPropertyValue('--bs-danger').trim(),       
+        getComputedStyle(document.documentElement).getPropertyValue('--bs-warning').trim(),      
+        getComputedStyle(document.documentElement).getPropertyValue('--bs-info').trim()          
+    ];
 
     // Subscriptions Trend Chart
     const subscriptionsTrendCtx = document.getElementById('subscriptionsTrendChart');
     if (subscriptionsTrendCtx) {
-        const subscriptionsTrendData = @Html.Raw(Json.Serialize(Model.SubscriptionsByDay));
+        const subscriptionsTrendData = data.subscriptionsByDay;
 
         new Chart(subscriptionsTrendCtx, {
             type: 'line',
@@ -17,8 +29,8 @@
                 datasets: [{
                     label: 'Subscriptions',
                     data: subscriptionsTrendData.map(d => d.value),
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    borderColor: '#3A2512',
+                    backgroundColor: '#b39080',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4
@@ -47,17 +59,17 @@
     // Revenue Trend Chart
     const revenueTrendCtx = document.getElementById('revenueTrendChart');
     if (revenueTrendCtx) {
-        const revenueTrendData = @Html.Raw(Json.Serialize(Model.RevenueByDay));
+        const revenueTrendData = data.revenueByDay;
 
         new Chart(revenueTrendCtx, {
             type: 'bar',
             data: {
                 labels: revenueTrendData.map(d => d.label),
                 datasets: [{
-                    label: 'Revenue ($)',
+                    label: 'Revenue (Sek)',
                     data: revenueTrendData.map(d => d.value),
-                    backgroundColor: '#28a745',
-                    borderColor: '#28a745',
+                    backgroundColor: '#3A2512',
+                    borderColor: '#b39086',
                     borderWidth: 1
                 }]
             },
@@ -66,7 +78,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false
+                        display: true
                     }
                 },
                 scales: {
@@ -74,7 +86,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function (value) {
-                                return '$' + value.toLocaleString();
+                                return 'SEK' + value.toLocaleString();
                             }
                         }
                     }
@@ -86,17 +98,18 @@
     // Articles by Status Pie Chart
     const articlesStatusCtx = document.getElementById('articlesStatusChart');
     if (articlesStatusCtx) {
-        const articlesStatusData = @Html.Raw(Json.Serialize(Model.ArticlesByStatus));
+        const articlesStatusData = data.articlesByStatus;
 
         new Chart(articlesStatusCtx, {
-            type: 'doughnut',
+            type: 'pie',
             data: {
                 labels: articlesStatusData.map(d => d.label),
                 datasets: [{
                     data: articlesStatusData.map(d => d.value),
-                    backgroundColor: articlesStatusData.map(d => d.color),
+                    backgroundColor: themeColors.slice(0, articlesStatusData.length),
                     borderWidth: 2,
-                    borderColor: '#fff'
+                    borderColor: '#fff',
+                    
                 }]
             },
             options: {
@@ -114,7 +127,7 @@
     // Users by Role Pie Chart
     const usersRoleCtx = document.getElementById('usersRoleChart');
     if (usersRoleCtx) {
-        const usersRoleData = @Html.Raw(Json.Serialize(Model.UsersByRole));
+        const usersRoleData = data.usersByRole;
 
         new Chart(usersRoleCtx, {
             type: 'doughnut',
@@ -122,7 +135,7 @@
                 labels: usersRoleData.map(d => d.label),
                 datasets: [{
                     data: usersRoleData.map(d => d.value),
-                    backgroundColor: usersRoleData.map(d => d.color),
+                    backgroundColor: themeColors.slice(0, usersRoleData.length),
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]
@@ -142,7 +155,7 @@
     // Subscriptions by Type Pie Chart
     const subscriptionTypeCtx = document.getElementById('subscriptionTypeChart');
     if (subscriptionTypeCtx) {
-        const subscriptionTypeData = @Html.Raw(Json.Serialize(Model.SubscriptionsByType));
+        const subscriptionTypeData = data.subscriptionsByType;
 
         new Chart(subscriptionTypeCtx, {
             type: 'doughnut',
@@ -150,7 +163,7 @@
                 labels: subscriptionTypeData.map(d => d.label),
                 datasets: [{
                     data: subscriptionTypeData.map(d => d.value),
-                    backgroundColor: subscriptionTypeData.map(d => d.color),
+                    backgroundColor: themeColors.slice(0, subscriptionTypeData.length),
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]

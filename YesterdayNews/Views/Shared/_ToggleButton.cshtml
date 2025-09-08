@@ -1,10 +1,11 @@
 ﻿@{
 	bool isAdminViewingCustomer = StaticConsts.AdminView;
+	var isStaff = User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist) || User.IsInRole(StaticConsts.Role_Admin);
 
 }
 
 <div class="d-flex justify-content-end ">
-@if (isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin))
+	@if (isAdminViewingCustomer && isStaff)
 {
 
 		<a asp-action="AdminView" asp-controller="Home"
@@ -14,7 +15,7 @@
 
 
 } 
-else if (!isAdminViewingCustomer && User.IsInRole(StaticConsts.Role_Admin))
+else if (!isAdminViewingCustomer && isStaff)
 {
 		<a asp-action="SwitchToCustomerView" asp-controller="Home"
 		   class="d-flex align-items-center text-white hover-bg-secondary p-2">

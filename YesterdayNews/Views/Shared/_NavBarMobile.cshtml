@@ -19,7 +19,7 @@
 
 <ul class="navbar-nav d-flex d-lg-none">
 		<li class="nav-item d-lg-none">
-			<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active" : "")"
+		<a class="nav-link @(ViewData["SelectedCategory"]?.ToString()) text-primary hover-bg-secondary"
 			   asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-fill fs-4 me-2"></i>Home</a>
 		</li>
 	@if (isCustomerView)
@@ -27,7 +27,7 @@
 			@foreach (var category in categories)
 			{
 				<li class="nav-item d-lg-none">
-					<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active" : "")"
+					<a class="nav-link text-primary @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active" : "")"
 					   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
 						@category.Name
 					</a>
