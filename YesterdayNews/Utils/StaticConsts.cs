@@ -24,8 +24,13 @@
         public const string SubscriptionType_Quarterly = "Quarterly";
         public const string SubscriptionType_Weekly = "Weekly";
 
-        public const string Home_URL = @"https://yesterdaynews.azurewebsites.net/";
-        //public const string Home_URL = @"https://localhost:7195/";
+
+#if DEBUG
+        public const string Home_URL = @"https://localhost:7195/";
+#else
+    public const string Home_URL = @"https://yesterdaynews.azurewebsites.net/";
+#endif
+
 
         public const string YN_LOGO = "https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png";
 
