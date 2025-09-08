@@ -9,7 +9,7 @@ public class ExternalNewsVM
     public string? Description { get; set; }
 
     [JsonPropertyName("url")]
-    public string Url { get; set; } = string.Empty;
+    public string? Url { get; set; }
 
     [JsonPropertyName("urlToImage")]
     public string? UrlToImage { get; set; }
@@ -88,5 +88,5 @@ public class NewsApiResponseProd
 {
 
     [JsonPropertyName("data")]
-    public List<ExternalNewsVM> Articles { get; set; } = new List<ExternalNewsVM>();
+    public List<ExternalNewsVMProd> Articles { get; set; } = new List<ExternalNewsVMProd>();
 }

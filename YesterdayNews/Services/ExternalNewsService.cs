@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using YesterdayNews.Services.IServices;
 
@@ -56,7 +57,7 @@ namespace YesterdayNews.Services
                 });
 
 
-                return ConvertProdToStandard(new List<ExternalNewsVMProd>());
+                return ConvertProdToStandard(prodApiResponse?.Articles!);
             }
             else
             {
