@@ -176,41 +176,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-///* Cookie Banner - Slide Up Animation */
-//#cookieConsent {
-//    position: fixed;
-//    bottom: -300px; /* start hidden below screen */
-//    left: 0;
-//    width: 100 %;
-//    background - color: #f8f9fa;
-//    transition: bottom 0.5s ease;
-//    z - index: 9999; /* stay on top */
-//}
 
-//#cookieConsent.show {
-//    bottom: 0; /* slides up into view */
-//}
-
-//#cookieConsent.container {
-//    max - width: 900px;
-//    margin: auto;
-//}
-//#cookieConsent.absolute {
-//    position: absolute;
-//}
-//#cookieConsent.top - 2 {
-//    top: 0.5rem;
-//}
-//#cookieConsent.right - 2 {
-//    right: 0.5rem;
-//}
-///* Snackbar Slide Up */
-//#cookieSnackbar {
-//    opacity: 0;
-//    transform: translate(-50 %, 40px); /* hidden below */
-//}
-
-//#cookieSnackbar.show {
-//    opacity: 1;
-//    transform: translate(-50 %, 0); /* slide up */
-//}
