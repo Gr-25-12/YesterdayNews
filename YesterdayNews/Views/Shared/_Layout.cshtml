@@ -1,5 +1,6 @@
 ﻿@using YesterdayNews.Models.Db
 @using YesterdayNews.Services.IServices
+@using Microsoft.AspNetCore.Mvc.Controllers
 
 
 @inject ICategoryService _categoryService
@@ -44,12 +45,12 @@
 						<div class="d-flex align-items-center justify-content-center gap-3 mb-1">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50" height="50" class="flex-shrink-0">
 								<rect x="2" y="2" width="46" height="46" rx="8" fill="#3A2512" />
-								<text x="15" y="36" text-anchor="middle" fill="#f8f9fa"font-weight="500" font-size="32">Y</text>
+								<text x="15" y="36" text-anchor="middle" fill="#f8f9fa" font-weight="500" font-size="32">Y</text>
 								<text x="35" y="36" text-anchor="middle" fill="#f8f9fa" font-weight="400" font-size="25">N</text>
 							</svg>
-							<span class="text-primary fs-3 fw-bold text-nowrap" >Yesterday's News</span>
+							<span class="text-primary fs-3 fw-bold text-nowrap">Yesterday's News</span>
 						</div>
-						<span  class="text-muted small fs-6">We bring you the news that you already know !</span>
+						<span class="text-muted small fs-6">We bring you the news that you already know !</span>
 					</a>
 				</div>
 				<div class="d-flex position-fixed start-0 px-2 m-2">
@@ -57,10 +58,10 @@
 							aria-expanded="false" aria-label="Toggle navigation">
 						<span class="navbar-toggler-icon"></span>
 					</button>
-					
-					
+
+
 				</div>
-					<!-- Searchbar button (visible on mobile) -->
+				<!-- Searchbar button (visible on mobile) -->
 				<div class="mobile-search-wrapper">
 					<button class="btn d-lg-none btn btn-outline-primary m-1 ms-auto " type="button" data-bs-toggle="collapse" data-bs-target="#mobileSearch">
 						<i class="bi bi-search"></i>
@@ -72,7 +73,7 @@
 				<ul class="navbar-nav">
 					<li class="nav-item d-lg-none">
 						<a class="nav-link @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active" : "")"
-						asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+						   asp-area="" asp-controller="Home" asp-action="Index">Home</a>
 					</li>
 					@foreach (var category in categories)
 					{
@@ -142,13 +143,34 @@
 				</ul>
 			</div>
 		</nav>
+		@{
+			var query = Context.Request.Query["query"].ToString();
+			var archived = Context.Request.Query["archived"] == "true";
+			var currentAction = ((ControllerActionDescriptor)ViewContext.ActionDescriptor).ActionName; //chatGPT shit
+		}
 		<!-- SearchBar (Mobile only) -->
-		<div class="collapse mt-2 d-lg-none mx-3 p-2 bg-primary rounded" id="mobileSearch">
-			<form asp-controller="Home" asp-action="Search" method="get" class="d-flex">
-				<input type="text" name="query" class="form-control me-2" placeholder="Search news..." />
-				<button type="submit" class="btn btn-secondary">
-					<i class="bi bi-search"></i>
-				</button>
+		<div class="collapse mt-2 d-lg-none mx-3 p-1 bg-primary rounded @(currentAction == "Search" ? "show" : "")" id="mobileSearch">
+			<form asp-controller="Home" asp-action="Search" method="get" class="d-flex flex-column">
+				<div class="d-flex mb-1">
+					<input type="text" name="query" class="form-control me-2" placeholder="Search news..." />
+					<button type="submit" class="btn btn-secondary">
+						<i class="bi bi-search"></i>
+					</button>
+				</div>
+				<div class="d-flex align-items-center">
+						<div class="form-check ms-2">
+							<input class="form-check-input custom-radio" type="radio" name="archived" value="false" id="publishedRadio" @(archived ? "" : "checked") />
+							<label class="form-check-label text-white" for="publishedRadio">
+								Published
+							</label>
+						</div>
+						<div class="form-check ms-2">
+							<input class="form-check-input custom-radio" type="radio" name="archived" value="true" id="archivedRadio" @(archived ? "checked" : "") />
+							<label class="form-check-label text-white" for="archivedRadio">
+								Archived
+							</label>
+						</div>
+					</div>
 			</form>
 		</div>
 	</header>
@@ -182,7 +204,7 @@
 						</svg>
 						<span class="fs-5 fw-bold text-primary">Yesterday's News</span>
 					</div>
-					
+
 					<div class="d-flex gap-3 col-3">
 						<a href="#" class="text-secondary"><i class="bi bi-facebook fs-5"></i></a>
 						<a href="#" class="text-secondary"><i class="bi bi-twitter fs-5"></i></a>
@@ -192,11 +214,12 @@
 				</div>
 
 				<!-- Company -->
-                <div class="col-3  mb-4 mb-md-0">
+				<div class="col-3  mb-4 mb-md-0">
 					<h6 class="text-primary fw-bold mb-3">About YN</h6>
 					<ul class="list-unstyled">
-						
+
 						<li class="mb-2"><a asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Privacy</a></li>
+						<li class="mb-2"><a asp-controller="Home" asp-action="Search" asp-route-archived="true" class="text-muted text-decoration-none">Archived News</a></li>
 						<li class="mb-2"><a href="#" class="text-muted text-decoration-none">Careers</a></li>
 					</ul>
 				</div>
@@ -228,7 +251,7 @@
 					}
 				</ul>
 			</div>
-		
+
 			<!-- Bottom Bar -->
 			<div class="row mt-4 pt-3 border-top">
 				<div class="col-md-6 text-center text-md-start">
@@ -256,5 +279,9 @@
 	<script src="~/js/SubscriptionsModal.js" asp-append-version="true"></script>
 	@await RenderSectionAsync("Scripts", required: false)
 
+
+	
 </body>
+
+
 </html>

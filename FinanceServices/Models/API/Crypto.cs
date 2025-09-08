@@ -16,7 +16,7 @@ namespace FinanceServices.Models.API
 
         public decimal CurrentPrice { get; set; }
         public decimal Price24HoursAgo { get; private set; }
-        
+
         public long TimeStamp { private get; set; }
 
         [JsonIgnore]
@@ -38,6 +38,16 @@ namespace FinanceServices.Models.API
 
                 if (priceSnapshots24.Count == MAX_SNAPSHOTS)
                     Price24HoursAgo = priceSnapshots24.Peek();
+            }
+        }
+        public void LoadSnapshotFromTable(decimal tablePrice)
+        {
+            lock (_lock)
+            {
+                Price24HoursAgo = tablePrice;
+
+                priceSnapshots24.Clear();
+                priceSnapshots24.Enqueue(tablePrice);
             }
         }
     }

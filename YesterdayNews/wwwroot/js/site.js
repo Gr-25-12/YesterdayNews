@@ -156,3 +156,24 @@ window.addEventListener('scroll', function () {
         lastScroll = currentScroll;
     }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const banner = document.getElementById("cookieBanner");
+    const closeBtn = document.getElementById("closeBanner");
+
+    if (!banner || !closeBtn) return; // safety check
+
+    // Show banner on page load if not dismissed this session
+    if (!sessionStorage.getItem("cookieBannerDismissed")) {
+        banner.classList.add("show");
+    }
+
+    // Close button hides banner and remembers choice
+    closeBtn.addEventListener("click", function () {
+        banner.classList.remove("show");
+        sessionStorage.setItem("cookieBannerDismissed", "true");
+    });
+});
+
+
+

@@ -5,6 +5,7 @@ using YesterdayNews.Data;
 using YesterdayNews.Models.Db;
 using YesterdayNews.Models.ViewModels;
 using YesterdayNews.Services.IServices;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace YesterdayNews.Services
 {
@@ -19,21 +20,18 @@ namespace YesterdayNews.Services
             _db = db;
         }
 
-        public List<Article> GetAll()
+        public IQueryable<Article> GetAll()
         {
-            
             return _db.Articles.Include(a => a.Author)
                                .Include(a => a.Category)
-                               .OrderByDescending(a => a.DateStamp)
-                               .ToList();
-                
+                               .OrderByDescending(a => a.DateStamp); 
         }
-        public List<ArticleVM> GetAllAsArticleVM(int articlesToSkip, int numberOfArticles, int categoryId)
+        public async Task<List<ArticleVM>> GetAllPublishedByCategoryAsArticleVM(int articlesToSkip, int numberOfArticles, int categoryId)
         {
             List<ArticleVM> result = new List<ArticleVM>();
             if (categoryId == 0)
             {
-                result = GetAll()
+                result = await GetAll()
                        .Where(a => a.ArticleStatus == ArticleStatus.Published)
                        .Skip(articlesToSkip)
                        .Take(numberOfArticles)
@@ -47,10 +45,10 @@ namespace YesterdayNews.Services
                            Category = a.Category,
                            DateStamp = a.DateStamp
                        })
-                       .ToList();
+                       .ToListAsync();
             }
             else {
-                result = GetAll()
+                result = await GetAll()
                        .Where(a => a.ArticleStatus == ArticleStatus.Published)
                        .Where(a => a.CategoryId == categoryId)
                        .Skip(articlesToSkip)
@@ -65,24 +63,34 @@ namespace YesterdayNews.Services
                            Category = a.Category,
                            DateStamp = a.DateStamp
                        })
-                       .ToList();
+                       .ToListAsync();
             }
                 return result;
         }
-        public List<ArticleVM> GetAllAsArticleVM(string query)
+        public async Task<List<ArticleVM>> GetAllAsArticleVM(string query = "", bool archived = false)
         {
-            return _db.Articles
+            IQueryable<Article> articles = _db.Articles
                 .Include(a => a.Author)
-                .Include(a => a.Category)
-                .Where(a => a.Headline.Contains(query) ||
-                            a.ContentSummary.Contains(query) || 
-                            a.LinkText.Contains(query) ||
-                            a.Content.Contains(query) ||
-                            a.Category.Name.Contains(query) ||
-                            a.Author.FirstName.Contains(query) ||
-                            a.Author.LastName.Contains(query)    
-                )
-                .Select(a => new ArticleVM
+                .Include(a => a.Category);
+
+            if (archived)
+                articles = articles.Where(a => a.ArticleStatus == ArticleStatus.Archived);
+            else
+                articles = articles.Where(a => a.ArticleStatus == ArticleStatus.Published);
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                articles = articles.Where(a =>
+                    a.Headline.Contains(query) ||
+                    a.ContentSummary.Contains(query) ||
+                    a.LinkText.Contains(query) ||
+                    a.Content.Contains(query) ||
+                    a.Category.Name.Contains(query) ||
+                    a.Author.FirstName.Contains(query) ||
+                    a.Author.LastName.Contains(query)
+                );
+            }
+            var result = await articles.Select(a => new ArticleVM
                 {
                     Id = a.Id,
                     Headline = a.Headline,
@@ -93,11 +101,12 @@ namespace YesterdayNews.Services
                     DateStamp = a.DateStamp
                 })
                 .OrderByDescending(a => a.DateStamp)
-                .ToList();
+                .ToListAsync();
+            return result;
         }
-        public List<ArticleVM> GetMostViewedArticleVM(int numberOfArticles)
+        public async Task<List<ArticleVM>> GetMostViewedArticleVM(int numberOfArticles)
         {
-            return GetAll()
+            return await GetAll()
                    .Where(a => a.ArticleStatus == ArticleStatus.Published)
                    .OrderByDescending(a => a.Views)
                    .Take(numberOfArticles)
@@ -111,11 +120,11 @@ namespace YesterdayNews.Services
                        Category = a.Category,
                        DateStamp = a.DateStamp
                    })
-                   .ToList();
+                   .ToListAsync();
         }
-        public List<ArticleVM> GetMostLikedArticleVM(int numberOfArticles)
+        public async Task<List<ArticleVM>> GetMostLikedArticleVM(int numberOfArticles)
         {
-            return GetAll()
+            return await GetAll()
                    .Where(a => a.ArticleStatus == ArticleStatus.Published)
                    .OrderByDescending(a => a.Likes)
                    .Take(numberOfArticles)
@@ -129,7 +138,7 @@ namespace YesterdayNews.Services
                        Category = a.Category,
                        DateStamp = a.DateStamp
                    })
-                   .ToList();
+                   .ToListAsync();
         }
 
         public void Delete(int id)
@@ -152,6 +161,30 @@ namespace YesterdayNews.Services
         {
             _db.Articles.Update(article);
             _db.SaveChanges();
+        }
+
+        public async Task<int> TryArchiveOldArticles(DateTime archiveThreshold)
+        {
+            var published = await _db.Articles
+                .Where(a => a.ArticleStatus == ArticleStatus.Published)
+                .OrderBy(a => a.DateStamp)
+                .ToListAsync();
+            int archived = 0;
+            foreach (Article article in published)
+            {
+                if (article.DateStamp <= archiveThreshold)
+                {
+                    article.ArticleStatus = ArticleStatus.Archived;
+                    archived++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            await _db.SaveChangesAsync();
+
+            return archived;
         }
 
         public Article GetById(int id)

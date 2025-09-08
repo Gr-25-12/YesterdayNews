@@ -41,5 +41,15 @@ namespace FinanceServices.Models.API
                     Price24HoursAgo = priceSnapshots24.Peek();
             }
         }
+        public void LoadSnapshotFromTable(decimal tablePrice)
+        {
+            lock (_lock)
+            {
+                Price24HoursAgo = tablePrice;
+
+                priceSnapshots24.Clear();
+                priceSnapshots24.Enqueue(tablePrice);
+            }
+        }
     }
 }
