@@ -28,9 +28,9 @@ public class HomeController : Controller
         _subscriptionServices = subscriptionServices;
     }
 
-    public IActionResult Index(int categoryId = 0)
+    public async Task<IActionResult> Index(int categoryId = 0)
     {
-        var latest = _articleServices.GetAllAsArticleVM(0, 3, categoryId);
+        var latest = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
         return View(latest);
     }
@@ -104,9 +104,9 @@ public class HomeController : Controller
     {
         return View();
     }
-    public IActionResult Search(string query)
+    public async Task<IActionResult> Search(string query, bool archived = false)
     {
-        var results = _articleServices.GetAllAsArticleVM(query);
+        var results = await _articleServices.GetAllAsArticleVM(query, archived);
         return View(results);
     }
 

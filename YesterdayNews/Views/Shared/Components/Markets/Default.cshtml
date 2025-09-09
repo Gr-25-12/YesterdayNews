@@ -1,17 +1,18 @@
-﻿@model FinanceServices.Models.MarketDto;
+@model FinanceServices.Models.MarketDto;
 @* Markets View Component *@
 <article class="mb-4 border p-3 pb-0 rounded shadow-sm">
 	<a asp-controller="Home" asp-action="Markets" class="flex-grow-1 text-decoration-none d-block">
-		<h5 class="text-secondary">Markets</h5>
+		<h5 class="text-secondary">Markets (in USD)</h5>
 
 		<hr class="my-2" />
 		<div class="table-responsive">
 			<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
 				@* NASDAQ *@
-				<thead>
+				<thead class="border-bottom">
 					<tr>
-						<th>NASDAQ - 
-							<span class="@(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
+						<th>
+							NASDAQ -
+							<span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
 								(@Model.UsMarketStatus)
 							</span>
 						</th>
@@ -21,38 +22,48 @@
 					</tr>
 				</thead>
 				<tbody>
-					@if(Model.UsMarketStatus != "Closed")
-					{
-						@foreach (var kvp in Model.NasdaqStockInfo)
-						{
-							var symbol = kvp.Key;
-							var stock = kvp.Value;
-							var quote = Model.NasdaqStockPrices.ContainsKey(symbol) ? Model.NasdaqStockPrices[symbol] : null;
-							if (quote == null) continue;
-							<tr data-symbol="@symbol">
-								<td>@stock.Description</td>
-								<td class="price">@quote.CurrentPrice.ToString("0.##")</td>
-								<td class="change">@(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")</td>
-								<td class="percentage @(quote.PercentageChange >= 0 ? "text-success" : "text-danger")">
-									(@quote.PercentageChange.ToString("0.##")%)
-								</td>
-							</tr>
-						}
-					}
-					else
+					@if (Model.NasdaqStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
 					{
 						<tr>
-							<td class="down">Market Closed</td>
+							<td class="text-danger"> (Error, No data loaded)</td>
+							<td> - </td>
+							<td> - </td>
+							<td> - </td>
+						</tr>
+					}
+					@foreach (var stock in Model.NasdaqStocks)
+					{
+						if (stock == null) continue;
+						<tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
+							<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
+								@stock.DisplayName
+							</td>
+							@if (Model.UsMarketStatus.Contains("Closed") == false)
+							{
+								<td class="price">
+									@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
+								</td>
+								<td class="change"> - </td>
+								<td class="percentage"> - </td>
+							}
+							else
+							{
+								<td>
+									@(stock.ClosingPrice != 0 ? stock.ClosingPrice.ToString("0.##") : " - ")
+								</td>
+								<td> - </td>
+								<td> - </td>
+							}
 						</tr>
 					}
 
 				</tbody>
 				@* NYSE *@
-				<thead>
+				<thead class="border-bottom">
 					<tr>
 						<th>
-							NYSE - 
-							<span class="@(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
+							NYSE -
+							<span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
 								(@Model.UsMarketStatus)
 							</span>
 						</th>
@@ -62,36 +73,47 @@
 					</tr>
 				</thead>
 				<tbody>
-					@if(Model.UsMarketStatus != "Closed")
-					{
-					@foreach (var kvp in Model.NyseStockInfo)
-					{
-						var symbol = kvp.Key;
-						var stock = kvp.Value;
-						var quote = Model.NyseStockPrices.ContainsKey(symbol) ? Model.NyseStockPrices[symbol] : null;
-						if (quote == null) continue;
-						<tr data-symbol="@symbol">
-							<td>@stock.Description</td>
-							<td class="price">@quote.CurrentPrice.ToString("0.##")</td>
-							<td class="change">@(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")</td>
-								<td class="percentage @(quote.PercentageChange >= 0 ? "text-success" : "text-danger")">
-								(@quote.PercentageChange.ToString("0.##")%)
-							</td>
-						</tr>
-						}
-					}
-					else
+					@if (Model.NyseStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
 					{
 						<tr>
-							<td class="down">Market Closed</td>
+							<td class="text-danger"> (Error, No data loaded)</td>
+							<td> - </td>
+							<td> - </td>
+							<td> - </td>
+						</tr>
+					}
+					@foreach (var stock in Model.NyseStocks)
+					{
+						if (stock == null) continue;
+						<tr data-exchange="NYSE" data-symbol="@stock.Symbol">
+							<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
+								@stock.DisplayName
+							</td>
+							@if (Model.UsMarketStatus.Contains("Closed") == false)
+							{
+								<td class="price">
+									@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
+								</td>
+								<td class="change"> - </td>
+								<td class="percentage"> - </td>
+							}
+							else
+							{
+								<td>
+									@(stock.ClosingPrice != 0 ? stock.ClosingPrice.ToString("0.##") : " - ")
+								</td>
+								<td> - </td>
+								<td> - </td>
+							}
 						</tr>
 					}
 				</tbody>
 				@* Binance / Crypto *@
-				<thead>
+				<thead class="border-bottom">
 					<tr>
-						<th>CRYPTO - 
-							<span class="text-success")">
+						<th>
+							CRYPTO -
+							<span class="status-bar text-success" )">
 								( Open )
 							</span>
 						</th>
@@ -101,20 +123,105 @@
 					</tr>
 				</thead>
 				<tbody>
-
-					@foreach (var kvp in Model.CryptoPrices)
+					@if (Model.CryptoPrices.Count <= 0)
 					{
-						var symbol = kvp.Key;
-						var crypto = kvp.Value;
-						var quote = Model.CryptoPrices.ContainsKey(symbol) ? Model.CryptoPrices[symbol] : null;
-						if (quote == null) continue;
-						<tr data-symbol="@symbol">
-							<td>@crypto.DisplaySymbol</td>
-							<td class="price">@quote.CurrentPrice.ToString("0.##")</td>
-							<td class="change">@(quote.Change >= 0 ? "+" : "")@quote.Change.ToString("0.######")</td>
-							<td class="percentage @(quote.PercentageChange >= 0 ? "text-success" : "text-danger")">
-								(@quote.PercentageChange.ToString("0.##")%)
+						<tr>
+							<td class="text-danger"> (Error, No data loaded)</td>
+							<td> - </td>
+							<td> - </td>
+							<td> - </td>
+						</tr>
+					}
+					@foreach (var crypto in Model.CryptoPrices)
+					{
+						if (crypto == null) continue;
+						<tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
+							<td class="description @(crypto.Description == "(Missing data)" ? "text-danger" : "")">
+								@crypto.Description
 							</td>
+							<td class="price">
+								@(crypto.CurrentPrice != 0 ? crypto.CurrentPrice.ToString("0.##") : " - ")
+							</td>
+							<td class="change"> - </td>
+							<td class="percentage"> - </td>
+						</tr>
+					}
+				</tbody>
+				@* Forex *@
+				<thead class="border-bottom">
+					<tr>
+						<th>
+							Forex -
+							<span class="status-bar text-success" )">
+								( Open )
+							</span>
+						</th>
+						<th>Price</th>
+						<th>Diff</th>
+						<th>In %</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model.Currencies.Count <= 0)
+					{
+						<tr>
+							<td class="text-danger"> (Error, No data loaded)</td>
+							<td> - </td>
+							<td> - </td>
+							<td> - </td>
+						</tr>
+					}
+					@foreach (var forex in Model.Currencies)
+					{
+						if (forex == null) continue;
+						<tr data-exchange="FOREX" data-symbol="@forex.Symbol">
+							<td class="description @(forex.Description == "(Missing data)" ? "text-danger" : "")">
+								@forex.Description
+							</td>
+							<td class="price">
+								@(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : " - ")
+							</td>
+							<td class="change"> - </td>
+							<td class="percentage"> - </td>
+						</tr>
+					}
+				</tbody>
+				@* Commodities *@
+				<thead class="border-bottom">
+					<tr>
+						<th>
+							Oil & Metals -
+							<span class="status-bar text-success" )">
+								( Open )
+							</span>
+						</th>
+						<th>Price</th>
+						<th>Diff</th>
+						<th>In %</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model.Commodities.Count <= 0)
+					{
+						<tr>
+							<td class="text-danger"> (Error, No data loaded)</td>
+							<td> - </td>
+							<td> - </td>
+							<td> - </td>
+						</tr>
+					}
+					@foreach (var comm in Model.Commodities)
+					{
+						if (comm == null) continue;
+						<tr data-exchange="COMMODITIES" data-symbol="@comm.Symbol">
+							<td class="description @(comm.Description == "(Missing data)" ? "text-danger" : "")">
+								@comm.Description
+							</td>
+							<td class="price">
+								@(comm.CurrentPrice != 0 ? comm.CurrentPrice.ToString("0.##") : " - ")
+							</td>
+							<td class="change"> - </td>
+							<td class="percentage"> - </td>
 						</tr>
 					}
 				</tbody>

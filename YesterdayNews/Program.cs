@@ -4,9 +4,9 @@ using FinanceServices.Services.BackgroundServices;
 using FinanceServices.Services.IServices;
 using FinanceServices.Utilities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+
 using Stripe;
 using YesterdayNews.Data;
 using YesterdayNews.Hubs;
@@ -27,7 +27,7 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         builder.Services.ConfigureApplicationCookie(options =>
         {
@@ -40,7 +40,9 @@ public class Program
 
         builder.Services.AddScoped<IArticleServices, ArticleServices>();
         builder.Services.AddScoped<IFileServices, FileServices>();
-        builder.Services.AddScoped<IEmailSender, EmailSender>();
+        builder.Services.AddTransient<EmailSender>();
+        builder.Services.AddTransient<YesterdayNews.Utils.IEmailSender>(sp => sp.GetRequiredService<EmailSender>());
+        builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender>(sp => sp.GetRequiredService<EmailSender>());
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
@@ -56,10 +58,16 @@ public class Program
      
 
         builder.Services.AddScoped<IStripe, StripeServices>();
+        builder.Services.AddScoped<IPdfService, PdfService>();
+
         builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
+        builder.Services.AddScoped<IExternalNewsService, ExternalNewsService>();
 
- 
 
+        builder.Services.AddHttpClient<ExternalNewsService>();
+   
+        builder.Services.AddHttpClient();
+//is this neccesary ?
 
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
          {
@@ -78,16 +86,6 @@ public class Program
         StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
         //Finance Services
-        //Singletons
-        builder.Services.AddSingleton<MarketDataCache>();
-        builder.Services.AddSingleton<FinnhubApiCallsCounter>();
-        builder.Services.AddSingleton<FinnhubApiService>();
-        builder.Services.AddSingleton<FinnhubWebSocketService>();
-        builder.Services.AddSingleton<CryptoSnapshotService>();
-            //HostetService
-        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubApiService>());
-        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubWebSocketService>());
-        builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
 
         //register SignalR for the financeHub
         builder.Services.AddSignalR().AddJsonProtocol(options =>
@@ -95,6 +93,19 @@ public class Program
             options.PayloadSerializerOptions.PropertyNamingPolicy = null;
         });
 
+        //Singletons
+        builder.Services.AddSingleton<MarketDataCache>();
+        builder.Services.AddSingleton<FinnhubApiCallsCounter>();
+        builder.Services.AddSingleton<FinnhubApiService>();
+        builder.Services.AddSingleton<FinnhubWebSocketService>();
+        builder.Services.AddSingleton<CryptoSnapshotService>();
+        builder.Services.AddSingleton<FinanceEventHandler>();
+        //HostetService
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubApiService>());
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<FinnhubWebSocketService>());
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
+
+        builder.Services.AddMemoryCache();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -116,29 +127,25 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        //setting up the financeHub so price updates can be sent real time
-        var hubContext = app.Services.GetRequiredService<IHubContext<FinanceHub>>();
-        var finnhubService = app.Services.GetRequiredService<FinnhubWebSocketService>();
-
-        finnhubService.OnPriceUpdate += async updates =>
-        {
-            try
-            {
-                await hubContext.Clients.All.SendAsync("ReceivePriceUpdates", updates);
-            }
-            catch (Exception ex)
-            {
-                app.Logger.LogError(ex, "Broadcast failed");
-            }
-
-        };
+        //setting up the financeHub
         app.MapHub<FinanceHub>("/financeHub"); //endpoint clients will connect to this using JS
 
-        app.MapControllerRoute(
+        var handler = app.Services.GetRequiredService<FinanceEventHandler>();
+        var finnhubService = app.Services.GetRequiredService<FinnhubWebSocketService>();
+        var finnhubApiService = app.Services.GetRequiredService<FinnhubApiService>();
+        
+
+        finnhubService.OnPriceUpdate += handler.HandlePriceUpdate;
+        finnhubApiService.OnApiMarketStatusError += handler.HandleMarketStatusApiError;
+        finnhubApiService.OnCachedUpdate += handler.HandleUpdateError;
+
+
+
+    app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
         app.MapRazorPages();
 
-        app.Run();
-    }
+        app.Run();    
+}
 }

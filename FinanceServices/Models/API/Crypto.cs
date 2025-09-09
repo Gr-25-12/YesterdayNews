@@ -12,11 +12,11 @@ namespace FinanceServices.Models.API
 
         private readonly object _lock = new(); // for thread-safety
         private readonly Queue<decimal> priceSnapshots24 = new();
-        private const int MAX_SNAPSHOTS = 1440;
+        private const int MAX_SNAPSHOTS = 1440; //1440 (change to 1 for testing)
 
         public decimal CurrentPrice { get; set; }
         public decimal Price24HoursAgo { get; private set; }
-        
+
         public long TimeStamp { private get; set; }
 
         [JsonIgnore]
@@ -38,6 +38,16 @@ namespace FinanceServices.Models.API
 
                 if (priceSnapshots24.Count == MAX_SNAPSHOTS)
                     Price24HoursAgo = priceSnapshots24.Peek();
+            }
+        }
+        public void LoadSnapshotFromTable(decimal tablePrice)
+        {
+            lock (_lock)
+            {
+                Price24HoursAgo = tablePrice;
+
+                priceSnapshots24.Clear();
+                priceSnapshots24.Enqueue(tablePrice);
             }
         }
     }

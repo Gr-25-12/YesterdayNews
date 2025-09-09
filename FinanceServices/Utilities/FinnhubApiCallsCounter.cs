@@ -8,9 +8,9 @@ namespace FinanceServices.Utilities
         private static int SecondCounter { get; set; } = 0;
         private static int MinuteCounter { get; set; } = 0;
         private static int DayCounter { get; set; } = 0;
-        private const int MAX_CALL_PERSECOND = 30;
-        private const int MAX_CALL_PERMINUTE = 60;
-        private const int MAX_CALL_PERDAY = 500;
+        private const int MAX_CALL_PERSECOND = 30; //30
+        private const int MAX_CALL_PERMINUTE = 60; //60
+        private const int MAX_CALL_PERDAY = 500;   //500
 
         private static DateTime lastSecondReset = DateTime.UtcNow;
         private static DateTime lastMinuteReset = DateTime.UtcNow;
@@ -40,7 +40,7 @@ namespace FinanceServices.Utilities
                     return false;
                 }
                 IncrementCounters();
-                PrintToConsole();
+                //PrintToConsole();
                 return true;
             }
         }

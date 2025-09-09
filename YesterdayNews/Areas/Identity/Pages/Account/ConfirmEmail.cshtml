@@ -1,8 +1,53 @@
 ﻿@page
 @model ConfirmEmailModel
 @{
-    ViewData["Title"] = "Confirm email";
+    ViewData["Title"] = "Email Confirmed! 🎉";
 }
 
-<h1>@ViewData["Title"]</h1>
-<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-6">
+           
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="#3A2512" />
+                        <text x="50" y="65" text-anchor="middle" fill="#f8f9fa" font-size="40" font-weight="bold">✓</text>
+                    </svg>
+                </div>
+                <h1 class="text-primary fw-bold mb-2">Email Confirmed! 🎉</h1>
+
+            </div>
+
+            
+            <div class="text-center mb-4">
+                <partial name="_StatusMessage" model="Model.StatusMessage" />
+            </div>
+
+            
+            <div class="text-center mb-4">
+                <p class="lead">Ready to dive into the news you probably already heard about? 😏</p>
+            </div>
+
+            
+            <div class="text-center mt-4">
+                <div class="d-grid gap-3">
+                    <a href="/" class="btn btn-primary btn-lg py-3">
+                        <i class="bi bi-house-heart me-2"></i>Take Me Home, News Road!
+                    </a>
+                    <a href="/Identity/Account/Login" class="btn btn-outline-primary btn-lg py-3">
+                        <i class="bi bi-person-badge me-2"></i>Let Me Spy on My Profile 👀
+                    </a>
+                </div>
+            </div>
+
+           
+            <div class="text-center mt-5">
+                <p class="text-muted small text-nowrap">
+                    <i class="bi bi-chat-quote"></i>
+                    "The news waits for no one... except maybe you now that you're verified!" 📰
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

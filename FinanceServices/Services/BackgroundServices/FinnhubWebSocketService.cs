@@ -1,11 +1,8 @@
 ﻿using FinanceServices.Data;
 using FinanceServices.Models.API;
-using FinanceServices.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -15,7 +12,7 @@ namespace FinanceServices.Services.BackgroundServices
     public class FinnhubWebSocketService : BackgroundService
     {
 
-        public event Action<Dictionary<string, object>>? OnPriceUpdate;
+        public event Func<Task> OnPriceUpdate;
         private readonly string _apiKey;
         private readonly MarketDataCache _cache;
         private readonly ILogger<FinnhubWebSocketService> _logger;
@@ -28,71 +25,56 @@ namespace FinanceServices.Services.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var symbolsList = FinanceConstants.LargeSymbolsList;
+            int retryDelay = 5;
+
             while (!stoppingToken.IsCancellationRequested)
             {
+                var symbolsList = _cache.GetAllSymbols();
+                if (!symbolsList.Any())
+                {
+                    _logger.LogInformation("No stocks or crypto in cache. retrying in 5s...");
+                    await DelayWithCancellation(5, stoppingToken);
+                    continue;
+                }
                 using var websocket = new ClientWebSocket();
-                var url = $"wss://ws.finnhub.io?token={_apiKey}";
 
                 try
                 {
-                    _logger.LogInformation("Connecting to Finnhub WebSocket...");
-                    await websocket.ConnectAsync(new Uri(url), stoppingToken);
-
-                    SubscribeToWebsocket(symbolsList, websocket, stoppingToken);
-
-                    var buffer = new byte[4096];
-
-                    // Receive loop
-                    while (!stoppingToken.IsCancellationRequested &&
-                           websocket.State == WebSocketState.Open)
-                    {
-                        WebSocketReceiveResult? result = null;
-
-                        try
-                        {
-                            result = await websocket.ReceiveAsync(new ArraySegment<byte>(buffer), stoppingToken);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            _logger.LogInformation("Shutting down WebSocket (task canceled).");
-                            return; 
-                        }
-                        catch (WebSocketException wsex)
-                        {
-                            _logger.LogError(wsex, "WebSocket error");
-                            break; 
-                        }
-
-                        if (result?.MessageType == WebSocketMessageType.Close)
-                        {
-                            _logger.LogWarning("WebSocket closed by server");
-                            break;
-                        }
-
-                        if (result != null)
-                        {
-                            UpdateResult(result, buffer);
-                        }
-                    }
+                    await ConnectWebSocketAsync(websocket, stoppingToken);
+                    retryDelay = 5;
+                    await SubscribeToSymbols(symbolsList, websocket, stoppingToken);
+                    await ReceiveLoop(websocket, stoppingToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Unhandled error in WebSocket connection");
+                    HandleWebSocketException(ex);
                 }
+                _logger.LogWarning("WebSocket disconnected. Reconnecting in {RetryDelay}s...", retryDelay);
+                await DelayWithCancellation(retryDelay, stoppingToken);
+                retryDelay = Math.Min(retryDelay * 2, 60);
 
-                _logger.LogWarning("WebSocket disconnected. Reconnecting in 5 seconds...");
-                try
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-                }
-                catch (TaskCanceledException)
-                {
-                    return; // End if service is closed
-                }
             }
         }
-        private async void SubscribeToWebsocket(string[] symbolsList,ClientWebSocket websocket ,CancellationToken stoppingToken)
+        private async Task DelayWithCancellation(int seconds, CancellationToken stoppingToken)
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(seconds), stoppingToken);
+            }
+            catch (TaskCanceledException)
+            {
+                _logger.LogError("Closing down");
+                // End if service is closed
+            }
+        }
+        private async Task ConnectWebSocketAsync(ClientWebSocket websocket, CancellationToken stoppingToken)
+        {
+            var url = $"wss://ws.finnhub.io?token={_apiKey}";
+            await websocket.ConnectAsync(new Uri(url), stoppingToken);
+            if (websocket.State == WebSocketState.Open)
+                _logger.LogInformation("WebSocket connection established.");
+        }
+        private async Task SubscribeToSymbols(string[] symbolsList, ClientWebSocket websocket, CancellationToken stoppingToken)
         {
             foreach (var sym in symbolsList)
             {
@@ -101,17 +83,43 @@ namespace FinanceServices.Services.BackgroundServices
                 //_logger.LogInformation("Subscribed to {Symbol}", sym);
             }
         }
-        private void UpdateResult(WebSocketReceiveResult result, byte[] buffer)
+        private async Task ReceiveLoop(ClientWebSocket websocket, CancellationToken token)
         {
-            var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
+            var buffer = new byte[4096];
+
+            while (!token.IsCancellationRequested && websocket.State == WebSocketState.Open)
+            {
+                using var memoryStream = new MemoryStream();
+                WebSocketReceiveResult? result;
+
+                do
+                {
+                    result = await websocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+
+                    if (result.MessageType == WebSocketMessageType.Close)
+                        throw new WebSocketException();
+
+                    memoryStream.Write(buffer, 0, result.Count);
+
+                } while (!result.EndOfMessage);
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                var message = memoryStream.ToArray();
+
+                await UpdateResult(message);
+            }
+        }
+
+        private async Task UpdateResult(byte[] message)
+        {
+            var json = Encoding.UTF8.GetString(message);
             try
             {
                 var response = JsonSerializer.Deserialize<TradesResponse>(json);
                 if (response?.Data != null && response.Data.Count > 0)
                 {
                     UpdateCachedPrices(response.Data);
-                    var updates = MergeStocksAndCryptos();
-                    RaisePriceUpdate(updates);
+                    await RaisePriceUpdate();
                 }
             }
             catch (Exception ex)
@@ -119,19 +127,18 @@ namespace FinanceServices.Services.BackgroundServices
                 _logger.LogError(ex, "Failed to parse WebSocket message: {Json}", json);
             }
         }
-        private void RaisePriceUpdate(Dictionary<string, object> updates)
+        private async Task RaisePriceUpdate()
         {
-            OnPriceUpdate?.Invoke(updates);
+            await OnPriceUpdate?.Invoke();
         }
         private void UpdateCachedPrices(List<TradeData> data)
         {
             foreach (var trade in data)
             {
-                if (_cache.StockQuotes.ContainsKey(trade.Symbol))
+                if (_cache.Stocks.ContainsKey(trade.Symbol))
                 {
-                    var stock = _cache.StockQuotes[trade.Symbol];
+                    var stock = _cache.Stocks[trade.Symbol];
                     stock.CurrentPrice = trade.Price;
-                    stock.TimeStamp = trade.TimeStamp;
                 }
                 else if (_cache.CryptoQuotes.ContainsKey(trade.Symbol))
                 {
@@ -139,30 +146,50 @@ namespace FinanceServices.Services.BackgroundServices
                     crypto.CurrentPrice = trade.Price;
                     crypto.TimeStamp = trade.TimeStamp;
                 }
+                else if (_cache.Currencies.ContainsKey(trade.Symbol))
+                {
+
+                    var forex = _cache.Currencies[trade.Symbol];
+                    forex.CurrentPrice = trade.Price;
+                    forex.TimeStamp = trade.TimeStamp;
+                }
+                else if (_cache.Commodities.ContainsKey(trade.Symbol))
+                {
+                    var forex = _cache.Commodities[trade.Symbol];
+                    forex.CurrentPrice = trade.Price;
+                    forex.TimeStamp = trade.TimeStamp;
+                }
             }
         }
-        private Dictionary<string, object> MergeStocksAndCryptos()
+
+        private void HandleWebSocketException(Exception ex)
         {
-            var updates = new Dictionary<string, object>();
-            foreach (var stockQuote in _cache.StockQuotes)
+            if (ex is TaskCanceledException)
             {
-                updates[stockQuote.Key] = new
-                {
-                    stockQuote.Value.CurrentPrice,
-                    stockQuote.Value.Change,
-                    stockQuote.Value.PercentageChange,
-                };
+                _logger.LogWarning("WebSocket service task canceled.");
+                return;
             }
-            foreach (var crypto in _cache.CryptoQuotes)
+
+            if (ex is WebSocketException wsex)
             {
-                updates[crypto.Key] = new
+                var msg = wsex.Message;
+                if (msg.Contains("without completing the close handshake"))
                 {
-                    crypto.Value.CurrentPrice,
-                    crypto.Value.Change,
-                    crypto.Value.PercentageChange,
-                };
+                    _logger.LogWarning("WebSocket closed by server without handshake (EOF).");
+                }
+                else if (msg.Contains("429"))
+                {
+                    _logger.LogError("Too many open WebSocket connections (HTTP 429).");
+                }
+                else
+                {
+                    _logger.LogError(wsex, "WebSocket unexpected error.");
+                }
             }
-            return updates;
+            else
+            {
+                _logger.LogError(ex, "Unhandled exception in WebSocket service.");
+            }
         }
     }
 }
