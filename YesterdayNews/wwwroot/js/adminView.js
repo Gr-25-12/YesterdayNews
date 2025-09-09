@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 labels: usersRoleData.map(d => d.label),
                 datasets: [{
                     data: usersRoleData.map(d => d.value),
-                    backgroundColor: themeColors.slice(0, usersRoleData.length),
+                    backgroundColor: usersRoleData.map(d => d.color),
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]
@@ -158,12 +158,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const subscriptionTypeData = data.subscriptionsByType;
 
         new Chart(subscriptionTypeCtx, {
-            type: 'doughnut',
+            type: 'pie',
             data: {
                 labels: subscriptionTypeData.map(d => d.label),
                 datasets: [{
                     data: subscriptionTypeData.map(d => d.value),
-                    backgroundColor: themeColors.slice(0, subscriptionTypeData.length),
+                    backgroundColor: subscriptionTypeData.map(d => d.color),
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]

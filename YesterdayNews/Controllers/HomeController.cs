@@ -21,7 +21,7 @@ public class HomeController : Controller
     private readonly ISubscriptionServices _subscriptionServices;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public ApplicationDbContext _db { get; }
+    private readonly ApplicationDbContext _db;
 
     public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices, IFinanceApiServices financeApiServices ,UserManager<IdentityUser> userManager, ISubscriptionServices subscriptionServices ,ApplicationDbContext db)
     {
@@ -329,7 +329,13 @@ public class HomeController : Controller
 
     private List<ChartDataPoint> GetSubscriptionsByType(List<Subscription> subscriptions)
     {
-        var colors = new[] { "#007bff", "#28a745", "#ffc107", "#dc3545" };
+        var colors = new[]
+ {
+    "#6c8ebf", // soft blue
+    "#77b28c", // muted green
+    "#d9b75c", // warm muted yellow
+    "#c97070"  // softer red
+};
         var groupedData = subscriptions
             .GroupBy(s => s.SubscriptionType.TypeName)
             .Select((g, index) => new ChartDataPoint
@@ -366,7 +372,13 @@ public class HomeController : Controller
 
     private List<ChartDataPoint> GetUsersByRole(List<User> users, List<Microsoft.AspNetCore.Identity.IdentityUserRole<string>> userRoles, List<Microsoft.AspNetCore.Identity.IdentityRole> roles)
     {
-        var colors = new[] { "#007bff", "#28a745", "#ffc107", "#dc3545" };
+        var colors = new[]
+ {
+    "#20c997", // bright teal green
+    "#f8d210", // vivid yellow-gold
+    "#339af0", // bright sky blue
+    "#adb5bd"  // polished silver-gray
+};
         var roleCounts = new[]
         {
                 new { Role = "Customers", Count = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Customer) },
