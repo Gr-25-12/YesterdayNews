@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "ArchiveFunctions": {
+    "ArchiveNews": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7274",
+      "commandLineArgs": "--port 7268",
       "launchBrowser": false
     }
   }
