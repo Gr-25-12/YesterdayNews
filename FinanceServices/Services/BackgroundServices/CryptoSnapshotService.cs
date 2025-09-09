@@ -50,17 +50,7 @@ namespace FinanceServices.Services.BackgroundServices
             //Take a snapshot every minute
             while (!stoppingToken.IsCancellationRequested)
             {
-                UpdateAllSnapshots();
-                if (Commodities != null)
-                {
-                    foreach (var comm in Commodities.Values)
-                    {
-                        if (comm.Symbol != null && comm.Price24HoursAgo > 0)
-                            await SaveSnapshotToTable(comm.Symbol, comm.Price24HoursAgo, DateTime.UtcNow);
-                        else if (comm.Symbol != null)
-                            await SaveSnapshotToTable(comm.Symbol, comm.CurrentPrice, DateTime.UtcNow);
-                    }
-                }
+                await UpdateAllSnapshots();
                 await Task.Delay(SNAPSHOT_INTERVAL, stoppingToken);
             }
         }
@@ -74,7 +64,8 @@ namespace FinanceServices.Services.BackgroundServices
                     crypto.UpdateSnapshots();
                     if (crypto.Symbol != null && crypto.Price24HoursAgo > 0)
                         await SaveSnapshotToTable(crypto.Symbol, crypto.Price24HoursAgo, DateTime.UtcNow);
-
+                    else if (crypto.Symbol != null)
+                        await SaveSnapshotToTable(crypto.Symbol, crypto.CurrentPrice, DateTime.UtcNow);
                 }
             }
             if (Currencies != null)
@@ -84,15 +75,19 @@ namespace FinanceServices.Services.BackgroundServices
                     forex.UpdateSnapshots();
                     if (forex.Symbol != null && forex.Price24HoursAgo > 0)
                         await SaveSnapshotToTable(forex.Symbol, forex.Price24HoursAgo, DateTime.UtcNow);
+                    else if (forex.Symbol != null)
+                        await SaveSnapshotToTable(forex.Symbol, forex.CurrentPrice, DateTime.UtcNow);
                 }
             }
             if (Commodities != null)
             {
-                foreach (var forex in Commodities.Values)
+                foreach (var comm in Commodities.Values)
                 {
-                    forex.UpdateSnapshots();
-                    if (forex.Symbol != null && forex.Price24HoursAgo > 0)
-                        await SaveSnapshotToTable(forex.Symbol, forex.Price24HoursAgo, DateTime.UtcNow);
+                    comm.UpdateSnapshots();
+                    if (comm.Symbol != null && comm.Price24HoursAgo > 0)
+                        await SaveSnapshotToTable(comm.Symbol, comm.Price24HoursAgo, DateTime.UtcNow);
+                    else if (comm.Symbol != null)
+                        await SaveSnapshotToTable(comm.Symbol, comm.CurrentPrice, DateTime.UtcNow);
                 }
             }
         }
