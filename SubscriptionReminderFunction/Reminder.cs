@@ -76,7 +76,7 @@ namespace SubscriptionReminderFunction
 
             foreach (var sub in unsentSubscriptions)
             {
-                await SendSubscriptionEmailAsync(_emailSender, sub);
+                //await SendSubscriptionEmailAsync(_emailSender, sub);
                 await MarkReminderAsSentAsync(sub.Id);
             }
 
