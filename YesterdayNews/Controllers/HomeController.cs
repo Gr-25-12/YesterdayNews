@@ -21,9 +21,9 @@ public class HomeController : Controller
     private readonly ISubscriptionServices _subscriptionServices;
     private readonly UserManager<IdentityUser> _userManager;
 
-    private readonly ApplicationDbContext _db;
+    private readonly IUserService _userService;
 
-    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices, IFinanceApiServices financeApiServices ,UserManager<IdentityUser> userManager, ISubscriptionServices subscriptionServices ,ApplicationDbContext db)
+    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices, IFinanceApiServices financeApiServices ,UserManager<IdentityUser> userManager, ISubscriptionServices subscriptionServices , IUserService userService)
     {
         _logger = logger;
         _articleServices = articleServices;
@@ -31,7 +31,7 @@ public class HomeController : Controller
         _financeApiServices = financeApiServices;
         _userManager = userManager;
         _subscriptionServices = subscriptionServices;
-        _db = db;
+        _userService = userService;
     }
 
     public IActionResult Index(int categoryId = 0 , bool? adminView = null)
@@ -175,9 +175,9 @@ public class HomeController : Controller
         viewModel.ArchivedArticles = articles.Count(a => a.ArticleStatus == ArticleStatus.Archived);
 
         // User Statistics
-        var users = _userManager.Users.OfType<User>().ToList();
-        var userRoles = _db.UserRoles.ToList();
-        var roles = _db.Roles.ToList();
+        var users = _userService.GetAllUsers();
+        var userRoles = _userService.GetUserRoles();
+        var roles = _userService.GetRoles();
 
         viewModel.TotalUsers = users.Count;
         viewModel.CustomersCount = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Customer);
