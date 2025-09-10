@@ -34,5 +34,8 @@
 
         public const string YN_LOGO = "https://yesterdaystoragegr12.blob.core.windows.net/notarticles/YN_logo.png";
 
+
+        public static bool AdminView = false;
+
     }
 }

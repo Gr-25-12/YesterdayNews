@@ -48,6 +48,7 @@ public class Program
         builder.Services.AddScoped<ILikeService, LikeService>();
         builder.Services.AddScoped<IStripe, StripeServices>();
         builder.Services.AddScoped<IPdfService, PdfService>();
+        builder.Services.AddScoped<IUserService, UserService>();
 
         builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
         builder.Services.AddScoped<IExternalNewsService, ExternalNewsService>();
