@@ -1,0 +1,23 @@
+﻿<div class="d-flex position-fixed start-0 px-2 m-2 z-1">
+	<button class="navbar-toggler btn btn-outline-secondary m-1"
+			type="button"
+			data-bs-toggle="offcanvas"
+			data-bs-target="#mobileMenu"
+			aria-controls="mobileMenu">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+</div>
+
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title">Menu</h5>
+		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+	</div>
+	<div class="offcanvas-body d-block d-lg-none">
+		<partial name="_NavBarMobile" />
+		<div class="mt-3">
+			<partial name="_LoginPartial" />
+		</div>
+	</div>
+</div>
