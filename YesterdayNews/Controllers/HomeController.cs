@@ -34,7 +34,7 @@ public class HomeController : Controller
         _userService = userService;
     }
 
-    public IActionResult Index(int categoryId = 0 , bool? adminView = null)
+    public async Task<IActionResult> Index(int categoryId = 0 , bool? adminView = null)
     {
         var latest = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
@@ -147,9 +147,9 @@ public class HomeController : Controller
     }
 
     [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor + "," + StaticConsts.Role_Journalist)]
-    public IActionResult SwitchToCustomerView(int categoryId = 0)
+    public async Task<IActionResult> SwitchToCustomerView(int categoryId = 0)
     {
-        var latest = _articleServices.GetAllAsArticleVM(0, 6, categoryId);
+        var latest = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
         StaticConsts.AdminView = true;
 
@@ -166,7 +166,7 @@ public class HomeController : Controller
         var viewModel = new AdminDashboardViewModel();
 
         // Article Statistics
-        var articles = _articleServices.GetAll();
+        var articles = _articleServices.GetAll().ToList();
         viewModel.TotalArticles = articles.Count;
         viewModel.PublishedArticles = articles.Count(a => a.ArticleStatus == ArticleStatus.Published);
         viewModel.DraftArticles = articles.Count(a => a.ArticleStatus == ArticleStatus.Draft);

@@ -2,7 +2,11 @@
 @using YesterdayNews.Services.IServices
 @using Microsoft.AspNetCore.Mvc.Controllers
 
+@inject ICategoryService _categoryService
 
+@{
+	var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,6 +68,11 @@
 		
 		<partial name="_NavBar"/>
 		<!-- SearchBar (Mobile only) -->
+		@{
+			var query = Context.Request.Query["query"].ToString();
+			var archived = Context.Request.Query["archived"] == "true";
+			var currentAction = (ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ActionName ?? "";//chatGPT shit
+		}
 		<div class="collapse mt-2 d-lg-none mx-3 p-1 bg-primary rounded @(currentAction == "Search" ? "show" : "")" id="mobileSearch">
 			<form asp-controller="Home" asp-action="Search" method="get" class="d-flex flex-column">
 				<div class="d-flex mb-1">
