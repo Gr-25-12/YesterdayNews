@@ -10,12 +10,15 @@
 
 
 <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
-	<div class="offcanvas-header">
-		<h5 class="offcanvas-title">Menu</h5>
+	<div class="offcanvas-header border-bottom pb-2">
+		<h5 class="offcanvas-title mx-auto ">
+			<partial name="_Logo" />
+		</h5>
 		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	</div>
 	<div class="offcanvas-body d-block d-lg-none">
 		<partial name="_NavBarMobile" />
+        <hr />
 		<div class="mt-3">
 			<partial name="_LoginPartial" />
 		</div>
