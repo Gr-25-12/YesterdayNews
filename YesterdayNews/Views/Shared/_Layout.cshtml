@@ -1,5 +1,6 @@
 ﻿@using YesterdayNews.Models.Db
 @using YesterdayNews.Services.IServices
+@using Microsoft.AspNetCore.Mvc.Controllers
 
 
 <!DOCTYPE html>
@@ -63,12 +64,28 @@
 		
 		<partial name="_NavBar"/>
 		<!-- SearchBar (Mobile only) -->
-		<div class="collapse mt-2 d-lg-none mx-3 p-2 bg-primary rounded" id="mobileSearch">
-			<form asp-controller="Home" asp-action="Search" method="get" class="d-flex">
-				<input type="text" name="query" class="form-control me-2" placeholder="Search news..." />
-				<button type="submit" class="btn btn-secondary">
-					<i class="bi bi-search"></i>
-				</button>
+		<div class="collapse mt-2 d-lg-none mx-3 p-1 bg-primary rounded @(currentAction == "Search" ? "show" : "")" id="mobileSearch">
+			<form asp-controller="Home" asp-action="Search" method="get" class="d-flex flex-column">
+				<div class="d-flex mb-1">
+					<input type="text" name="query" class="form-control me-2" placeholder="Search news..." />
+					<button type="submit" class="btn btn-secondary">
+						<i class="bi bi-search"></i>
+					</button>
+				</div>
+				<div class="d-flex align-items-center">
+						<div class="form-check ms-2">
+							<input class="form-check-input custom-radio" type="radio" name="archived" value="false" id="publishedRadio" @(archived ? "" : "checked") />
+							<label class="form-check-label text-white" for="publishedRadio">
+								Published
+							</label>
+						</div>
+						<div class="form-check ms-2">
+							<input class="form-check-input custom-radio" type="radio" name="archived" value="true" id="archivedRadio" @(archived ? "checked" : "") />
+							<label class="form-check-label text-white" for="archivedRadio">
+								Archived
+							</label>
+						</div>
+					</div>
 			</form>
 		</div>
 	</header>
@@ -96,5 +113,9 @@
 	<script src="~/js/SubscriptionsModal.js" asp-append-version="true"></script>
 	@await RenderSectionAsync("Scripts", required: false)
 
+
+	
 </body>
+
+
 </html>

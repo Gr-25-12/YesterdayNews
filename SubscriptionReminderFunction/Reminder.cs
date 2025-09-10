@@ -58,7 +58,7 @@ namespace SubscriptionReminderFunction
         private async Task<List<Subscription>> GetExpiringSubscriptionsAsync()
         {
            
-            var startDate = DateTime.Today.AddDays(1); 
+            var startDate = DateTime.Today.AddMinutes(1); 
             var endDate = DateTime.Today.AddDays(3);
 
             var subscriptions = await _db.Subscriptions

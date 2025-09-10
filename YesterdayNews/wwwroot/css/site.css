@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap');
 
 
 html {
@@ -398,6 +398,7 @@ Dropdown Divider
         white-space: nowrap;
         font-weight: lighter;
     }
+
     #marketTable td {
         font-weight: lighter;
     }
@@ -614,7 +615,7 @@ description-container {
     /* Mobile search */
     #mobileSearch {
         margin-top: 90px; /* Push below navbar */
-        position: fixed;
+        position: static;
         width: calc(100% - 1.5rem);
         z-index: 1030;
     }
@@ -668,4 +669,14 @@ description-container {
 .status-badge {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
+}
+}
+
+.custom-radio:checked {
+    background-color: var(--bs-secondary);
+    border-color: -white;
+}
+
+.custom-radio {
+    accent-color: var(--bs-secondary);
 }

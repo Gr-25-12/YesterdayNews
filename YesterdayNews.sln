@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceServices", "FinanceS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionReminderFunction", "SubscriptionReminderFunction\SubscriptionReminderFunction.csproj", "{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiveNews", "ArchiveNews\ArchiveNews.csproj", "{2C241779-40DA-42BB-92A2-4FC6102622F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45BD7904-6A2C-4EE0-A2FE-B9F9FC6E812A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C241779-40DA-42BB-92A2-4FC6102622F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C241779-40DA-42BB-92A2-4FC6102622F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C241779-40DA-42BB-92A2-4FC6102622F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C241779-40DA-42BB-92A2-4FC6102622F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -36,7 +36,7 @@ public class HomeController : Controller
 
     public IActionResult Index(int categoryId = 0 , bool? adminView = null)
     {
-        var latest = _articleServices.GetAllAsArticleVM(0, 6, categoryId);
+        var latest = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
 
         bool isAdminView = adminView ?? StaticConsts.AdminView;
@@ -124,9 +124,9 @@ public class HomeController : Controller
     {
         return View();
     }
-    public IActionResult Search(string query)
+    public async Task<IActionResult> Search(string query, bool archived = false)
     {
-        var results = _articleServices.GetAllAsArticleVM(query);
+        var results = await _articleServices.GetAllAsArticleVM(query, archived);
         return View(results);
     }
 
