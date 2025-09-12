@@ -5,9 +5,9 @@
     var currentAction = (ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ActionName ?? "";
 }
 
-<div class="d-none d-lg-flex align-items-center me-3" style="min-width: 220px;">
+<div class="d-none d-lg-flex align-items-center me-3 justify-content-center w-50" style="min-width: 220px;">
     <form asp-controller="Home" asp-action="Search" method="get" class="d-flex w-100">
-        <input type="text" name="query" value="@query" class="form-control me-2" placeholder="Search news..." />
+        <input type="text" name="query" value="@query" class="form-control me-2" placeholder="Search news or your favourite author..." />
         <button type="submit" class="btn btn-outline-primary">
             <i class="bi bi-search"></i>
         </button>
