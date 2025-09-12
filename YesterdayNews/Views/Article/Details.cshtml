@@ -61,10 +61,11 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form asp-action="Reject" asp-route-id="@Model.Id" method="post">
+                                        
                                         <div class="modal-body">
                                             <div class="mb-3">
                                                 <label for="rejectionReason" class="form-label">Reason for rejection:</label>
-                                                <textarea class="form-control" id="rejectionReason" name="rejectionReason" rows="3" required></textarea>
+                                                <input class="form-control" id="rejectionReason" name="rejectionReason" rows="3" required></input>
                                             </div>
                                         </div>
                                         <div class="modal-footer">

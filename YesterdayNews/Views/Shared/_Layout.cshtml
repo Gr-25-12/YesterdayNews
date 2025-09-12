@@ -2,11 +2,6 @@
 @using YesterdayNews.Services.IServices
 @using Microsoft.AspNetCore.Mvc.Controllers
 
-@inject ICategoryService _categoryService
-
-@{
-	var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,39 +21,21 @@
 
 </head>
 <body>
-	<header>
+	<header class="border-bottom border-1">
 		<nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-light my-3 w-100" style="height:70px;">
-			<!-- Searchbar (Desktop) -->
-			<div class="d-none d-lg-flex justify-content-start m-2" style="min-width: 200px;">
-				<form asp-controller="Home" asp-action="Search" method="get" class="d-flex justify-content-end">
-					<input type="text" name="query" class="form-control me-2" placeholder="Search news..." />
-					<button type="submit" class="btn btn-outline-primary">
-						<i class="bi bi-search"></i>
-					</button>
-				</form>
-			</div>
-			<div class="container d-flex justify-content-center align-content-center position-relative">
+			<partial name="_SearchBar" />
+			
+			<div class="container d-flex justify-content-center align-content-center position-relative border-4">
 				<partial name="_Logo"/>
-
-				@* Burger menu *@
-				<div class="d-flex position-fixed start-0 px-2 m-2">
-					<button class="navbar-toggler btn btn-outline-secondary m-1" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-					aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-
-
-				</div>
-				<!-- Searchbar button (visible on mobile) -->
+				<partial name="_BurgerMenu" />
 				<div class="mobile-search-wrapper">
 					<button class="btn d-lg-none btn btn-outline-primary m-1 ms-auto " type="button" data-bs-toggle="collapse" data-bs-target="#mobileSearch">
 						<i class="bi bi-search"></i>
 					</button>
 				</div>
 			</div>
-			<!-- Top Navbar (including hamburger view for mobile)-->
-
-			<div class="navbar-collapse collapse d-lg-flex justify-content-start navbar-dark bg-white text-primary m-2 ">
+			
+			<div class="navbar-collapse collapse d-lg-flex justify-content-start navbar-dark bg-white text-primary m-2">
 				<partial name="_NavBarMobile" />
 				<div class="end-0 navbar-primary bg-white justify-content-end">
 					<partial name="_LoginPartial" />
@@ -67,36 +44,8 @@
 		</nav>
 		
 		<partial name="_NavBar"/>
-		<!-- SearchBar (Mobile only) -->
-		@{
-			var query = Context.Request.Query["query"].ToString();
-			var archived = Context.Request.Query["archived"] == "true";
-			var currentAction = (ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ActionName ?? "";//chatGPT shit
-		}
-		<div class="collapse mt-2 d-lg-none mx-3 p-1 bg-primary rounded @(currentAction == "Search" ? "show" : "")" id="mobileSearch">
-			<form asp-controller="Home" asp-action="Search" method="get" class="d-flex flex-column">
-				<div class="d-flex mb-1">
-					<input type="text" name="query" class="form-control me-2" placeholder="Search news..." />
-					<button type="submit" class="btn btn-secondary">
-						<i class="bi bi-search"></i>
-					</button>
-				</div>
-				<div class="d-flex align-items-center">
-						<div class="form-check ms-2">
-							<input class="form-check-input custom-radio" type="radio" name="archived" value="false" id="publishedRadio" @(archived ? "" : "checked") />
-							<label class="form-check-label text-white" for="publishedRadio">
-								Published
-							</label>
-						</div>
-						<div class="form-check ms-2">
-							<input class="form-check-input custom-radio" type="radio" name="archived" value="true" id="archivedRadio" @(archived ? "checked" : "") />
-							<label class="form-check-label text-white" for="archivedRadio">
-								Archived
-							</label>
-						</div>
-					</div>
-			</form>
-		</div>
+		<partial name="_SearchBarMobile" />
+		
 	</header>
 	<div class="container d-flex flex-column" style="margin-bottom:170px">
 		<main role="main" class="pb-3">

@@ -10,27 +10,24 @@
 <div class="container my-4">
 	<div class="row justify-content-center">
 		<div class="col-12 col-md-7 col-lg-8">
-			<div class="m-2 mb-4 p-1 d-none d-lg-flex  bg-primary rounded">
-				<form asp-controller="Home" asp-action="Search" method="get" class="d-flex flex-column w-100">
-					<div class="d-flex mb-1">
-						<input type="text" name="query" value="@query" class="form-control me-2" placeholder="Search news..." />
-						<button type="submit" class="btn btn-secondary">
+			<div class="m-2 mb-4 p-2 d-none d-lg-flex bg-white rounded flex-column gap-2">
+				<form asp-controller="Home" asp-action="Search" method="get" class="d-flex flex-column gap-2 w-100">
+					<div class="input-group">
+						<input type="text" name="query" value="@query" class="form-control" placeholder="Search news..." />
+						<button type="submit" class="btn btn-primary">
 							<i class="bi bi-search"></i>
 						</button>
 					</div>
-					<div class="d-flex align-items-center">
-						<div class="form-check ms-2">
-							<input class="form-check-input custom-radio" type="radio" name="archived" value="false" id="publishedRadio" @(archived ? "" : "checked") />
-							<label class="form-check-label text-white" for="publishedRadio">
-								Published
-							</label>
-						</div>
-						<div class="form-check ms-2">
-							<input class="form-check-input custom-radio" type="radio" name="archived" value="true" id="archivedRadio" @(archived ? "checked" : "") />
-							<label class="form-check-label text-white" for="archivedRadio">
-								Archived
-							</label>
-						</div>
+					<div class="btn-group w-100 gap-2" role="group">
+						<input type="radio" class="btn-check" name="archived" value="false" id="publishedRadioDesktop" autocomplete="off" @(archived ? "" : "checked")>
+						<label class="btn btn-outline-primary" for="publishedRadioDesktop">
+							<i class="bi bi-journal-text me-1"></i> Published
+						</label>
+
+						<input type="radio" class="btn-check" name="archived" value="true" id="archivedRadioDesktop" autocomplete="off" @(archived ? "checked" : "")>
+						<label class="btn btn-secondary" for="archivedRadioDesktop">
+							<i class="bi bi-archive me-1"></i> Archived
+						</label>
 					</div>
 				</form>
 			</div>
