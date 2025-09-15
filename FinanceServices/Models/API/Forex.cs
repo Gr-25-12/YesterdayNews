@@ -51,5 +51,9 @@ namespace FinanceServices.Models.API
                 priceSnapshots24.Enqueue(tablePrice);
             }
         }
+        public decimal GetOldestSnapshot()
+        {
+            return priceSnapshots24.Peek();
+        }
     }
 }

@@ -12,6 +12,9 @@ namespace FinanceServices.Data
         public ConcurrentDictionary<string, Crypto> CryptoQuotes { get; private set; } = new();
         public ConcurrentDictionary<string, Forex> Currencies { get; private set; } = new();
         public ConcurrentDictionary<string, Forex> Commodities { get; private set; } = new();
+
+        public bool IsAllListsCached = false;
+
         public MarketStatus GetCachedMarketStatus(string exchange)
         {
             return MarketStatus.TryGetValue(exchange, out var status) ? status : null;
