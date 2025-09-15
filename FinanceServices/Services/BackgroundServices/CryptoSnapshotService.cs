@@ -26,8 +26,8 @@ namespace FinanceServices.Services.BackgroundServices
             string connectionString = configuration["AzureBlobStorage"];
             string containerName = configuration["AzurePriceTable"];
             var serviceClient = new TableServiceClient(connectionString);
-            _tableClient = serviceClient.GetTableClient(containerName);
-            _tableClient.CreateIfNotExists();
+            //_tableClient = serviceClient.GetTableClient(containerName);
+            //_tableClient.CreateIfNotExists();
 
         }
 
