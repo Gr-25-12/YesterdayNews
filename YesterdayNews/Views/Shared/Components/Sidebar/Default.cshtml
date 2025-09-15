@@ -1,15 +1,26 @@
 ﻿@using YesterdayNews.Services.IServices
 @inject ICategoryService _categoryService
-<aside>
-	@{
-		var categoryId = ViewData["SelectedCategory"] ?? 0;
-		var category = _categoryService.GetOne((int)categoryId);
-	}
 
-	@if (category?.Name.ToLower() == "economy")
-	{
-		@await Component.InvokeAsync("Markets")
-	}
-	@await Component.InvokeAsync("MostViewed")
-	@await Component.InvokeAsync("MostLiked")
+<aside>
+    @{
+        var categoryId = ViewData["SelectedCategory"] ?? 0;
+        var category = _categoryService.GetOne((int)categoryId);
+
+        // Get showMarkets flag from ViewData (default = true)
+        bool showMarkets = true;
+        if (ViewData.ContainsKey("ShowMarkets"))
+        {
+            bool.TryParse(ViewData["ShowMarkets"]?.ToString(), out showMarkets);
+        }
+    }
+
+    @* Only show Markets if the flag is true *@
+    @if (showMarkets)
+    {
+        @await Component.InvokeAsync("Markets")
+    }
+
+    @* Always show Most Viewed and Most Liked *@
+    @await Component.InvokeAsync("MostViewed")
+    @await Component.InvokeAsync("MostLiked")
 </aside>

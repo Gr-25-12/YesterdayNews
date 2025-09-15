@@ -2,47 +2,75 @@
 @model List<ArticleVM>
 
 @{
-	ViewData["Title"] = "Yesterday's News";
+    ViewData["Title"] = "Yesterday's News";
 }
 
 <div class="container my-4">
-	<div class="row justify-content-center">
-		<div class="col-12 col-md-7 col-lg-8">
-			@await Component.InvokeAsync("JustIn", new {categoryId = ViewData["SelectedCategory"] ?? 0 })
-			<div class="mb-2 p-1 pb-0  w-auto d-inline-block text-secondary">
-				<h1 class="text-start">Latest News</h1>
-			</div>
-			@foreach (var article in Model)
-			{
-				<a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="text-decoration-none text-dark" style="display:block;">
-					<article class="mb-4 border p-3 rounded shadow-sm">
-						@if (!string.IsNullOrEmpty(article.ImageURL))
-						{
-							<img src="@article.ImageURL" alt="@article.Headline" class="img-fluid mb-2" style="max-height: 300px; object-fit: cover; width: 100%;" />
-						}
-						<h2 class="article-underline">@article.Headline</h2>
-						@if (!string.IsNullOrEmpty(article.Summary))
-						{
-							<p>@Html.Raw(article.Summary)...</p>
-						}
-					</article>
-				</a>
-			}
-			@await Component.InvokeAsync("EarlierNews", new { articlesToSkip = Model.Count, categoryId = ViewData["SelectedCategory"] ?? 0 })
-		</div>
-		<div class="col-12 col-md-5 col-lg-4">
-			@await Component.InvokeAsync("Sidebar", new { categoryId = ViewData["SelectedCategory"] ?? 0 })
-		</div>
-	</div>
+    <div class="row justify-content-center">
+
+        <!-- LEFT SIDEBAR (Most Viewed & Most Liked, no Markets) -->
+        <div class="col-12 col-md-4 order-md-1 order-2" style="margin-top:65px;">
+            @await Component.InvokeAsync("Sidebar", new {
+            categoryId = ViewData["SelectedCategory"] ?? 0,
+                        showMarkets = false  // hide Markets here
+                        })
+        </div>
+
+        <!-- MAIN CONTENT (Latest News in center) -->
+        <div class="col-12 col-md-6 order-md-2 order-1">
+
+            <!-- JustIn component (optional highlights) -->
+            @await Component.InvokeAsync("JustIn", new { categoryId = ViewData["SelectedCategory"] ?? 0 })
+
+            <!-- Latest News Header -->
+            <div class="mb-2 p-1 pb-0 w-auto d-inline-block text-secondary">
+                <h1 class="text-start">Latest News</h1>
+            </div>
+
+            <!-- Latest News Articles -->
+            @foreach (var article in Model)
+            {
+                <a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id"
+                   class="text-decoration-none text-dark" style="display:block;">
+                    <article class="mb-4 border p-3 rounded shadow-sm">
+                        @if (!string.IsNullOrEmpty(article.ImageURL))
+                        {
+                            <img src="@article.ImageURL" alt="@article.Headline"
+                                 class="img-fluid mb-2"
+                                 style="max-height: 300px; object-fit: cover; width: 100%;" />
+                        }
+                        <h2 class="article-underline">@article.Headline</h2>
+                        @if (!string.IsNullOrEmpty(article.Summary))
+                        {
+                            <p>@Html.Raw(article.Summary)...</p>
+                        }
+                    </article>
+                </a>
+            }
+
+            <!-- Earlier News component -->
+            @await Component.InvokeAsync("EarlierNews", new { articlesToSkip = Model.Count, categoryId = ViewData["SelectedCategory"] ?? 0 })
+
+        </div>
+
+        <!-- RIGHT COLUMN (Markets at the top) -->
+        <div class="col-12 col-md-2 order-md-3 order-3" style="margin-top:65px;">
+            @await Component.InvokeAsync("Markets")
+        </div>
+
+    </div>
 </div>
+
+@* Explanation:
+   - order-md-1 / order-md-2 / order-md-3 → Desktop/tablet: left sidebar, main content, right Markets
+   - order-1 / order-2 / order-3 → Mobile: main content first, then sidebars stacked
+*@
 
 @await Html.PartialAsync("_CookieConsent")
 <a href="javascript:void(0)" onclick="showCookieBanner()"
-   class="text-blue-600 hover:text-blue-800 underline text-sm">
-	
-</a>
+   class="text-blue-600 hover:text-blue-800 underline text-sm"></a>
+
 <!-- Snackbar Notification -->
 <div id="cookieSnackbar"
-	 class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-500 z-[10000]">
+     class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-500 z-[10000]">
 </div>
-
