@@ -108,8 +108,8 @@ public class Program
             q.AddTrigger(opts => opts
                 .ForJob(jobKey)
                 .WithIdentity("DbInitalizlier-trigger")
-                //This Cron interval can be described as "run every minute" (when second is zero)
-                .WithCronSchedule("0 0 6 * * ?")
+                //This Cron interval can be described as "run every 6 hours" (when second is zero)
+                .WithCronSchedule("0 0 */6 * * ?")
             );
         });
         builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
