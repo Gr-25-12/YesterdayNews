@@ -14,7 +14,7 @@ namespace YesterdayNews.Components
         {
             var articles = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0,3, categoryId);
             var recentArticles = articles
-                .Where(a => a.DateStamp >= DateTime.UtcNow.AddMinutes(-60))
+                .Where(a => a.DateStamp >= DateTime.UtcNow.AddHours(-6))
                 .ToList();
             return View(recentArticles);
         }

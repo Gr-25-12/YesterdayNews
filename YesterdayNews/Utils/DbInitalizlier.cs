@@ -43,7 +43,7 @@ namespace YesterdayNews.Utils
 
             var authors = new[] { "998b77da-f88e-410b-9f7c-d46673d2a4af", "6e6fa4cf-29c2-4cc2-9ba2-7f64534f52c5" };
 
-            var url = $"https://newsapi.org/v2/top-headlines?country=us&pageSize=10&apiKey={apiKeyDev}";
+            var url = $"https://newsapi.org/v2/top-headlines?country=us&pageSize=4&apiKey={apiKeyDev}";
             List<Article> articlesToSeedDatabse = new List<Article>();
             try
             {
