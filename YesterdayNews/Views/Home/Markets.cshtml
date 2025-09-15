@@ -8,16 +8,15 @@
 		<div class="col-12 col-md-7 col-lg-8">
 			@* NASDAQ *@
 			<div class="card p-3 mb-3">
-				<h3>Nasdaq - 
-					<span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
-						(@Model.UsMarketStatus)
-					</span>
-				</h3>
 				<div class="table-responsive">
 					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
 						<thead class="border-bottom"> 
 							<tr>
-								<th>Company</th>
+								<th class="fs-5">Nasdaq - 
+									<span class="status-bar fs-5 @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
+										(@Model.UsMarketStatus)
+									</span>
+								</th>
 								<th>Price (USD)</th>
 								<th>Diff</th>
 								<th>In %</th>
@@ -70,16 +69,16 @@
 			</div>
 			@* NYSE *@
 			<div class="card p-3 mb-3">
-				<h3>New York Stock Exchange - 
-					<span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
-						(@Model.UsMarketStatus)
-					</span>
-				</h3>
 				<div class="table-responsive">
 					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
 						<thead class="border-bottom">
 							<tr>
-								<th>Company</th>
+								<th class="fs-5">
+									NYSE -
+									<span class="status-bar fs-5 @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
+										(@Model.UsMarketStatus)
+									</span>
+								</th>
 								<th>Price (USD)</th>
 								<th>Diff</th>
 								<th>In %</th>
@@ -131,18 +130,16 @@
 			</div>
 			@* Binance / Crypto *@
 			<div class="card p-3 mb-3">
-				<div class="d-flex align-items-center mb-2">
-					<h3 class="me-2">Binance / Crypto - 
-						<span class="status-bar text-success" )">
-							( Open )
-						</span>
-					</h3>
-				</div>
 				<div class="table-responsive">
 					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
 						<thead class="border-bottom">
 							<tr>
-								<th>Crypto Currency</th>
+								<th class="fs-5">
+									Crypto Currency -
+									<span class="status-bar fs-5 text-success" )">
+										( Open )
+									</span>
+								</th>
 								<th>Price (USD)</th>
 								<th>Diff</th>
 								<th>In %</th>
@@ -177,25 +174,21 @@
 				</div>
 				<div>
 					<small>
-						(Price changes are calculated from prices 24 hours ago (or last known price))
+						(Price changes are calculated from prices 24 hours ago (or last saved price))
 					</small>
 				</div>
 			</div>
 			@* Oanada / Forex Currencies *@
 			<div class="card p-3 mb-3">
-				<div class="d-flex align-items-center mb-2">
-					<h3 class="me-2">
-						Currencies -
-						<span class="status-bar text-success" )">
-							( Open )
-						</span>
-					</h3>
-				</div>
 				<div class="table-responsive">
 					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
 						<thead class="border-bottom">
 							<tr>
-								<th>Currency</th>
+								<th class="fs-5">Forex Currencies - 
+									<span class="status-bar fs-5 text-success" )">
+										( Open )
+									</span>
+								</th>
 								<th>Price (USD)</th>
 								<th>Diff</th>
 								<th>In %</th>
@@ -230,25 +223,21 @@
 				</div>
 				<div>
 					<small>
-						(Price changes are calculated from prices 24 hours ago (or last known price))
+						(Price changes are calculated from prices 24 hours ago (or last saved price))
 					</small>
 				</div>
 			</div>
 			@* Oanada / Forex Commodities *@
 			<div class="card p-3 mb-3">
-				<div class="d-flex align-items-center mb-2">
-					<h3 class="me-2">
-						Commodities -
-						<span class="status-bar text-success" )">
-							( Open )
-						</span>
-					</h3>
-				</div>
 				<div class="table-responsive">
 					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
 						<thead class="border-bottom">
 							<tr>
-								<th>Oil & Metals</th>
+								<th class="fs-5">Oil & Metals - 
+									<span class="status-bar fs-5 text-success" )">
+										( Open )
+									</span>
+								</th>
 								<th>Price (USD)</th>
 								<th>Diff</th>
 								<th>In %</th>
@@ -283,7 +272,7 @@
 				</div>
 				<div>
 					<small>
-						(Price changes are calculated from prices 24 hours ago (or last known price))
+						(Price changes are calculated from prices 24 hours ago (or last saved price))
 					</small>
 				</div>
 			</div>

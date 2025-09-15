@@ -50,7 +50,6 @@ namespace YesterdayNews.Hubs
                     continue;
                 }
             }
-
             var status = _cache.GetCachedMarketStatus(FinanceConstants.US);
             if (status == null)
                 await _eventHandler.HandleMarketStatusApiError("US market status unavailable");

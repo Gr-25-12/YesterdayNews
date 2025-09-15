@@ -34,7 +34,7 @@ namespace FinanceServices.Utilities
         {
             "NVDA", "MSFT", "AAPL", "BRK.B", "TSM", "V",
                     "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:XRPUSDT",
-                    "OANDA:EUR_USD","OANDA:USD_JPY", "OANDA:GBP_USD", "OANDA:XAU_USD","OANDA:XAG_USD",
+                    "OANDA:EUR_USD","OANDA:USD_JPY", "OANDA:GBP_USD", "OANDA:XAU_USD","OANDA:BCO_USD",
         };
         public static readonly ConcurrentDictionary<string, string> cryptoDescriptionList = new ConcurrentDictionary<string, string>(new[]
         {
