@@ -2,14 +2,14 @@
 @* JustIn View Component *@
 @foreach (var article in Model)
 {
-	<div class="d-flex align-items-center justify-content-start">
-		<article class="rounded-pill bg-danger text-white d-flex mb-3 border p-2 shadow-sm">
-				<p class="fw-bold fs-5 mb-0">JUST IN</p>
-		</article>
-		<div class="ms-3 mb-3">
-			<a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id">
-				<p class="article-underline fw-bold fs-4 mb-0">@article.Linktext</p>
-			</a>
-		</div>
-	</div>
+    <div class="d-flex align-items-center mb-3">
+        <div class="rounded-pill bg-danger text-white px-3 py-1 me-2 flex-shrink-0">
+            <p class="fw-bold mb-0 fs-6 fs-md-5">JUST IN</p>
+        </div>
+        <div class="flex-grow-1">
+            <a asp-controller="Home" asp-action="Details" asp-route-id="@article.Id" class="text-decoration-none">
+                <p class="fw-bold mb-0 text-dark article-underline fs-6 fs-md-5">@article.Headline</p>
+            </a>
+        </div>
+    </div>
 }

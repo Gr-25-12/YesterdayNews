@@ -34,6 +34,7 @@ namespace FinanceServices.Services.BackgroundServices
             _apiKey = "" + config["Finnhub:ApiKey"];
             _cache = cache;
             _logger = logger;
+            _cache.IsAllListsCached = false;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -97,6 +98,7 @@ namespace FinanceServices.Services.BackgroundServices
                         }
 
                         await CacheStocks();
+                        _cache.IsAllListsCached = true;
                         _logger.LogWarning("ALL CRYPTOS AND STOCKS CACHED!"); //warning cause easier to spot
                         // success, break out of loop
                         break;

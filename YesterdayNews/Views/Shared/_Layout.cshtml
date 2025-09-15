@@ -7,6 +7,19 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<!-- Primary Meta Tags -->
+	<meta name="description" content="Yesterday's News - We bring you the news that you already know! Stay updated with the latest news from your favorite authors.">
+	<meta name="keywords" content="news, articles, latest news, yesterday news, current events">
+	<meta name="author" content="YesterdayNews">
+	<meta name="robots" content="index, follow">
+	<link rel="apple-touch-icon" sizes="180x180" href="~/fav.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="~/fav.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="~/fav.png">
+	<link rel="manifest" href="~/favicon/site.webmanifest">
+	<link rel="mask-icon" href="~/fav.png" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+
 	<title>@ViewData["Title"]  YesterdayNews</title>
 	<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -21,8 +34,8 @@
 
 </head>
 <body>
-	<header class="border-bottom border-1">
-		<nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-light my-3 w-100" style="height:70px;">
+	<header class="border-bottom border-1 position-sticky top-0 z-3 bg-white shadow-sm">
+		<nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-light my-3 w-100 " style="height:70px;">
 			 <div class="d-flex justify-content-center align-items-center w-100">
 					
 				<partial name="_SearchBar" />
@@ -31,7 +44,7 @@
 				<div class="container d-flex justify-content-center align-content-center  border-4">
 					<partial name="_Logo"/>
 					<partial name="_BurgerMenu" />
-					<div class="mobile-search-wrapper">
+					<div class="d-flex position-fixed end-0 px-2 m-2 z-1">
 						<button class="btn d-lg-none btn btn-outline-primary m-1 ms-auto " type="button" data-bs-toggle="collapse" data-bs-target="#mobileSearch">
 							<i class="bi bi-search"></i>
 						</button>
