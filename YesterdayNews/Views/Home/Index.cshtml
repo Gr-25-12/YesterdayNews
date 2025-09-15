@@ -9,7 +9,7 @@
     <div class="row justify-content-center">
 
         <!-- LEFT SIDEBAR (Most Viewed & Most Liked, no Markets) -->
-        <div class="col-12 col-md-4 order-md-1 order-2" style="margin-top:65px;">
+        <div class="col-12 col-md-3 order-md-1 order-2" style="margin-top:65px;">
             @await Component.InvokeAsync("Sidebar", new {
             categoryId = ViewData["SelectedCategory"] ?? 0,
                         showMarkets = false  // hide Markets here
@@ -54,7 +54,7 @@
         </div>
 
         <!-- RIGHT COLUMN (Markets at the top) -->
-        <div class="col-12 col-md-2 order-md-3 order-3" style="margin-top:65px;">
+        <div class="col-12 col-md-3 order-md-3 order-3" style="margin-top:65px;">
             @await Component.InvokeAsync("Markets")
         </div>
 
