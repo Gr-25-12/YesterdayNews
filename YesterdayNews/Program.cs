@@ -6,8 +6,9 @@ using FinanceServices.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-
+using Quartz;
 using Stripe;
+using System.Threading.Tasks;
 using YesterdayNews.Data;
 using YesterdayNews.Hubs;
 using YesterdayNews.Services;
@@ -17,7 +18,7 @@ namespace YesterdayNews;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -52,11 +53,12 @@ public class Program
 
         builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
         builder.Services.AddScoped<IExternalNewsService, ExternalNewsService>();
+        builder.Services.AddScoped<IDbInitalizlier, DbInitalizlier>();
 
         builder.Services.AddHttpClient<ExternalNewsService>();
+        builder.Services.AddHttpClient<DbInitalizlier>();
    
         builder.Services.AddHttpClient();
-
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
          {
              googleOptions.ClientId = builder.Configuration.GetSection("Google:ClientId").Get<string>()!;
@@ -94,6 +96,25 @@ public class Program
         builder.Services.AddHostedService(provider => provider.GetRequiredService<CryptoSnapshotService>());
 
         builder.Services.AddMemoryCache();
+
+
+
+        builder.Services.AddQuartz(q =>
+        {
+            // Just use the name of your job that you created in the Jobs folder.
+            var jobKey = new JobKey("DbInitalizlier");
+            q.AddJob<DbInitalizlier>(opts => opts.WithIdentity(jobKey));
+
+            q.AddTrigger(opts => opts
+                .ForJob(jobKey)
+                .WithIdentity("DbInitalizlier-trigger")
+                //This Cron interval can be described as "run every minute" (when second is zero)
+                .WithCronSchedule("0 0 6 * * ?")
+            );
+        });
+        builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -127,13 +148,20 @@ public class Program
         finnhubApiService.OnApiMarketStatusError += handler.HandleMarketStatusApiError;
         finnhubApiService.OnCachedUpdate += handler.HandleUpdateError;
 
+        // in case we will run the seeding manually , iam keeping it for reference
+        //var scope = app.Services.CreateScope();
+        //{
+        //    var dbIntalizer = scope.ServiceProvider.GetRequiredService<DbInitalizlier>();
+        //    await dbIntalizer.SeedData();
+        //}
 
-
-    app.MapControllerRoute(
+        app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
         app.MapRazorPages();
 
-        app.Run();    
-}
+        app.Run();
+
+      
+    }
 }

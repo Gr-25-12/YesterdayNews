@@ -11,10 +11,9 @@
 
 @if (isAdminViewingCustomer)
 {
-	<footer class="footer mt-2 py-4 bg-light-subtle  border-top">
+	<footer class="footer mt-auto py-4 bg-white border-top">
 		<div class="container">
 			<div class="row">
-
 				<!-- Brand Section -->
 				<div class="col-lg-4 col-md-6 mb-4 mb-md-0">
 					<div class="d-flex align-items-center mb-3">
@@ -26,7 +25,7 @@
 						<span class="fs-5 fw-bold text-primary">Yesterday's News</span>
 					</div>
 
-					<div class="d-flex gap-3 col-3">
+					<div class="d-flex gap-3">
 						<a href="#" class="text-secondary"><i class="bi bi-facebook fs-5"></i></a>
 						<a href="#" class="text-secondary"><i class="bi bi-twitter fs-5"></i></a>
 						<a href="#" class="text-secondary"><i class="bi bi-instagram fs-5"></i></a>
@@ -35,41 +34,49 @@
 				</div>
 
 				<!-- Company -->
-				<div class="col-3  mb-4 mb-md-0">
+				<div class="col-md-3 col-6 mb-4 mb-md-0">
 					<h6 class="text-primary fw-bold mb-3">About YN</h6>
 					<ul class="list-unstyled">
-
+						<li class="mb-2"><a asp-controller="Home" asp-action="Search" asp-route-archived="true" class="text-muted text-decoration-none">Archived News</a></li>
 						<li class="mb-2"><a asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Privacy</a></li>
 						<li class="mb-2"><a href="#" class="text-muted text-decoration-none">Careers</a></li>
 					</ul>
 				</div>
+
 				<!-- Newsletter -->
 				<div class="col-lg-4 col-md-6">
 					<h6 class="text-primary fw-bold mb-3">Stay Updated</h6>
 					<p class="text-muted small mb-3">Get the latest news and be updated</p>
 					<div class="input-group">
-						<button type="submit" class=" btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#subscribeModal">Subscribe now please 🙏</button>
+						<button type="submit" class="btn btn-primary text-white">Subscribe now please 🙏</button>
 					</div>
 				</div>
 			</div>
 
-			<div class="row">
-				<ul class="list-inline mb-0 d-flex flex-nowrap overflow-auto">
-					<li class="list-inline-item">
+			<div class="row mt-4">
+				<div class="col-12">
+					<div class="d-flex overflow-auto">
+						<div class="d-flex flex-nowrap">
+							<ul class="list-inline mb-0 d-flex flex-nowrap overflow-hidden">
+								<li class="list-inline-item">
 
-						<a asp-controller="Home" asp-action="Index" class="text-primary fw-bolder text-decoration-none px-3 py-2 rounded">Home</a>
-					</li>
-					@foreach (var category in categories)
-					{
-						<li class="list-inline-item">
-							<a class=" text-dark @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active bg-secondary" : "") px-3 py-2 rounded small"
-							   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
-								@category.Name
-							</a>
-						</li>
-					}
-				</ul>
+									<a asp-controller="Home" asp-action="Index" class="text-primary fw-bolder text-decoration-none px-3 py-2 rounded ">Home</a>
+								</li>
+								@foreach (var category in categories)
+								{
+									<li class="list-inline-item">
+										<a class=" text-dark @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active bg-secondary" : "") px-3 py-2 rounded small"
+										   asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
+											@category.Name
+										</a>
+									</li>
+								}
+							</ul>
+						</div>
+					</div>
+				</div>
 			</div>
+
 			<!-- Bottom Bar -->
 			<div class="row mt-4 pt-3 border-top">
 				<div class="col-md-6 text-center text-md-start">

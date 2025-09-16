@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Mvc.Controllers
+@{
+	var query = Context.Request.Query["query"].ToString();
+	var archived = Context.Request.Query["archived"] == "true";
+	var currentAction = (ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ActionName ?? "";
+}
+<div class="collapse mt-2 d-lg-none mx-3 p-2 bg-white rounded @(currentAction == "Search" ? "show" : "")" id="mobileSearch">
+	<form asp-controller="Home" asp-action="Search" method="get" class="d-flex flex-column gap-2">
+		<div class="input-group">
+			<input type="text" name="query" value="@query" class="form-control" placeholder="Search news..." />
+			<button type="submit" class="btn btn-primary">
+				<i class="bi bi-search"></i>
+			</button>
+		</div>
+		<div class="btn-group w-100 gap-2" role="group">
+			<input type="radio" class="btn-check" name="archived" value="false" id="publishedRadio" autocomplete="off" @(archived ? "" : "checked")>
+			<label class="btn btn-outline-primary" for="publishedRadio">
+				<i class="bi bi-journal-text me-1"></i> Published
+			</label>
+
+			<input type="radio" class="btn-check" name="archived" value="true" id="archivedRadio" autocomplete="off" @(archived ? "checked" : "")>
+			<label class="btn btn-secondary" for="archivedRadio">
+				<i class="bi bi-archive me-1"></i> Archived
+			</label>
+		</div>
+	</form>
+</div>

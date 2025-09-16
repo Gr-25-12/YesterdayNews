@@ -224,110 +224,120 @@
 }
 <hr class="my-5 border-5" />
 <!-- Top Performing Articles Row -->
-<div class="row my-4">
-    <div class="col-lg-6 mb-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 pt-3">
-                <h5 class="card-title mb-0 d-flex align-items-center">
-                    <i class="bi bi-eye-fill text-primary me-2"></i>Most Viewed Articles
-                </h5>
-            </div>
-            <div class="card-body p-0">
-                @if (Model.MostViewedArticles != null && Model.MostViewedArticles.Any())
-                {
-                    <div class="list-group list-group-flush">
-                        @foreach (var article in Model.MostViewedArticles)
-                        {
-                            <div class="list-group-item border-0 py-3">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1 me-3">
-                                        <h6 class="mb-1 fw-semibold text-truncate">@article.Headline</h6>
-                                        <p class="text-muted small mb-1">by @article.AuthorName • @article.CategoryName</p>
-                                        <div class="d-flex align-items-center mt-2">
-                                            <span class="badge bg-primary bg-opacity-10 text-primary me-2">
-                                                <i class="bi bi-eye me-1"></i> @article.Views views
-                                            </span>
-                                            <span class="badge bg-danger bg-opacity-10 text-danger">
-                                                <i class="bi bi-heart me-1"></i> @article.Likes likes
-                                            </span>
+<div class="d-flex flex-column justify-content-center align-items-center">
+
+    <!-- Most Viewed -->
+    <div class="row my-4 w-100 justify-content-center">
+        <div class="col-lg-10 col-md-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0 d-flex align-items-center">
+                        <i class="bi bi-eye-fill text-primary me-2"></i>Most Viewed Articles
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.MostViewedArticles != null && Model.MostViewedArticles.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var article in Model.MostViewedArticles)
+                            {
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1 me-3">
+                                            <h6 class="mb-1 fw-semibold text-truncate">@article.Headline</h6>
+                                            <p class="text-muted small mb-1">by @article.AuthorName • @article.CategoryName</p>
+                                            <div class="d-flex align-items-center mt-2">
+                                                <span class="badge bg-primary bg-opacity-10 text-primary me-2">
+                                                    <i class="bi bi-eye me-1"></i> @article.Views views
+                                                </span>
+                                                @* <span class="badge bg-danger bg-opacity-10 text-danger"> *@
+                                                @*     <i class="bi bi-heart me-1"></i> @article.Likes likes *@
+                                                @* </span> *@
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="text-end">
-                                        <small class="text-muted d-block">@article.DatePublished.ToString("MMM dd")</small>
-                                        <div class="mt-1">
-                                            <span class="badge bg-light text-dark border">#@(Model.MostViewedArticles.IndexOf(article) + 1)</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center text-muted py-5">
-                        <i class="bi bi-file-text display-4 opacity-25"></i>
-                        <p class="mt-2">No articles available</p>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-6 mb-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 pt-3">
-                <h5 class="card-title mb-0 d-flex align-items-center">
-                    <i class="bi bi-heart-fill text-danger me-2"></i>Most Liked Articles
-                </h5>
-            </div>
-            <div class="card-body p-0">
-                @if (Model.MostLikedArticles != null && Model.MostLikedArticles.Any())
-                {
-                    <div class="list-group list-group-flush">
-                        @foreach (var article in Model.MostLikedArticles)
-                        {
-                            <div class="list-group-item border-0 py-3">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1 me-3">
-                                        <h6 class="mb-1 fw-semibold text-truncate">@article.Headline</h6>
-                                        <p class="text-muted small mb-1">by @article.AuthorName • @article.CategoryName</p>
-                                        <div class="d-flex align-items-center mt-2">
-                                            <span class="badge bg-danger bg-opacity-10 text-danger me-2">
-                                                <i class="bi bi-heart me-1"></i> @article.Likes likes
-                                            </span>
-                                            <span class="badge bg-primary bg-opacity-10 text-primary">
-                                                <i class="bi bi-eye me-1"></i> @article.Views views
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="text-end">
-                                        <small class="text-muted d-block">@article.DatePublished.ToString("MMM dd")</small>
-                                        <div class="mt-1">
-                                            <span class="badge bg-light text-dark border">#@(Model.MostLikedArticles.IndexOf(article) + 1)</span>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">@article.DatePublished.ToString("MMM dd")</small>
+                                            <div class="mt-1">
+                                                <span class="badge bg-light text-dark border">#@(Model.MostViewedArticles.IndexOf(article) + 1)</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center text-muted py-5">
-                        <i class="bi bi-file-text display-4 opacity-25"></i>
-                        <p class="mt-2">No articles available</p>
-                    </div>
-                }
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-file-text display-4 opacity-25"></i>
+                            <p class="mt-2">No articles available</p>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Most Liked -->
+    <div class="row my-4 w-100 justify-content-center">
+        <div class="col-lg-10 col-md-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0 d-flex align-items-center">
+                        <i class="bi bi-heart-fill text-danger me-2"></i>Most Liked Articles
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.MostLikedArticles != null && Model.MostLikedArticles.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var article in Model.MostLikedArticles)
+                            {
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1 me-3">
+                                            <h6 class="mb-1 fw-semibold text-truncate">@article.Headline</h6>
+                                            <p class="text-muted small mb-1">by @article.AuthorName • @article.CategoryName</p>
+                                            <div class="d-flex align-items-center mt-2">
+                                                <span class="badge bg-danger bg-opacity-10 text-danger me-2">
+                                                    <i class="bi bi-heart me-1"></i> @article.Likes likes
+                                                </span>
+                                                @* <span class="badge bg-primary bg-opacity-10 text-primary">
+                                                    <i class="bi bi-eye me-1"></i> @article.Views views
+                                                </span> *@
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">@article.DatePublished.ToString("MMM dd")</small>
+                                            <div class="mt-1">
+                                                <span class="badge bg-light text-dark border">#@(Model.MostLikedArticles.IndexOf(article) + 1)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-file-text display-4 opacity-25"></i>
+                            <p class="mt-2">No articles available</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <hr class="my-5 border-5" />
 <!-- Recent Activities Row -->
-<div class="row mb-4">
-    <div class="col-lg-6 mb-4">
+<div class="row my-4 w-100 justify-content-center">
+
+    <!-- Recent Articles -->
+    <div class="col-lg-10 col-md-10 my-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
                 <h5 class="card-title mb-0 d-flex align-items-center">
@@ -383,7 +393,7 @@
 
     @if (isAdmin)
     {
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-10 col-md-10 mb-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
                     <h5 class="card-title mb-0 d-flex align-items-center">
@@ -441,6 +451,7 @@
         </div>
     }
 </div>
+
 @section Scripts {
     <!-- Chart.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
