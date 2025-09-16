@@ -1,0 +1,65 @@
+﻿@using YesterdayNews.Services.IServices
+@inject ICategoryService _categoryService
+
+@{
+    var categories = _categoryService.GetAll().OrderBy(c => c.Name).ToList();
+
+    
+    bool isStaffOrAdmin = User.IsInRole(StaticConsts.Role_Admin)
+                        || User.IsInRole(StaticConsts.Role_Editor)
+                        || User.IsInRole(StaticConsts.Role_Journalist);
+
+    
+    bool isCustomerView = (isStaffOrAdmin && StaticConsts.AdminView) || !isStaffOrAdmin;
+}
+
+<nav class="navbar navbar-expand-lg d-none d-lg-block py-0 bg-primary mt-2">
+    <div class="container-fluid">
+        <ul class="navbar-nav d-flex justify-content-center align-items-center w-100 fw-semibold">
+            <li class="nav-item">
+                <a class="nav-link text-white @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active bg-primary" : "")"
+                   asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house-fill fs-4 me-2"></i>
+                </a>
+            </li>
+
+            @if (isStaffOrAdmin && !StaticConsts.AdminView)
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-white hover-bg-secondary " asp-area="" asp-controller="Article" asp-action="Index">Articles</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white hover-bg-secondary " asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white hover-bg-secondary " asp-area="" asp-controller="SubscriptionType" asp-action="Index">Subscription Types</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white hover-bg-secondary " asp-area="" asp-controller="Subscription" asp-action="Index">Subscriptions</a>
+                </li>
+                <li><hr class="nav-item"></li>
+                <li><a class="nav-link text-white hover-bg-secondary " asp-controller="User" asp-action="Index">User Management </a></li>
+            }
+
+            @if (isCustomerView)
+            {
+                @foreach (var category in categories)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(ViewData["SelectedCategory"]?.ToString() == category.Id.ToString() ? "active bg-secondary" : "") hover-bg-secondary"
+                           asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id">
+                            @category.Name
+                        </a>
+                    </li>
+                }
+                <li class="nav-item">
+                    <a class="nav-link text-white hover-bg-secondary"
+                       asp-controller="Externalnews" asp-action="Index">
+                        Outsourced News
+                    </a>
+                </li>
+            }
+        </ul>
+        <partial name="_ToggleButton" />
+    </div>
+</nav>

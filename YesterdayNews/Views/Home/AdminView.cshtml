@@ -1,0 +1,469 @@
+﻿@model YesterdayNews.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+    bool isAdmin = User.IsInRole(StaticConsts.Role_Admin);
+    bool isEditor = User.IsInRole(StaticConsts.Role_Editor);
+    bool isJournalist = User.IsInRole(StaticConsts.Role_Journalist);
+  
+}
+
+
+<div class="row my-4">
+    
+        <div class="d-flex flex-column justify-content-center align-items-center">
+          
+                <h5 class="fw-bold text-primary">YesterDays'News Dashboard</h5>
+
+        <h6 class="text-muted text-center">Welcome back! Here's what's happening with Yesterday's News.</h6>
+    
+    </div>
+</div>
+<hr class="my-5 border-2" />
+
+@if(isAdmin){
+<!-- Statistics Cards Row 1 -->
+<div class="row mb-5 ">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card dashboard-card text-white" style="background-color: #3A2512;">
+            <!-- Dark brown -->
+            <div class="card-body text-center ">
+                <i class="bi bi-newspaper stat-icon"></i>
+                <h3 class="fw-bold">@Model.TotalArticles</h3>
+                <p class="card-text">Total Articles</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card dashboard-card text-white" style="background-color: #b39086;">
+            <!-- Medium brown -->
+            <div class="card-body text-center">
+                <i class="bi bi-people stat-icon"></i>
+                <h3 class="fw-bold">@Model.TotalUsers</h3>
+                <p class="card-text">Total Users</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card dashboard-card text-white" style="background-color: #D4A259; ">
+            <!-- Golden brown -->
+            <div class="card-body text-center">
+                <i class="bi bi-credit-card stat-icon"></i>
+                <h3 class="fw-bold">@Model.ActiveSubscriptions</h3>
+                <p class="card-text">Active Subscriptions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card dashboard-card text-white" style="background-color: #6D8B9E;">
+            <!-- Muted blue -->
+            <div class="card-body text-center">
+                <i class="bi bi-cash-stack stat-icon"></i>
+                <h3 class="fw-bold">@Model.TotalRevenue.ToString("N0") SEK</h3>
+                <p class="card-text">Total Revenue</p>
+            </div>
+        </div>
+    </div>
+</div>
+    <hr class="my-5 border-2" />
+<div class="shadow-lg my-4">
+    <h5 class="card-title mb-4 text-center my-2">Subscriptions & Revenue Overview</h5>
+<div class="row justify-content-center mb-4">
+    <!-- Last 7 Days -->
+    <div class="col-10 col-md-8 mb-4">
+        <div class="card dashboard-card shadow-sm border-0 bg-white">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Last 7 Days</h5>
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <div>
+                        <h3 class="text-primary mb-1">@Model.SubscriptionsLast7Days</h3>
+                        <small class="text-muted">Subscriptions</small>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="text-success mb-1">@Model.RevenueLastWeek.ToString("N0") SEK</h3>
+                        <small class="text-muted">Revenue</small>
+                    </div>
+                </div>
+                @{
+                    double max7 = Math.Max(10, Model.SubscriptionsLast7Days); // dynamic max
+                    double progress7 = (Model.SubscriptionsLast7Days / max7) * 100;
+                }
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: @progress7%;"
+                         aria-valuenow="@Model.SubscriptionsLast7Days" aria-valuemin="0" aria-valuemax="@max7"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Last 30 Days -->
+    <div class="col-10 col-md-8 mb-4">
+        <div class="card dashboard-card shadow-sm border-0 bg-white">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Last 30 Days</h5>
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <div>
+                        <h3 class="text-primary mb-1">@Model.SubscriptionsLast30Days</h3>
+                        <small class="text-muted">Subscriptions</small>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="text-success mb-1">@Model.RevenueLastMonth.ToString("N0") SEK</h3>
+                        <small class="text-muted">Revenue</small>
+                    </div>
+                </div>
+                @{
+                    double max30 = Math.Max(50, Model.SubscriptionsLast30Days);
+                    double progress30 = (Model.SubscriptionsLast30Days / max30) * 100;
+                }
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: @progress30%;"
+                         aria-valuenow="@Model.SubscriptionsLast30Days" aria-valuemin="0" aria-valuemax="@max30"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Last 6 Months -->
+    <div class="col-10 col-md-8 mb-4">
+        <div class="card dashboard-card shadow-sm border-0 bg-white">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Last 6 Months</h5>
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <div>
+                        <h3 class="text-primary mb-1">@Model.SubscriptionsLast6Months</h3>
+                        <small class="text-muted">Subscriptions</small>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="text-success mb-1">@Model.RevenueLast6Months.ToString("N0") SEK</h3>
+                        <small class="text-muted">Revenue</small>
+                    </div>
+                </div>
+                @{
+                    double max6 = Math.Max(100, Model.SubscriptionsLast6Months);
+                    double progress6 = (Model.SubscriptionsLast6Months / max6) * 100;
+                }
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: @progress6%;"
+                         aria-valuenow="@Model.SubscriptionsLast6Months" aria-valuemin="0" aria-valuemax="@max6"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+    <hr class="my-5 border-2" />
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Subscriptions Trend (Last 7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="subscriptionsTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Revenue Trend (Last 7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Articles by Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="articlesStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Users by Role</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="usersRoleChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Subscriptions by Type</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="subscriptionTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+<hr class="my-5 border-5" />
+<!-- Top Performing Articles Row -->
+<div class="d-flex flex-column justify-content-center align-items-center">
+
+    <!-- Most Viewed -->
+    <div class="row my-4 w-100 justify-content-center">
+        <div class="col-lg-10 col-md-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0 d-flex align-items-center">
+                        <i class="bi bi-eye-fill text-primary me-2"></i>Most Viewed Articles
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.MostViewedArticles != null && Model.MostViewedArticles.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var article in Model.MostViewedArticles)
+                            {
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1 me-3">
+                                            <h6 class="mb-1 fw-semibold text-wrap text-break">@article.Headline</h6>
+                                            <p class="text-muted small mb-1">by @article.AuthorName • @article.CategoryName</p>
+                                            <div class="d-flex align-items-center mt-2">
+                                                <span class="badge bg-primary bg-opacity-10 text-primary me-2">
+                                                    <i class="bi bi-eye me-1"></i> @article.Views views
+                                                </span>
+                                                @* <span class="badge bg-danger bg-opacity-10 text-danger"> *@
+                                                @*     <i class="bi bi-heart me-1"></i> @article.Likes likes *@
+                                                @* </span> *@
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">@article.DatePublished.ToString("MMM dd")</small>
+                                            <div class="mt-1">
+                                                <span class="badge bg-light text-dark border">#@(Model.MostViewedArticles.IndexOf(article) + 1)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-file-text display-4 opacity-25"></i>
+                            <p class="mt-2">No articles available</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Most Liked -->
+    <div class="row my-4 w-100 justify-content-center">
+        <div class="col-lg-10 col-md-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0 d-flex align-items-center">
+                        <i class="bi bi-heart-fill text-danger me-2"></i>Most Liked Articles
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.MostLikedArticles != null && Model.MostLikedArticles.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var article in Model.MostLikedArticles)
+                            {
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1 me-3">
+                                            <h6 class="mb-1 fw-semibold text-wrap text-break">@article.Headline</h6>
+                                            <p class="text-muted small mb-1">by @article.AuthorName • @article.CategoryName</p>
+                                            <div class="d-flex align-items-center mt-2">
+                                                <span class="badge bg-danger bg-opacity-10 text-danger me-2">
+                                                    <i class="bi bi-heart me-1"></i> @article.Likes likes
+                                                </span>
+                                                @* <span class="badge bg-primary bg-opacity-10 text-primary">
+                                                    <i class="bi bi-eye me-1"></i> @article.Views views
+                                                </span> *@
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">@article.DatePublished.ToString("MMM dd")</small>
+                                            <div class="mt-1">
+                                                <span class="badge bg-light text-dark border">#@(Model.MostLikedArticles.IndexOf(article) + 1)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-file-text display-4 opacity-25"></i>
+                            <p class="mt-2">No articles available</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<hr class="my-5 border-5" />
+<!-- Recent Activities Row -->
+<div class="row my-4 w-100 justify-content-center">
+
+    <!-- Recent Articles -->
+    <div class="col-lg-10 col-md-10 my-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
+                <h5 class="card-title mb-0 d-flex align-items-center">
+                    <i class="bi bi-clock-history text-info me-2"></i>Recent Articles
+                </h5>
+                <a href="@Url.Action("Index", "Article")" class="btn btn-sm btn-outline-primary">
+                    View All <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                @if (Model.RecentArticles != null && Model.RecentArticles.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var article in Model.RecentArticles)
+                        {
+                            <div class="list-group-item border-0 py-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1 me-3">
+                                        <h6 class="mb-1 fw-semibold text-wrap text-break">@article.Headline</h6>
+                                        <p class="text-muted small mb-1">by @article.AuthorName</p>
+                                        <div class="d-flex align-items-center flex-wrap gap-2 mt-2">
+                                            <span class="badge
+                                                @(article.Status == "Published" ? "bg-success" :
+                                                  article.Status == "Rejected" ? "bg-danger" :
+                                                  article.Status == "PendingReview" ? "bg-warning text-dark" :
+                                                  article.Status == "Draft" ? "bg-dark" : "bg-secondary")">
+                                                @article.Status
+                                            </span>
+                                            <span class="badge bg-light text-dark border">@article.CategoryName</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted d-block">@article.DateCreated.ToString("MMM dd")</small>
+                                        <div class="mt-1">
+                                            <i class="bi bi-calendar text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-file-earmark display-4 opacity-25"></i>
+                        <p class="mt-2">No recent articles</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (isAdmin)
+    {
+        <div class="col-lg-10 col-md-10 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
+                    <h5 class="card-title mb-0 d-flex align-items-center">
+                        <i class="bi bi-credit-card text-success me-2"></i>Recent Subscriptions
+                    </h5>
+                    <a href="@Url.Action("Index", "Subscription")" class="btn btn-sm btn-outline-primary">
+                        View All <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                    @if (Model.RecentSubscriptions != null && Model.RecentSubscriptions.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var subscription in Model.RecentSubscriptions)
+                            {
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1 me-3">
+                                            <h6 class="mb-1 fw-semibold">@subscription.UserName</h6>
+                                            <p class="text-muted small mb-2">@subscription.UserEmail</p>
+                                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                                <span class="badge bg-info bg-opacity-10 text-info border border-info">@subscription.SubscriptionType</span>
+                                                <span class="fw-bold text-success">$@subscription.Amount.ToString("N0")</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">@subscription.CreatedDate.ToString("MMM dd")</small>
+                                            @if (subscription.PaymentComplete)
+                                            {
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                                    <i class="bi bi-check-circle-fill me-1"></i> Paid
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">
+                                                    <i class="bi bi-clock me-1"></i> Pending
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-credit-card display-4 opacity-25"></i>
+                            <p class="mt-2">No recent subscriptions</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- Chart.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="~/js/adminView.js"></script>
+
+    <script>
+        window.dashboardData = {
+            subscriptionsByDay: @Html.Raw(Json.Serialize(Model.SubscriptionsByDay)),
+            revenueByDay: @Html.Raw(Json.Serialize(Model.RevenueByDay)),
+            articlesByStatus: @Html.Raw(Json.Serialize(Model.ArticlesByStatus)),
+            usersByRole: @Html.Raw(Json.Serialize(Model.UsersByRole)),
+            subscriptionsByType: @Html.Raw(Json.Serialize(Model.SubscriptionsByType))
+        };
+    </script>
+}

@@ -47,7 +47,15 @@ namespace FinanceServices.Models.API
                 Price24HoursAgo = tablePrice;
 
                 priceSnapshots24.Clear();
-                priceSnapshots24.Enqueue(tablePrice);
+            }
+        }
+        public decimal GetOldestSnapshot()
+        {
+            lock (_lock)
+            {
+                if (priceSnapshots24?.Count > 0)
+                    return priceSnapshots24.Peek();
+                return Price24HoursAgo;
             }
         }
     }

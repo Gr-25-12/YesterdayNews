@@ -5,13 +5,12 @@
 	ViewData["Title"] = "Yesterday's News";
 }
 
-
 <div class="container my-4">
 	<div class="row justify-content-center">
 		<div class="col-12 col-md-7 col-lg-8">
 			@await Component.InvokeAsync("JustIn", new {categoryId = ViewData["SelectedCategory"] ?? 0 })
 			<div class="mb-2 p-1 pb-0  w-auto d-inline-block text-secondary">
-				<h1 class="text-start">Latest News</h1>
+				@* <h1 class="text-center">Latest News</h1> *@
 			</div>
 			@foreach (var article in Model)
 			{
@@ -31,7 +30,7 @@
 			}
 			@await Component.InvokeAsync("EarlierNews", new { articlesToSkip = Model.Count, categoryId = ViewData["SelectedCategory"] ?? 0 })
 		</div>
-		<div class="col-12 col-md-5 col-lg-4">
+		<div class="col-12 col-md-5 col-lg-4 mt-5">
 			@await Component.InvokeAsync("Sidebar", new { categoryId = ViewData["SelectedCategory"] ?? 0 })
 		</div>
 	</div>

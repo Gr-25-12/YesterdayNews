@@ -1,8 +1,11 @@
 using FinanceServices.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using YesterdayNews.Data;
 using YesterdayNews.Models;
+using YesterdayNews.Models.Db;
 using YesterdayNews.Models.ViewModels;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
@@ -18,7 +21,9 @@ public class HomeController : Controller
     private readonly ISubscriptionServices _subscriptionServices;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices, IFinanceApiServices financeApiServices ,UserManager<IdentityUser> userManager, ISubscriptionServices subscriptionServices)
+    private readonly IUserService _userService;
+
+    public HomeController(ILogger<HomeController> logger, IArticleServices articleServices, ILikeService likeServices, IFinanceApiServices financeApiServices ,UserManager<IdentityUser> userManager, ISubscriptionServices subscriptionServices , IUserService userService)
     {
         _logger = logger;
         _articleServices = articleServices;
@@ -26,14 +31,29 @@ public class HomeController : Controller
         _financeApiServices = financeApiServices;
         _userManager = userManager;
         _subscriptionServices = subscriptionServices;
+        _userService = userService;
     }
 
-    public async Task<IActionResult> Index(int categoryId = 0)
+    public async Task<IActionResult> Index(int categoryId = 0 , bool? adminView = null)
     {
         var latest = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0, 6, categoryId);
         ViewData["SelectedCategory"] = categoryId;
+
+        bool isAdminView = adminView ?? StaticConsts.AdminView;
+        var isStaff = (User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist));
+
+        if (!isStaff || isAdminView == true)
+        {
         return View(latest);
+
+        }
+        else
+        {
+            return RedirectToAction(nameof(AdminView));
+        }
     }
+
+  
     public IActionResult Details(int id)
     {
         var article = _articleServices.GetById(id);
@@ -115,4 +135,272 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    #region AdminView 
+    [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor + "," + StaticConsts.Role_Journalist)]
+    public IActionResult AdminView()
+    {
+        var dashboardData = GetDashboardData();
+        StaticConsts.AdminView = false;
+
+        return View(dashboardData);
+    }
+
+    [Authorize(Roles = StaticConsts.Role_Admin + "," + StaticConsts.Role_Editor + "," + StaticConsts.Role_Journalist)]
+    public async Task<IActionResult> SwitchToCustomerView(int categoryId = 0)
+    {
+        var latest = await _articleServices.GetAllPublishedByCategoryAsArticleVM(0, 6, categoryId);
+        ViewData["SelectedCategory"] = categoryId;
+        StaticConsts.AdminView = true;
+
+        return View("Index", latest);
+    }
+
+    private AdminDashboardViewModel GetDashboardData()
+    {
+        var now = DateTime.UtcNow;
+        var weekAgo = now.AddDays(-7);
+        var monthAgo = now.AddDays(-30);
+        var sixMonthsAgo = now.AddMonths(-6);
+
+        var viewModel = new AdminDashboardViewModel();
+
+        // Article Statistics
+        var articles = _articleServices.GetAll().ToList();
+        viewModel.TotalArticles = articles.Count;
+        viewModel.PublishedArticles = articles.Count(a => a.ArticleStatus == ArticleStatus.Published);
+        viewModel.DraftArticles = articles.Count(a => a.ArticleStatus == ArticleStatus.Draft);
+        viewModel.PendingReviewArticles = articles.Count(a => a.ArticleStatus == ArticleStatus.PendingReview);
+        viewModel.RejectedArticles = articles.Count(a => a.ArticleStatus == ArticleStatus.Rejected);
+        viewModel.ArchivedArticles = articles.Count(a => a.ArticleStatus == ArticleStatus.Archived);
+
+        // User Statistics
+        var users = _userService.GetAllUsers();
+        var userRoles = _userService.GetUserRoles();
+        var roles = _userService.GetRoles();
+
+        viewModel.TotalUsers = users.Count;
+        viewModel.CustomersCount = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Customer);
+        viewModel.JournalistsCount = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Journalist);
+        viewModel.EditorsCount = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Editor);
+        viewModel.AdminsCount = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Admin);
+        viewModel.ActiveUsers = users.Count(u => u.LockoutEnd == null || u.LockoutEnd <= now);
+        viewModel.LockedUsers = users.Count(u => u.LockoutEnd != null && u.LockoutEnd > now);
+
+        // Subscription Statistics
+        var subscriptions = _subscriptionServices.GetAll();
+
+        viewModel.TotalSubscriptions = subscriptions.Count;
+        viewModel.ActiveSubscriptions = subscriptions.Count(s => !s.IsDeleted && (s.Expires == null || s.Expires > now));
+        viewModel.ExpiredSubscriptions = subscriptions.Count(s => s.Expires != null && s.Expires <= now);
+
+        // Revenue Statistics
+        viewModel.TotalRevenue = subscriptions.Sum(s => s.SubscriptionType.Price);
+        viewModel.RevenueLastWeek = subscriptions.Where(s => s.Created >= weekAgo).Sum(s => s.SubscriptionType.Price);
+        viewModel.RevenueLastMonth = subscriptions.Where(s => s.Created >= monthAgo).Sum(s => s.SubscriptionType.Price);
+        viewModel.RevenueLast6Months = subscriptions.Where(s => s.Created >= sixMonthsAgo).Sum(s => s.SubscriptionType.Price);
+
+        // Subscription Counts by Time Period
+        viewModel.SubscriptionsLast7Days = subscriptions.Count(s => s.Created >= weekAgo);
+        viewModel.SubscriptionsLast30Days = subscriptions.Count(s => s.Created >= monthAgo);
+        viewModel.SubscriptionsLast6Months = subscriptions.Count(s => s.Created >= sixMonthsAgo);
+
+        // Chart Data
+        viewModel.SubscriptionsByDay = GetSubscriptionsByDay(subscriptions, now);
+        viewModel.RevenueByDay = GetRevenueByDay(subscriptions, now);
+        viewModel.SubscriptionsByType = GetSubscriptionsByType(subscriptions);
+        viewModel.ArticlesByStatus = GetArticlesByStatus(articles);
+        viewModel.UsersByRole = GetUsersByRole(users, userRoles, roles);
+
+        // Recent Activities
+        viewModel.RecentArticles = articles
+            .OrderByDescending(a => a.DateStamp)
+            .Take(10)
+            .Select(a => new RecentArticle
+            {
+                Id = a.Id,
+                Headline = a.Headline,
+                AuthorName = a.Author?.FullName ?? "Unknown",
+                Status = a.ArticleStatus.ToString(),
+                DateCreated = a.DateStamp,
+                CategoryName = a.Category?.Name ?? "Unknown"
+            })
+            .ToList();
+
+        viewModel.RecentSubscriptions = subscriptions
+            .OrderByDescending(s => s.Created)
+            .Take(10)
+            .Select(s => new RecentSubscription
+            {
+                Id = s.Id,
+                UserName = s.User?.FullName ?? "Unknown",
+                UserEmail = s.User?.Email ?? "Unknown",
+                SubscriptionType = s.SubscriptionType?.TypeName ?? "Unknown",
+                Amount = s.SubscriptionType?.Price ?? 0,
+                CreatedDate = s.Created,
+                PaymentComplete = s.PaymentComplete
+            })
+            .ToList();
+
+        // Top Performing Content
+        viewModel.MostViewedArticles = articles
+            .Where(a => a.ArticleStatus == ArticleStatus.Published)
+            .OrderByDescending(a => a.Views)
+            .Take(5)
+            .Select(a => new TopArticle
+            {
+                Id = a.Id,
+                Headline = a.Headline,
+                AuthorName = a.Author?.FullName ?? "Unknown",
+                Views = a.Views,
+                Likes = a.Likes,
+                CategoryName = a.Category?.Name ?? "Unknown",
+                DatePublished = a.DateStamp
+            })
+            .ToList();
+
+        viewModel.MostLikedArticles = articles
+            .Where(a => a.ArticleStatus == ArticleStatus.Published)
+            .OrderByDescending(a => a.Likes)
+            .Take(5)
+            .Select(a => new TopArticle
+            {
+                Id = a.Id,
+                Headline = a.Headline,
+                AuthorName = a.Author?.FullName ?? "Unknown",
+                Views = a.Views,
+                Likes = a.Likes,
+                CategoryName = a.Category?.Name ?? "Unknown",
+                DatePublished = a.DateStamp
+            })
+            .ToList();
+
+        return viewModel;
+    }
+
+    private int GetUserCountByRole(List<User> users, List<IdentityUserRole<string>> userRoles, List<IdentityRole> roles, string roleName)
+    {
+        var roleId = roles.FirstOrDefault(r => r.Name == roleName)?.Id;
+        if (roleId == null) return 0;
+
+        var userIdsInRole = userRoles.Where(ur => ur.RoleId == roleId).Select(ur => ur.UserId).ToList();
+        return users.Count(u => userIdsInRole.Contains(u.Id));
+    }
+
+    private List<ChartDataPoint> GetSubscriptionsByDay(List<Subscription> subscriptions, DateTime now)
+    {
+        var result = new List<ChartDataPoint>();
+        var colors = new[] { "#007bff", "#28a745", "#ffc107", "#dc3545", "#6c757d", "#17a2b8", "#6f42c1" };
+
+        for (int i = 6; i >= 0; i--)
+        {
+            var date = now.AddDays(-i).Date;
+            var count = subscriptions.Count(s => s.Created.Date == date);
+            result.Add(new ChartDataPoint
+            {
+                Label = date.ToString("MMM dd"),
+                Value = count,
+                Color = colors[6 - i]
+            });
+        }
+        return result;
+    }
+
+    private List<ChartDataPoint> GetRevenueByDay(List<Subscription> subscriptions, DateTime now)
+    {
+        var result = new List<ChartDataPoint>();
+        var colors = new[] { "#007bff", "#28a745", "#ffc107", "#dc3545", "#6c757d", "#17a2b8", "#6f42c1" };
+
+        for (int i = 6; i >= 0; i--)
+        {
+            var date = now.AddDays(-i).Date;
+            var revenue = subscriptions
+                .Where(s => s.Created.Date == date)
+                .Sum(s => s.SubscriptionType.Price);
+            result.Add(new ChartDataPoint
+            {
+                Label = date.ToString("MMM dd"),
+                Value = revenue,
+                Color = colors[6 - i]
+            });
+        }
+        return result;
+    }
+
+    private List<ChartDataPoint> GetSubscriptionsByType(List<Subscription> subscriptions)
+    {
+        var colors = new[]
+ {
+    "#6c8ebf", // soft blue
+    "#77b28c", // muted green
+    "#d9b75c", // warm muted yellow
+    "#c97070"  // softer red
+};
+        var groupedData = subscriptions
+            .GroupBy(s => s.SubscriptionType.TypeName)
+            .Select((g, index) => new ChartDataPoint
+            {
+                Label = g.Key,
+                Value = g.Count(),
+                Color = colors[index % colors.Length]
+            })
+            .ToList();
+        return groupedData;
+    }
+
+    private List<ChartDataPoint> GetArticlesByStatus(List<Article> articles)
+    {
+        var colors = new[] { "#28a745", "#ffc107", "#dc3545", "#007bff", "#6c757d" };
+        var statusCounts = new[]
+        {
+                new { Status = "Published", Count = articles.Count(a => a.ArticleStatus == ArticleStatus.Published) },
+                new { Status = "Draft", Count = articles.Count(a => a.ArticleStatus == ArticleStatus.Draft) },
+                new { Status = "Pending Review", Count = articles.Count(a => a.ArticleStatus == ArticleStatus.PendingReview) },
+                new { Status = "Rejected", Count = articles.Count(a => a.ArticleStatus == ArticleStatus.Rejected) },
+                new { Status = "Archived", Count = articles.Count(a => a.ArticleStatus == ArticleStatus.Archived) }
+            };
+
+        return statusCounts
+            .Select((s, index) => new ChartDataPoint
+            {
+                Label = s.Status,
+                Value = s.Count,
+                Color = colors[index]
+            })
+            .ToList();
+    }
+
+    private List<ChartDataPoint> GetUsersByRole(List<User> users, List<Microsoft.AspNetCore.Identity.IdentityUserRole<string>> userRoles, List<Microsoft.AspNetCore.Identity.IdentityRole> roles)
+    {
+        var colors = new[]
+ {
+    "#20c997", // bright teal green
+    "#f8d210", // vivid yellow-gold
+    "#339af0", // bright sky blue
+    "#adb5bd"  // polished silver-gray
+};
+        var roleCounts = new[]
+        {
+                new { Role = "Customers", Count = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Customer) },
+                new { Role = "Journalists", Count = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Journalist) },
+                new { Role = "Editors", Count = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Editor) },
+                new { Role = "Admins", Count = GetUserCountByRole(users, userRoles, roles, StaticConsts.Role_Admin) }
+            };
+
+        return roleCounts
+            .Select((r, index) => new ChartDataPoint
+            {
+                Label = r.Role,
+                Value = r.Count,
+                Color = colors[index]
+            })
+            .ToList();
+    }
+
+   
+    #endregion
+
+
 }
+
+
