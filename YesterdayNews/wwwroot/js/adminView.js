@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     label: 'Subscriptions',
                     data: subscriptionsTrendData.map(d => d.value),
                     borderColor: '#3A2512',
-                    backgroundColor: '#b39080',
+                    //backgroundColor: '#FFFDFA',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4
