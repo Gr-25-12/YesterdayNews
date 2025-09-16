@@ -61,7 +61,7 @@ namespace YesterdayNews.Utils
                         CategoryId = selectedCategory.Id,
                         ContentSummary = article.Description ?? "No Description Found",
                         Headline = article.Title.Split("-")[0] ?? "No Title found",
-                        DateStamp = article.PublishedAt ?? DateTime.Now,
+                        DateStamp = DateTime.UtcNow,
                         AuthorId = authorzId,
                         LinkText = article.Title.Substring(0, 40) + "..." ?? article.Title.Substring(0, 15) ?? "Unknown link text",
                         Content = $"{article.Content}\n{article.Content}\n\n {article.Author}\n {article.SourceName}" ?? "No Content Found",
