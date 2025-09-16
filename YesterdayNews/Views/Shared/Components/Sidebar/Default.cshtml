@@ -6,10 +6,10 @@
 		var category = _categoryService.GetOne((int)categoryId);
 	}
 
-	@if (category?.Name.ToLower() == "economy")
-	{
+	@* @if (category?.Name.ToLower() == "economy")
+	{ *@
 		@await Component.InvokeAsync("Markets")
-	}
+	@* } *@
 	@await Component.InvokeAsync("MostViewed")
 	@await Component.InvokeAsync("MostLiked")
 </aside>
