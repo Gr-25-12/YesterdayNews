@@ -1,12 +1,10 @@
-using FinanceServices.Data;
+﻿using FinanceServices.Data;
 using FinanceServices.Models;
 using FinanceServices.Models.API;
 using FinanceServices.Services.BackgroundServices;
 using FinanceServices.Services.IServices;
 using FinanceServices.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
-
 
 namespace FinanceServices.Services
 {
@@ -14,6 +12,7 @@ namespace FinanceServices.Services
     {
         private readonly MarketDataCache _marketDataCache;
         private readonly ILogger<FinanceApiServices> _logger;
+
         public FinanceApiServices(MarketDataCache cache, ILogger<FinanceApiServices> logger)
         {
             _marketDataCache = cache;
@@ -34,15 +33,14 @@ namespace FinanceServices.Services
             MarketDto model = new MarketDto();
             if (symbols != null)
             {
-                CreateSmallModelList(ref model, symbols); //create lists for component view
+                CreateSmallModelList(ref model, symbols);
             }
             else
             {
-                CreateFullModelLists(ref model); //create full lists for full view
+                CreateFullModelLists(ref model);
             }
             model.UsMarketStatus = marketStatus;
 
-            //use allsymbols if symbols are null
             var symbolsToUse = (symbols == null || symbols.Length == 0) ? allSymbols : symbols;
             if (symbolsToUse != null)
             {
@@ -53,10 +51,12 @@ namespace FinanceServices.Services
             }
             return model;
         }
+
         public string[] GetSmallSymbolList()
         {
             return FinanceConstants.SmallSymbolsList;
         }
+
         public string GetMarketStatus(string exchange)
         {
             if (exchange.ToUpper() == FinanceConstants.US)
@@ -65,7 +65,6 @@ namespace FinanceServices.Services
                 {
                     return GetMarketStatusAsString(value);
                 }
-
             }
             _logger.LogError($"{exchange} Does not exist. please use US");
             return "Status Unknown";
@@ -73,18 +72,14 @@ namespace FinanceServices.Services
 
         private string GetMarketStatusAsString(MarketStatus value)
         {
-            string reply = string.Empty;
             if (value.IsOpen)
-                reply = "Open";
+                return "Open";
             else if (value.Session == "pre-market" || value.Session == "post-market")
-                reply = value.Session;
-            else if(!value.IsOpen && value.Holiday != string.Empty)
-            {
-                reply = "Closed - " + value.Holiday;
-            }
+                return value.Session;
+            else if (!value.IsOpen && value.Holiday != string.Empty)
+                return "Closed - " + value.Holiday;
             else
-                reply = "Closed";
-            return reply;
+                return "Closed";
         }
 
         private void SetMarketModel(ref MarketDto model, string symbol)
@@ -93,8 +88,12 @@ namespace FinanceServices.Services
             var cryptoInfo = _marketDataCache.GetCachedCryptoQuote(symbol);
             var forexInfo = _marketDataCache.GetCachedCurrencyQuote(symbol);
             var commInfo = _marketDataCache.GetCachedCommodityQuote(symbol);
+
             if (stockInfo != null)
             {
+                // ✅ Add website domain based on symbol
+                stockInfo.WebsiteDomain = GetWebsiteDomain(stockInfo.Symbol);
+
                 if (stockInfo.Exchange == FinanceConstants.NASDAQ)
                 {
                     UpdateNasdaq(ref model, stockInfo);
@@ -117,148 +116,159 @@ namespace FinanceServices.Services
                 UpdateCommodity(ref model, commInfo);
             }
         }
+
         private void CreateSmallModelList(ref MarketDto model, string[] symbols)
         {
             foreach (var symbol in symbols)
             {
-                
                 if (FinanceConstants.SortedNasdaqReference.Contains(symbol))
                 {
-                    var stock = new CachedStock { 
-                        Symbol = symbol, 
-                        DisplayName = "(Missing data)"
-                    };
-                    model.NasdaqStocks.Add(stock);
+                    model.NasdaqStocks.Add(new CachedStock
+                    {
+                        Symbol = symbol,
+                        DisplayName = "(Missing data)",
+                        WebsiteDomain = GetWebsiteDomain(symbol) // 
+                    });
                 }
                 else if (FinanceConstants.SortedNyseReference.Contains(symbol))
                 {
-                    var stock = new CachedStock { 
+                    model.NyseStocks.Add(new CachedStock
+                    {
                         Symbol = symbol,
-                        DisplayName = "(Missing data)"
-                    };
-                    model.NyseStocks.Add(stock);
+                        DisplayName = "(Missing data)",
+                        WebsiteDomain = GetWebsiteDomain(symbol) // 
+                    });
                 }
                 else if (FinanceConstants.SortedCryptoReference.Contains(symbol))
                 {
-                    var crypto = new Crypto { 
+                    model.CryptoPrices.Add(new Crypto
+                    {
                         Symbol = symbol,
                         Description = "(Missing data)"
-                    };
-                    model.CryptoPrices.Add(crypto);
+                    });
                 }
                 else if (FinanceConstants.SortedCommoditiesReference.Contains(symbol))
                 {
-                    var forex = new Forex { 
+                    model.Commodities.Add(new Forex
+                    {
                         Symbol = symbol,
                         Description = "(Missing data)"
-                    };
-                    model.Commodities.Add(forex);
+                    });
                 }
                 else if (FinanceConstants.SortedCurrenciesReference.Contains(symbol))
                 {
-                    var forex = new Forex { 
+                    model.Currencies.Add(new Forex
+                    {
                         Symbol = symbol,
                         Description = "(Missing data)"
-                    };
-                    model.Currencies.Add(forex);
+                    });
                 }
             }
         }
+
         private void CreateFullModelLists(ref MarketDto model)
         {
             foreach (var key in FinanceConstants.SortedNasdaqReference)
             {
-                var stock = new CachedStock
+                model.NasdaqStocks.Add(new CachedStock
                 {
                     Symbol = key,
-                    DisplayName = "(Missing data)"
-                };
-                model.NasdaqStocks.Add(stock);
+                    DisplayName = "(Missing data)",
+                    WebsiteDomain = GetWebsiteDomain(key) // 
+                });
             }
             foreach (var key in FinanceConstants.SortedNyseReference)
             {
-                var stock = new CachedStock
+                model.NyseStocks.Add(new CachedStock
                 {
                     Symbol = key,
-                    DisplayName = "(Missing data)"
-                };
-                model.NyseStocks.Add(stock);
+                    DisplayName = "(Missing data)",
+                    WebsiteDomain = GetWebsiteDomain(key) // 
+                });
             }
             foreach (var key in FinanceConstants.SortedCryptoReference)
             {
-                var crypto = new Crypto
+                model.CryptoPrices.Add(new Crypto
                 {
                     Symbol = key,
                     Description = "(Missing data)"
-                };
-                model.CryptoPrices.Add(crypto);
+                });
             }
             foreach (var key in FinanceConstants.SortedCommoditiesReference)
             {
-                var forex = new Forex { 
+                model.Commodities.Add(new Forex
+                {
                     Symbol = key,
                     Description = "(Missing data)"
-                };
-                model.Commodities.Add(forex);
+                });
             }
             foreach (var key in FinanceConstants.SortedCurrenciesReference)
             {
-                var forex = new Forex { 
+                model.Currencies.Add(new Forex
+                {
                     Symbol = key,
                     Description = "(Missing data)"
-                };
-                model.Currencies.Add(forex);
+                });
             }
         }
+
         private void UpdateNasdaq(ref MarketDto model, CachedStock stockInfo)
         {
             var index = model.NasdaqStocks.FindIndex(c => c.Symbol == stockInfo.Symbol);
             if (index >= 0)
-            {
                 model.NasdaqStocks[index] = stockInfo;
-            }
             else
                 model.NasdaqStocks.Add(stockInfo);
         }
+
         private void UpdateNyse(ref MarketDto model, CachedStock stockInfo)
         {
             var index = model.NyseStocks.FindIndex(c => c.Symbol == stockInfo.Symbol);
             if (index >= 0)
-            {
                 model.NyseStocks[index] = stockInfo;
-            }
             else
                 model.NyseStocks.Add(stockInfo);
         }
+
         private void UpdateCrypto(ref MarketDto model, Crypto cryptoInfo)
         {
             var index = model.CryptoPrices.FindIndex(c => c.Symbol == cryptoInfo.Symbol);
             if (index >= 0)
-            {
                 model.CryptoPrices[index] = cryptoInfo;
-            }
             else
                 model.CryptoPrices.Add(cryptoInfo);
         }
+
         private void UpdateCurrency(ref MarketDto model, Forex forexInfo)
         {
             var index = model.Currencies.FindIndex(c => c.Symbol == forexInfo.Symbol);
             if (index >= 0)
-            {
                 model.Currencies[index] = forexInfo;
-            }
             else
                 model.Currencies.Add(forexInfo);
         }
+
         private void UpdateCommodity(ref MarketDto model, Forex commInfo)
         {
             var index = model.Commodities.FindIndex(c => c.Symbol == commInfo.Symbol);
             if (index >= 0)
-            {
                 model.Commodities[index] = commInfo;
-            }
             else
                 model.Commodities.Add(commInfo);
+        }
+
+        // helper method: map stock symbol → company domain
+        private string GetWebsiteDomain(string symbol)
+        {
+            return symbol.ToUpper() switch
+            {
+                "AAPL" => "apple.com",
+                "MSFT" => "microsoft.com",
+                "AMZN" => "amazon.com",
+                "GOOGL" => "abc.xyz",
+                "TSLA" => "tesla.com",
+                _ => "" // fallback
+            };
         }
     }
 }
