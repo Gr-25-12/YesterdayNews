@@ -16,8 +16,21 @@ function loadDataTable(status) {
         },
         "columns": [
             {
-                "data": "headline",
-                "width": "5%",
+                "data": 'headline', "width": "50%", "render": function (data, type, row) {
+                    // Strip HTML tags for display
+                    const strippedData = $('<div>').html(data).text();
+
+                    return `
+                            <div class="headline-cell">
+                                <span class="short-text">${strippedData.length > 20 ? strippedData.slice(0, 20) + '...' : strippedData}</span>
+                                ${strippedData.length > 50 ?
+                                                `<span class="full-text d-none">${strippedData}</span>
+                                     <a href="#" class="toggle-headline ms-2 text-info underline">Show More</a>`
+                                                : ''
+                                            }
+                            </div>
+                        `;
+                }
             },
             {
                 "data": "author",
@@ -153,4 +166,13 @@ $(document).ready(function () {
     }
 
     setupImagePreview();
+});
+
+$(document).on('click', '.toggle-headline', function (e) {
+    e.preventDefault();
+    const $cell = $(this).closest('.headline-cell');
+    $cell.find('.short-text, .full-text').toggleClass('d-none');
+    $(this).text(function (i, text) {
+        return text === 'Show More' ? 'Show Less' : 'Show More';
+    });
 });
