@@ -1,69 +1,163 @@
 @model FinanceServices.Models.MarketDto
+
 @* Markets View Component *@
+@{
+    Func<string, string> getExchangeIcon = (exchange) =>
+    {
+        return exchange switch
+        {
+            "NASDAQ" => "devicon-google-plain colored",             // Google for NASDAQ
+            "NYSE" => "devicon-amazonwebservices-original colored", // AWS for NYSE
+            "CRYPTO" => "devicon-bitcoin-plain colored",            // Bitcoin for Crypto
+            "FOREX" => "fa-solid fa-money-bill-trend-up text-success",  // currency symbol
+            "COMMODITIES" => "fa-solid fa-oil-can text-warning",        // oil/metal symbol
+            _ => "devicon-devicon-plain"
+        };
+    };
+}
 
 <article class="mb-4 border p-3 pb-0 rounded shadow-sm">
     <a asp-controller="Home" asp-action="Markets" class="flex-grow-1 text-decoration-none d-block">
         <h5 class="text-secondary">Markets (in USD)</h5>
+
         <hr class="my-2" />
         <div class="table-responsive">
             <table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
 
-                @* NASDAQ *@
+                @* ---------------- NASDAQ ---------------- *@
                 <thead class="border-bottom">
                     <tr>
-                        <th>Logo</th>
-                        <th>
-                            NASDAQ -
-                            <span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
-                                (@Model.UsMarketStatus)
-                            </span>
-                        </th>
+                        <th>NASDAQ - <span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">(@Model.UsMarketStatus)</span></th>
                         <th>Price</th>
                         <th>Diff</th>
                         <th>In %</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @if (Model.NasdaqStocks.Count == 0 && !Model.UsMarketStatus.Contains("Closed"))
+                    {
+                        <tr><td colspan="4" class="text-danger">(Error, No data loaded)</td></tr>
+                    }
                     @foreach (var stock in Model.NasdaqStocks)
                     {
                         if (stock == null) continue;
                         <tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
-                            <td>
-                                @* Try company logo from Clearbit if WebsiteDomain is available *@
-                                @if (!string.IsNullOrEmpty(stock.WebsiteDomain))
-                                {
-                                    <img src="https://logo.clearbit.com/@stock.WebsiteDomain"
-                                         alt="@stock.DisplayName"
-                                         width="24" height="24"
-                                         style="object-fit:contain;" />
-                                }
-                                else
-                                {
-                                    @* Fallback: DevIcon by exchange type *@
-                                    <i class="devicon-google-plain colored" style="font-size:24px;"></i>
-                                }
-                            </td>
                             <td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
-                                <a href="@stock.WebsiteDomain" target="_blank" class="text-decoration-none text-dark">
-                                    @stock.DisplayName
-                                </a>
+                                <i class="@getExchangeIcon("NASDAQ")" style="font-size:24px; margin-right:5px;"></i>
+                                <span>@stock.DisplayName</span>
                             </td>
-                            <td class="price">
-                                @(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
-                            </td>
-                            <td>
-                                @(stock.Change != 0 ? stock.Change.ToString("0.##") : " - ")
-                            </td>
-                            <td>
-                                @(stock.PercentageChange != 0 ? stock.PercentageChange.ToString("0.##") + "%" : " - ")
-                            </td>
+                            <td>@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")</td>
+                            <td> - </td>
+                            <td> - </td>
                         </tr>
                     }
                 </tbody>
+
+                @* ---------------- NYSE ---------------- *@
+                <thead class="border-bottom">
+                    <tr>
+                        <th>NYSE - <span class="status-bar @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">(@Model.UsMarketStatus)</span></th>
+                        <th>Price</th>
+                        <th>Diff</th>
+                        <th>In %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var stock in Model.NyseStocks)
+                    {
+                        if (stock == null) continue;
+                        <tr data-exchange="NYSE" data-symbol="@stock.Symbol">
+                            <td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
+                                <i class="@getExchangeIcon("NYSE")" style="font-size:24px; margin-right:5px;"></i>
+                                <span>@stock.DisplayName</span>
+                            </td>
+                            <td>@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")</td>
+                            <td> - </td>
+                            <td> - </td>
+                        </tr>
+                    }
+                </tbody>
+
+                @* ---------------- CRYPTO ---------------- *@
+                <thead class="border-bottom">
+                    <tr>
+                        <th>CRYPTO - <span class="status-bar text-success">(Open)</span></th>
+                        <th>Price</th>
+                        <th>Diff</th>
+                        <th>In %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var crypto in Model.CryptoPrices)
+                    {
+                        if (crypto == null) continue;
+                        <tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
+                            <td class="description @(crypto.Description == "(Missing data)" ? "text-danger" : "")">
+                                <i class="@getExchangeIcon("CRYPTO")" style="font-size:24px; margin-right:5px;"></i>
+                                <span>@crypto.Description</span>
+                            </td>
+                            <td>@(crypto.CurrentPrice != 0 ? crypto.CurrentPrice.ToString("0.##") : " - ")</td>
+                            <td> - </td>
+                            <td> - </td>
+                        </tr>
+                    }
+                </tbody>
+
+                @* ---------------- FOREX ---------------- *@
+                <thead class="border-bottom">
+                    <tr>
+                        <th>FOREX - <span class="status-bar text-success">(Open)</span></th>
+                        <th>Price</th>
+                        <th>Diff</th>
+                        <th>In %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var forex in Model.Currencies)
+                    {
+                        if (forex == null) continue;
+                        <tr data-exchange="FOREX" data-symbol="@forex.Symbol">
+                            <td class="description @(forex.Description == "(Missing data)" ? "text-danger" : "")">
+                                <i class="@getExchangeIcon("FOREX")" style="font-size:24px; margin-right:5px;"></i>
+                                <span>@forex.Description</span>
+                            </td>
+                            <td>@(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : " - ")</td>
+                            <td> - </td>
+                            <td> - </td>
+                        </tr>
+                    }
+                </tbody>
+
+                @* ---------------- COMMODITIES ---------------- *@
+                <thead class="border-bottom">
+                    <tr>
+                        <th>Oil & Metals - <span class="status-bar text-success">(Open)</span></th>
+                        <th>Price</th>
+                        <th>Diff</th>
+                        <th>In %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var comm in Model.Commodities)
+                    {
+                        if (comm == null) continue;
+                        <tr data-exchange="COMMODITIES" data-symbol="@comm.Symbol">
+                            <td class="description @(comm.Description == "(Missing data)" ? "text-danger" : "")">
+                                <i class="@getExchangeIcon("COMMODITIES")" style="font-size:24px; margin-right:5px;"></i>
+                                <span>@comm.Description</span>
+                            </td>
+                            <td>@(comm.CurrentPrice != 0 ? comm.CurrentPrice.ToString("0.##") : " - ")</td>
+                            <td> - </td>
+                            <td> - </td>
+                        </tr>
+                    }
+                </tbody>
+
             </table>
         </div>
     </a>
 </article>
 
-@* Import DevIcon CSS *@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.11/signalr.min.js"></script>
+<script src="/js/Markets.js"></script>
