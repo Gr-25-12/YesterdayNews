@@ -138,32 +138,46 @@ namespace YesterdayNews.Services
             var country = response.city?.country ?? "XX";
             var cleanCity = LocationUtils.CleanCityName(city);
 
-            return response.list
-                .Select(f => new {
+            //  Parse all forecasts with original date
+            var forecasts = response.list
+                .Select(f => new
+                {
                     Forecast = f,
                     Date = DateTime.ParseExact(f.dt_txt, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal)
                 })
-                .GroupBy(x => x.Date.Date)
+                .ToList();
+
+            // Adjust grouping to treat 00:00 as part of the previous day
+            var groupedByAdjustedDate = forecasts
+                .GroupBy(x =>
+                    x.Date.TimeOfDay == TimeSpan.Zero
+                        ? x.Date.Date.AddDays(-1)  // Treat 00:00 as previous day
+                        : x.Date.Date
+                )
                 .OrderBy(g => g.Key)
-                .Take(6)  
-                .SelectMany(dayGroup => dayGroup
-                    .OrderBy(x => x.Date)
-                    .Select(x =>
+                .Take(6) // Only take 6 grouped days
+                .SelectMany(group => group.OrderBy(x => x.Date))
+                .ToList();
+
+            //  Project to ForecastVM
+            return groupedByAdjustedDate
+                .Select(x =>
+                {
+                    var weather = x.Forecast.weather?.FirstOrDefault();
+                    return new ForecastVM
                     {
-                        var weather = x.Forecast.weather?.FirstOrDefault();
-                        return new ForecastVM
-                        {
-                            City = city,
-                            Country = country,
-                            DisplayLocation = $"{cleanCity}, {country}",
-                            Date = x.Date,
-                            Summary = weather?.description ?? "No description",
-                            TemperatureC = (int)Math.Round(x.Forecast.main.temp),
-                            IconUrl = weather != null ? $"http://openweathermap.org/img/wn/{weather.icon}@2x.png" : null
-                        };
-                    }))
+                        City = city,
+                        Country = country,
+                        DisplayLocation = $"{cleanCity}, {country}",
+                        Date = x.Date, 
+                        Summary = weather?.description ?? "No description",
+                        TemperatureC = (int)Math.Round(x.Forecast.main.temp),
+                        IconUrl = weather != null ? $"http://openweathermap.org/img/wn/{weather.icon}@2x.png" : null
+                    };
+                })
                 .ToList();
         }
+
 
         private static List<ForecastVM> ProjectCurrentForecastData(OpenWeatherMapModel.Rootobject response)
         {

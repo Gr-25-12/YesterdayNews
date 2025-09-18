@@ -14,10 +14,13 @@
 
     var now = DateTime.Now;
     var grouped = Model
-        .GroupBy(f => f.Date.Date)
-        .OrderBy(g => g.Key)
-        .Take(6)
-        .ToList();
+      .GroupBy(f => f.Date.TimeOfDay == TimeSpan.Zero
+          ? f.Date.Date.AddDays(-1)
+          : f.Date.Date)
+      .OrderBy(g => g.Key)
+      .Take(6)
+      .ToList();
+
 }
 
 <div class="weather-forecast">
@@ -57,8 +60,9 @@
         @for (int i = 0; i < grouped.Count; i++)
         {
             var forecasts = grouped[i]
-            .OrderBy(f => f.Date.TimeOfDay)
+            .OrderBy(f => f.Date.TimeOfDay == TimeSpan.Zero ? TimeSpan.FromHours(24) : f.Date.TimeOfDay)
             .ToList();
+
 
             var day = forecasts.First().Date.Date;
             var isToday = day == now.Date;
@@ -84,7 +88,8 @@
                                 var displayTime = forecast.Date.Hour == 0 && forecast.Date.Minute == 0 ? "00:00" : forecast.Date.ToString("HH:mm");
 
                                 <div class="col-6 col-lg-4 col-xl-3">
-                                    <div class="card h-100  @(isPast ? "bg-light text-muted" : "") @(isCurrent ? "bg-warning bg-opacity-25 border-warning" : "border-light") position-relative">
+                                    <div class="card h-100 @(isPast ? "bg-light text-muted" : "bg-info bg-opacity-25 text-dark") @(isCurrent ? "border-warning" : "border-light")  position-relative">
+
                                         @if (isCurrent)
                                         {
                                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="z-index: 1050;">

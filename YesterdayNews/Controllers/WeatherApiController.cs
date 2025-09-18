@@ -63,9 +63,10 @@ namespace YesterdayNews.Controllers
                 return ViewComponent("WeatherApi", new { lat = lat.Value, lon = lon.Value });
             }
 
-            
-            var defaultLat = 0.0;
-            var defaultLon = 0.0;
+
+            var defaultLat = 59.3293;
+            var defaultLon = 18.0686;
+
 
             return ViewComponent("WeatherApi", new { lat = defaultLat, lon = defaultLon });
         }
