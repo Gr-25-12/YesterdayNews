@@ -16,7 +16,7 @@
 
 
         public const int Cookie_Expires_IN = 7;
-        public const int ARTICLE_ARCHIVED_IN = 7; //Days
+        public const int ARTICLE_ARCHIVED_IN = 30; //Days
 
 
         public const string SubscriptionType_Monthly = "Monthly";
