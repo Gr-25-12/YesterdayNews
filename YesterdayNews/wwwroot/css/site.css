@@ -681,7 +681,7 @@ description-container {
 
 .custom-radio:checked {
     background-color: var(--bs-secondary);
-    border-color: -white;
+    border-color: white;
 }
 
 .custom-radio {
