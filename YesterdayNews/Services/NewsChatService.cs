@@ -142,7 +142,7 @@ namespace YesterdayNews.Services
 
                 stats.AppendLine("📊 ARTICLE COUNTS BY STATUS:");
                 stats.AppendLine($"• Published: {publishedCount}");
-                stats.AppendLine($"• Draft: {draftCount}");
+                //stats.AppendLine($"• Draft: {draftCount}");
                 //stats.AppendLine($"• Pending Review: {pendingCount}");
                 //stats.AppendLine($"• Rejected: {rejectedCount}");
                 stats.AppendLine($"• Archived: {archivedCount}");
