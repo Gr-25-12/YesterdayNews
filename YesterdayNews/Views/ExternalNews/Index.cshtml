@@ -23,19 +23,19 @@
                 <h3 class="mb-0 border-bottom pb-2 flex-grow-1">
                     <i class="fas fa-star me-2"></i>SEBY News
                 </h3>
-                <span class="badge bg-secondary ms-3">@((ViewBag.SebyNews as List<ExternalNewsVM>)?.Count ?? 0) articles</span>
+                <span class="badge bg-secondary ms-3">@((ViewBag.SebyNews as List<Article>)?.Count ?? 0) articles</span>
             </div>
 
             <div class="row">
-                @foreach (var news in (List<ExternalNewsVM>)ViewBag.SebyNews)
+                @foreach (var news in (List<Article>)ViewBag.SebyNews)
                 {
                     <div class="col-12 col-md-6 mb-4">
                         <div class="card h-100 shadow-sm border-0">
-                            @if (!string.IsNullOrEmpty(news.UrlToImage))
+                            @if (!string.IsNullOrEmpty(news.ImageLink))
                             {
-                                <img src="@news.UrlToImage"
+                                <img src="@news.ImageLink"
                                      class="card-img-top"
-                                     alt="@news.Title"
+                                     alt="@news.Headline"
                                      style="height: 200px; object-fit: cover;"
                                      onerror="this.src='https://placehold.co/600x400?text=Image+Not+Found';" />
                             }
@@ -49,18 +49,18 @@
 
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title lh-base">
-                                    @(news.Title?.Length > 80 ? news.Title.Substring(0, 80) + "..." : news.Title)
+                                    @(news.Headline?.Length > 80 ? news.Headline.Substring(0, 80) + "..." : news.Headline)
                                 </h5>
 
-                                @if (!string.IsNullOrEmpty(news.Description))
+                                @if (!string.IsNullOrEmpty(news.ContentSummary))
                                 {
                                     <p class="card-text text-muted small">
-                                        @(news.Description.Length > 120 ? news.Description.Substring(0, 120) + "..." : news.Description)
+                                        @(news.ContentSummary.Length > 120 ? news.ContentSummary.Substring(0, 120) + "..." : news.ContentSummary)
                                     </p>
                                 }
 
                                 <div class="mt-auto">
-                                    <a href="@news.Url"
+                                    <a href="@news.ImageLink"
                                        target="_blank"
                                        rel="noopener noreferrer"
                                        class="btn btn-outline-primary btn-sm w-100">
