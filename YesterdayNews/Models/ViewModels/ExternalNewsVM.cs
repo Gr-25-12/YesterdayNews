@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using YesterdayNews.Models.Db;
 
 public class ExternalNewsVM
 {
@@ -90,3 +91,22 @@ public class NewsApiResponseProd
     [JsonPropertyName("data")]
     public List<ExternalNewsVMProd> Articles { get; set; } = new List<ExternalNewsVMProd>();
 }
+
+
+
+public class SebyArticlesResponse
+{ 
+
+[JsonPropertyName("items")]
+public List<Article> Articles { get; set; } = new List<Article>();
+
+    [JsonPropertyName("pageSize")]
+    public int? PageSize { get; set; }
+    [JsonPropertyName("page")]
+    public int? Page { get; set; }
+    [JsonPropertyName("total")]
+    public int? Total { get; set; }
+    [JsonPropertyName("hasNextPage")]
+    public bool? HasNextPage { get; set; }
+}
+

@@ -57,7 +57,7 @@ public class Program
         builder.Services.AddScoped<INewsChatService, NewsChatService>();
         builder.Services.AddHttpClient<ExternalNewsService>();
         builder.Services.AddHttpClient<DbInitalizlier>();
-   
+
         builder.Services.AddHttpClient();
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
          {

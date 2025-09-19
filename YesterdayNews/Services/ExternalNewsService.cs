@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using YesterdayNews.Models.Db;
 using YesterdayNews.Services.IServices;
 
 namespace YesterdayNews.Services
@@ -71,7 +72,15 @@ namespace YesterdayNews.Services
             }
         }
 
+        public async Task<List<Article>> GetTopFromSEBY()
+        {
+            var response = await _httpClient.GetAsync("https://api.sebynews.v7.ua/api/articles?PageSize=3");
+            var content = await response.Content.ReadAsStringAsync();
 
+            var SebyArticles = JsonSerializer.Deserialize<SebyArticlesResponse>(content);
+
+            return SebyArticles?.Articles;
+        }
         private List<ExternalNewsVM> ConvertProdToStandard(List<ExternalNewsVMProd> prodArticles)
         {
             return prodArticles.Select(prodArticle => new ExternalNewsVM

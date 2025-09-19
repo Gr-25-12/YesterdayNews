@@ -28,6 +28,8 @@ namespace YesterdayNews.Controllers
                 _cache.Set("TopNewsCache", news, TimeSpan.FromHours(2));
             }
 
+            ViewBag.SebyNews = await _externalnews.GetTopFromSEBY();
+
             return View(news);
         }
     }
