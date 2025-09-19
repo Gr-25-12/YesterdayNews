@@ -135,9 +135,9 @@ namespace YesterdayNews.Services
 
                 // Article counts by status
                 var publishedCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Published);
-                var draftCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Draft);
-                var pendingCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.PendingReview);
-                var rejectedCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Rejected);
+                //var draftCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Draft);
+                //var pendingCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.PendingReview);
+                //var rejectedCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Rejected);
                 var archivedCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Archived);
 
                 stats.AppendLine("📊 ARTICLE COUNTS BY STATUS:");
@@ -146,7 +146,7 @@ namespace YesterdayNews.Services
                 //stats.AppendLine($"• Pending Review: {pendingCount}");
                 //stats.AppendLine($"• Rejected: {rejectedCount}");
                 stats.AppendLine($"• Archived: {archivedCount}");
-                stats.AppendLine($"• Total Articles: {publishedCount + draftCount + pendingCount + rejectedCount + archivedCount}");
+                stats.AppendLine($"• Total Articles: {publishedCount + archivedCount}");
                 stats.AppendLine();
 
                 // Categories
