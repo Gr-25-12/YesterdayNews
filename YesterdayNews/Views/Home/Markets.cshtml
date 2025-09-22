@@ -1,287 +1,488 @@
-@model FinanceServices.Models.MarketDto;
+currencies
+
+
+@model FinanceServices.Models.MarketDto
 @{
-	ViewData["Title"] = "Markets";
+    ViewData["Title"] = "Markets";
 }
 
+@functions {
+    public string GetIconClass(string symbol)
+    {
+        return symbol?.ToUpper() switch
+        {
+            "AAPL" => "fab fa-apple text-muted",
+            "MSFT" => "fab fa-microsoft text-primary",
+            "GOOGL" or "GOOG" => "fab fa-google text-danger",
+            "NVDA" => "fab fa-nvidia text-green",
+            "AMZN" => "fab fa-amazon text-warning",
+            "TSLA" => "fab fa-tesla text-danger",
+            "META" => "fab fa-meta text-info",
+            "NFLX" => "fab fa-netflix text-danger",
+            "JPM" => "fas fa-university text-info",
+            "BAC" => "fas fa-piggy-bank text-warning",
+            "XOM" => "fas fa-gas-pump text-danger",
+            "WMT" => "fas fa-shopping-cart text-success",
+            "PG" => "fas fa-soap text-primary",
+            "DIS" => "fas fa-film text-warning",
+            "V" or "MA" => "fas fa-credit-card text-success",
+            _ => "fas fa-chart-bar text-muted"
+        };
+    }
+    public string GetCryptoClass(string symbol)
+    {
+        return symbol?.ToUpper() switch
+        {
+            "BINANCE:BTCUSDT" => "fab fa-bitcoin text-warning",   // Bitcoin
+            "BINANCE:ETHUSDT" => "fab fa-ethereum text-dark",     // Ethereum
+            "BINANCE:BNBUSDT" => "fab fa-binance text-warning",   // Binance Coin
+            "BINANCE:SOLUSDT" => "fas fa-sun text-warning",       // Solana
+            "BINANCE:XRPUSDT" => "fas fa-water text-primary",     // Ripple
+            "BINANCE:ADAUSDT" => "fas fa-coins text-info",        // Cardano
+            "BINANCE:AVAXUSDT" => "fas fa-mountain text-danger",  // Avalanche
+            "BINANCE:DOGEUSDT" => "fas fa-dog text-warning",      // Dogecoin
+            "BINANCE:DOTUSDT" => "fas fa-circle-notch text-danger", // Polkadot
+            "BINANCE:MATICUSDT" => "fas fa-gem text-info",        // Polygon
+            "BINANCE:LTCUSDT" => "fas fa-coins text-secondary",   // Litecoin
+            "BINANCE:SHIBUSDT" => "fas fa-paw text-danger",       // Shiba Inu
+            "BINANCE:USDCUSDT" => "fas fa-circle-dollar text-info", // USD Coin
+            "BINANCE:TRXUSDT" => "fas fa-link text-danger",       // Tron
+            "BINANCE:UNIUSDT" => "fas fa-atom text-purple",       // Uniswap
+
+            // fallback
+            _ => "fas fa-coins text-muted"
+        };
+    }
+
+    private static readonly Dictionary<string, string> ForexIcons = new()
+    {
+        { "EUR/USD", "fas fa-euro-sign text-primary" },
+        { "USD/JPY", "fas fa-yen-sign text-success" },
+        { "GBP/USD", "fas fa-pound-sign text-warning" },
+        { "AUD/USD", "fas fa-dollar-sign text-info" },
+        { "USD/CAD", "fas fa-dollar-sign text-danger" }
+    };
+
+    public string GetForexClass(string displaySymbol, string description)
+    {
+        if (string.IsNullOrWhiteSpace(displaySymbol) && string.IsNullOrWhiteSpace(description))
+            return "fas fa-money-bill text-muted";
+
+        // Normalize symbol: remove whitespace & uppercase
+        var symbol = (displaySymbol ?? description ?? "").Trim().ToUpper();
+
+        // Try exact match first
+        if (ForexIcons.TryGetValue(symbol, out var icon))
+            return icon;
+
+        // Fallback: try to detect currency code in description
+        if (description != null)
+        {
+            if (description.Contains("EUR")) return "fas fa-euro-sign text-primary";
+            if (description.Contains("JPY")) return "fas fa-yen-sign text-success";
+            if (description.Contains("GBP")) return "fas fa-pound-sign text-warning";
+            if (description.Contains("AUD")) return "fas fa-dollar-sign text-info";
+            if (description.Contains("CAD")) return "fas fa-dollar-sign text-danger";
+        }
+
+        return "fas fa-money-bill text-muted";
+    }
+
+    private static readonly Dictionary<string, string> CommodityIcons = new()
+    {
+        { "GOLD PER OUNCE (1OZ)", "fas fa-gem text-warning" },
+        { "SILVER PER OUNCE (1OZ)", "fas fa-gem text-secondary" },
+        { "BRENT CRUDE OIL", "fas fa-oil-well text-danger" },
+        { "WTI CRUDE OIL", "fas fa-oil-well text-danger" }
+    };
+
+    public string GetCommodityClass(string description)
+    {
+        if (string.IsNullOrWhiteSpace(description))
+            return "fas fa-chart-bar text-muted";
+
+        var key = description.Trim().ToUpper();
+
+        if (CommodityIcons.TryGetValue(key, out var icon))
+            return icon;
+
+        // Fallback generic icon
+        return "fas fa-chart-bar text-muted";
+    }
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+
 <div class="container my-4">
-	<div class="row justify-content-center">
-		<div class="col-12 col-md-7 col-lg-8">
-			@* NASDAQ *@
-			<div class="card p-3 mb-3">
-				<div class="table-responsive">
-					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
-						<thead class="border-bottom"> 
-							<tr>
-								<th class="fs-5">Nasdaq - 
-									<span class="status-bar fs-5 @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
-										(@Model.UsMarketStatus)
-									</span>
-								</th>
-								<th>Price (USD)</th>
-								<th>Diff</th>
-								<th>In %</th>
-							</tr>
-						</thead>
-						<tbody>
-							@if (Model.NasdaqStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
-							{
-								<tr>
-									<td class="text-danger"> (Error, No data loaded)</td>
-									<td> - </td>
-									<td> - </td>
-									<td> - </td>
-								</tr>
-							}
-							@foreach (var stock in Model.NasdaqStocks)
-							{						
-								if (stock == null) continue;
-								<tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
-									<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
-										@stock.DisplayName
-									</td>
-									@if (Model.UsMarketStatus.Contains("Closed") == false)
-									{
-										<td class="price">
-											@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
-										</td>
-										<td class="change"> - </td>
-										<td class="percentage"> - </td>
-									}
-									else
-									{
-										<td class="price">
-											@(stock.ClosingPrice != 0 ? stock.ClosingPrice.ToString("0.##") : " - ")
-										</td>
-										<td> - </td>
-										<td> - </td>
-									}
-									
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-				<div>
-					<small>
-						(Price changes are calculated from yesterdays closing prices)
-					</small>
-				</div>
-			</div>
-			@* NYSE *@
-			<div class="card p-3 mb-3">
-				<div class="table-responsive">
-					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
-						<thead class="border-bottom">
-							<tr>
-								<th class="fs-5">
-									NYSE -
-									<span class="status-bar fs-5 @(Model.UsMarketStatus == "Open" ? "text-success" : "text-danger")">
-										(@Model.UsMarketStatus)
-									</span>
-								</th>
-								<th>Price (USD)</th>
-								<th>Diff</th>
-								<th>In %</th>
-							</tr>
-						</thead>
-						<tbody>
-							@if (Model.NyseStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
-							{
-								<tr>
-									<td class="text-danger"> (Error, No data loaded)</td>
-									<td> - </td>
-									<td> - </td>
-									<td> - </td>
-								</tr>
-							}
-							@foreach (var stock in Model.NyseStocks)
-							{
-								if (stock == null) continue;
-								<tr data-exchange="NYSE" data-symbol="@stock.Symbol">
-									<td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
-										@stock.DisplayName
-									</td>
-									@if (Model.UsMarketStatus.Contains("Closed") == false)
-									{
-										<td class="price">
-											@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")
-										</td>
-										<td class="change"> - </td>
-										<td class="percentage"> - </td>
-									}
-									else
-									{
-										<td>
-											@(stock.ClosingPrice != 0 ? stock.ClosingPrice.ToString("0.##") : " - ")
-										</td>
-										<td> - </td>
-										<td> - </td>
-									}
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-				<div>
-					<small>
-						(Price changes are calculated from yesterdays closing prices)
-					</small>
-				</div>
-			</div>
-			@* Binance / Crypto *@
-			<div class="card p-3 mb-3">
-				<div class="table-responsive">
-					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
-						<thead class="border-bottom">
-							<tr>
-								<th class="fs-5">
-									Crypto Currency -
-									<span class="status-bar fs-5 text-success" )">
-										( Open )
-									</span>
-								</th>
-								<th>Price (USD)</th>
-								<th>Diff</th>
-								<th>In %</th>
-							</tr>
-						</thead>
-						<tbody>
-							@if (Model.CryptoPrices.Count <= 0)
-							{
-								<tr>
-									<td class="text-danger"> (Error, No data loaded)</td>
-									<td> - </td>
-									<td> - </td>
-									<td> - </td>
-								</tr>
-							}
-							@foreach (var crypto in Model.CryptoPrices)
-							{
-								if (crypto == null) continue;
-								<tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
-									<td class="description @(crypto.Description == "(Missing data)" ? "text-danger" : "")">
-										@crypto.Description
-									</td>
-									<td class="price">
-										@(crypto.CurrentPrice != 0 ? crypto.CurrentPrice.ToString("0.##") : " - ")
-									</td>
-									<td class="change"> - </td>
-									<td class="percentage"> - </td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-				<div>
-					<small>
-						(Price changes are calculated from prices 24 hours ago (or last saved price))
-					</small>
-				</div>
-			</div>
-			@* Oanada / Forex Currencies *@
-			<div class="card p-3 mb-3">
-				<div class="table-responsive">
-					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
-						<thead class="border-bottom">
-							<tr>
-								<th class="fs-5">Forex Currencies - 
-									<span class="status-bar fs-5 text-success" )">
-										( Open )
-									</span>
-								</th>
-								<th>Price (USD)</th>
-								<th>Diff</th>
-								<th>In %</th>
-							</tr>
-						</thead>
-						<tbody>
-							@if (Model.Currencies.Count <= 0)
-							{
-								<tr>
-									<td class="text-danger"> (Error, No data loaded)</td>
-									<td> - </td>
-									<td> - </td>
-									<td> - </td>
-								</tr>
-							}
-							@foreach (var forex in Model.Currencies)
-							{
-								if (forex == null) continue;
-								<tr data-exchange="FOREX" data-symbol="@forex.Symbol">
-									<td class="description @(forex.Description == "(Missing data)" ? "text-danger" : "")">
-										@forex.Description
-									</td>
-									<td class="price">
-										@(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : " - ")
-									</td>
-									<td class="change"> - </td>
-									<td class="percentage"> - </td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-				<div>
-					<small>
-						(Price changes are calculated from prices 24 hours ago (or last saved price))
-					</small>
-				</div>
-			</div>
-			@* Oanada / Forex Commodities *@
-			<div class="card p-3 mb-3">
-				<div class="table-responsive">
-					<table id="marketTable" class="table dt-responsive nowrap" style="width:100%">
-						<thead class="border-bottom">
-							<tr>
-								<th class="fs-5">Oil & Metals - 
-									<span class="status-bar fs-5 text-success" )">
-										( Open )
-									</span>
-								</th>
-								<th>Price (USD)</th>
-								<th>Diff</th>
-								<th>In %</th>
-							</tr>
-						</thead>
-						<tbody>
-							@if (Model.Commodities.Count <= 0)
-							{
-								<tr>
-									<td class="text-danger"> (Error, No data loaded)</td>
-									<td> - </td>
-									<td> - </td>
-									<td> - </td>
-								</tr>
-							}
-							@foreach (var comm in Model.Commodities)
-							{
-								if (comm == null) continue;
-								<tr data-exchange="FOREX" data-symbol="@comm.Symbol">
-									<td class="description @(comm.Description == "(Missing data)" ? "text-danger" : "")">
-										@comm.Description
-									</td>
-									<td class="price">
-										@(comm.CurrentPrice != 0 ? comm.CurrentPrice.ToString("0.##") : " - ")
-									</td>
-									<td class="change"> - </td>
-									<td class="percentage"> - </td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-				<div>
-					<small>
-						(Price changes are calculated from prices 24 hours ago (or last saved price))
-					</small>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-md-5 col-lg-4">
-			@await Component.InvokeAsync("Sidebar", new { categoryId = ViewData["SelectedCategory"] ?? 0 })
-		</div>
-	</div>
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-7 col-lg-8">
+
+            <!-- Market Status Header -->
+            <div class="card mb-4 bg-light border-0 shadow-sm">
+                <div class="card-body py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="mb-0 text-primary">
+                                <i class="fas fa-chart-line me-2"></i>Market Overview
+                            </h4>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="badge bg-@(Model.UsMarketStatus == "Open" ? "success" : "danger") fs-6">
+                                <i class="fas fa-circle me-1 small"></i>US Markets: @Model.UsMarketStatus
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NASDAQ -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="devicon-nasdaq-plain colored me-2 fs-4"></i>
+                        NASDAQ
+                        <span class="badge ms-2 bg-@(Model.UsMarketStatus == "Open" ? "success" : "danger")">
+                            @Model.UsMarketStatus
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Stock</th>
+                                    <th>Price (USD)</th>
+                                    <th>Change</th>
+                                    <th class="text-end pe-4">% Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.NasdaqStocks.Count <= 0 && Model.UsMarketStatus.Contains("Closed") == false)
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-danger py-3">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>No data available
+                                        </td>
+                                    </tr>
+                                }
+                                @foreach (var stock in Model.NasdaqStocks)
+                                {
+                                    if (stock != null)
+                                    {
+                                        <tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="@(GetIconClass(stock.Symbol)) me-2"></i>
+                                                    <span class="@(stock.DisplayName == "(Missing data)" ? "text-danger" : "fw-medium")">
+                                                        @stock.DisplayName
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            @if (!Model.UsMarketStatus.Contains("Closed"))
+                                            {
+                                                <td class="price fw-bold">
+                                                    @(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : "-")
+                                                </td>
+                                                <td class="change">-</td>
+                                                <td class="percentage text-end pe-4">-</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="fw-bold">
+                                                    @(stock.ClosingPrice != 0 ? stock.ClosingPrice.ToString("0.##") : "-")
+                                                </td>
+                                                <td>-</td>
+                                                <td class="text-end pe-4">-</td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>Price changes calculated from yesterday's closing prices
+                    </small>
+                </div>
+            </div>
+
+            <!-- NYSE -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="fas fa-building-columns text-primary me-2 fs-4"></i>
+                        NYSE
+                        <span class="badge ms-2 bg-@(Model.UsMarketStatus == "Open" ? "success" : "danger")">
+                            @Model.UsMarketStatus
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Stock</th>
+                                    <th>Price (USD)</th>
+                                    <th>Change</th>
+                                    <th class="text-end pe-4">% Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.NyseStocks.Count <= 0 && !Model.UsMarketStatus.Contains("Closed"))
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-danger py-3">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>No data available
+                                        </td>
+                                    </tr>
+                                }
+                                @foreach (var stock in Model.NyseStocks)
+                                {
+                                    if (stock != null)
+                                    {
+                                        <tr data-exchange="NYSE" data-symbol="@stock.Symbol">
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="@(GetIconClass(stock.Symbol)) me-2"></i>
+                                                    <span class="@(stock.DisplayName == "(Missing data)" ? "text-danger" : "fw-medium")">
+                                                        @stock.DisplayName
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            @if (!Model.UsMarketStatus.Contains("Closed"))
+                                            {
+                                                <td class="price fw-bold">
+                                                    @(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : "-")
+                                                </td>
+                                                <td class="change">-</td>
+                                                <td class="percentage text-end pe-4">-</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="fw-bold">
+                                                    @(stock.ClosingPrice != 0 ? stock.ClosingPrice.ToString("0.##") : "-")
+                                                </td>
+                                                <td>-</td>
+                                                <td class="text-end pe-4">-</td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>Price changes calculated from yesterday's closing prices
+                    </small>
+                </div>
+            </div>
+
+            <!-- Crypto -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="fab fa-bitcoin text-warning me-2 fs-4"></i>
+                        Cryptocurrency
+                        <span class="badge ms-2 bg-success">
+                            <i class="fas fa-circle me-1 small"></i>Open
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Crypto</th>
+                                    <th>Price (USD)</th>
+                                    <th>Change</th>
+                                    <th class="text-end pe-4">% Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.CryptoPrices.Count <= 0)
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-danger py-3">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>No data available
+                                        </td>
+                                    </tr>
+                                }
+                                @foreach (var crypto in Model.CryptoPrices)
+                                {
+                                    if (crypto != null)
+                                    {
+                                        <tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="@(GetCryptoClass(crypto.Symbol)) me-2"></i>
+                                                    <span class="@(crypto.Description == "(Missing data)" ? "text-danger" : "fw-medium")">
+                                                        @crypto.Description
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="price fw-bold">
+                                                @(crypto.CurrentPrice != 0 ? crypto.CurrentPrice.ToString("0.##") : "-")
+                                            </td>
+                                            <td class="change">-</td>
+                                            <td class="percentage text-end pe-4">-</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>Price changes calculated from 24 hours ago
+                    </small>
+                </div>
+            </div>
+
+            <!-- Forex -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="fas fa-money-bill-wave text-success me-2 fs-4"></i>
+                        Forex Currencies
+                        <span class="badge ms-2 bg-success">
+                            <i class="fas fa-circle me-1 small"></i>Open
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Currency</th>
+                                    <th>Price (USD)</th>
+                                    <th>Change</th>
+                                    <th class="text-end pe-4">% Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Currencies.Count <= 0)
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-danger py-3">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>No data available
+                                        </td>
+                                    </tr>
+                                }
+                                @foreach (var forex in Model.Currencies)
+                                {
+                                    if (forex != null)
+                                    {
+                                        <tr data-exchange="FOREX" data-symbol="@forex.Symbol">
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="@(GetForexClass(forex.DisplaySymbol, forex.Description)) me-2"></i>
+
+
+                                                    <span class="@(forex.Description == "(Missing data)" ? "text-danger" : "fw-medium")">
+                                                        @forex.Description
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="price fw-bold">
+                                                @(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : "-")
+                                            </td>
+                                            <td class="change">-</td>
+                                            <td class="percentage text-end pe-4">-</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>Price changes calculated from 24 hours ago
+                    </small>
+                </div>
+            </div>
+
+            <!-- Commodities -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="fas fa-oil-well text-danger me-2 fs-4"></i>
+                        Oil & Metals
+                        <span class="badge ms-2 bg-success">
+                            <i class="fas fa-circle me-1 small"></i>Open
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Commodity</th>
+                                    <th>Price (USD)</th>
+                                    <th>Change</th>
+                                    <th class="text-end pe-4">% Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Commodities.Count <= 0)
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-danger py-3">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>No data available
+                                        </td>
+                                    </tr>
+                                }
+                                @foreach (var comm in Model.Commodities)
+                                {
+                                    if (comm != null)
+                                    {
+                                        <tr data-exchange="FOREX" data-symbol="@comm.Symbol">
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="@(GetCommodityClass(comm.Description)) me-2"></i>
+
+                                                    <span class="@(comm.Description == "(Missing data)" ? "text-danger" : "fw-medium")">
+                                                        @comm.Description
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="price fw-bold">
+                                                @(comm.CurrentPrice != 0 ? comm.CurrentPrice.ToString("0.##") : "-")
+                                            </td>
+                                            <td class="change">-</td>
+                                            <td class="percentage text-end pe-4">-</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>Price changes calculated from 24 hours ago
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-5 col-lg-4">
+            @await Component.InvokeAsync("Sidebar", new { categoryId = ViewData["SelectedCategory"] ?? 0 })
+        </div>
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.11/signalr.min.js"></script>
 <script src="/js/Markets.js"></script>
+
