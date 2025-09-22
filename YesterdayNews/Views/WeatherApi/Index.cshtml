@@ -1,0 +1,32 @@
+﻿@model List<YesterdayNews.Models.ViewModels.ForecastVM>
+
+@{
+    ViewData["Title"] = "Weather Forecast";
+    var searchedCity = Context.Request.Query["city"];
+}
+
+<h2>Weather Forecast</h2>
+
+<div class="m-2 mb-4 p-1 d-flex bg-primary rounded">
+    <form method="get" asp-controller="WeatherApi" asp-action="Index" class="d-flex w-100">
+        <input type="text" name="city" class="form-control me-2" placeholder="Enter city name" value="@(Model.Any() ? "" : searchedCity)" />
+
+        <button type="submit" class="btn btn-secondary">
+            <i class="bi bi-search"></i>
+        </button>
+    </form>
+</div>
+
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning mt-4 text-center">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        @ViewBag.Message  "No forecast data found."
+    </div>
+
+}
+else
+{
+    @await Html.PartialAsync("_ForecastPartial", Model)
+}

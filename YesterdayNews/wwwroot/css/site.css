@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap');
 
 
 html {
@@ -673,10 +673,14 @@ description-container {
         border-bottom: none;
     }
 
+
+
+
 .status-badge {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
 }
+
 }
 
 .custom-radio:checked {
@@ -686,6 +690,7 @@ description-container {
 
 .custom-radio {
     accent-color: var(--bs-secondary);
+
 }
 
 .news-chat-toggle {
