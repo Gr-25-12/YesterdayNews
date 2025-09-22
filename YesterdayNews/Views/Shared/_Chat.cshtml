@@ -5,7 +5,7 @@
 @inject ISubscriptionServices SubscriptionService
 
 @{
-	ViewData["Title"] = "Our External sources";
+	
 	var user = await UserManager.GetUserAsync(User);
 	var appUser = user as User;
 	var hasActiveSubscription = user != null && SubscriptionService.HasActiveSubscription(user.Id);
@@ -74,7 +74,7 @@
 <div class="tooltip-container">
 	<div class="tooltip">
 		<div class="profile">
-			<div class="user">
+			<div class="user"> 			
 				<div class="img"><i class="fas fa-robot"></i></div>
 				<div class="details">
 					<div class="name">Sir Newston</div>

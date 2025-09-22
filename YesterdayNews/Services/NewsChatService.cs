@@ -130,27 +130,52 @@ namespace YesterdayNews.Services
             try
             {
                 var stats = new StringBuilder();
-                stats.AppendLine("=== YESTERDAYNEWS DATABASE STATISTICS ===");
+                stats.AppendLine("=== 📊 YESTERDAYNEWS DATABASE STATISTICS ===");
                 stats.AppendLine();
 
-                // Article counts by status
+                // --- Article counts
                 var publishedCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Published);
-                //var draftCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Draft);
-                //var pendingCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.PendingReview);
-                //var rejectedCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Rejected);
                 var archivedCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Archived);
 
-                stats.AppendLine("📊 ARTICLE COUNTS BY STATUS:");
-                stats.AppendLine($"• Published: {publishedCount}");
-                //stats.AppendLine($"• Draft: {draftCount}");
-                //stats.AppendLine($"• Pending Review: {pendingCount}");
-                //stats.AppendLine($"• Rejected: {rejectedCount}");
-                stats.AppendLine($"• Archived: {archivedCount}");
-                stats.AppendLine($"• Total Articles: {publishedCount + archivedCount}");
+                stats.AppendLine("📰 Article Counts:");
+                stats.AppendLine($"  • Published: {publishedCount}");
+                stats.AppendLine($"  • Archived: {archivedCount}");
+                stats.AppendLine($"  • Total: {publishedCount + archivedCount}");
                 stats.AppendLine();
 
-                // Categories
-                var categoriesWithCounts = await _context.Articles
+                // --- Most viewed article
+                var mostViewed = await _context.Articles
+                    .Where(a => a.ArticleStatus == ArticleStatus.Published)
+                    .OrderByDescending(a => a.Views)
+                    .Select(a => new { a.Headline, a.Views, a.DateStamp })
+                    .FirstOrDefaultAsync();
+
+                if (mostViewed != null)
+                {
+                    stats.AppendLine("👀 Most Viewed Article:");
+                    stats.AppendLine($"  • \"{mostViewed.Headline}\"");
+                    stats.AppendLine($"    → {mostViewed.Views:N0} views ({mostViewed.DateStamp:MMM dd, yyyy})");
+                    stats.AppendLine();
+                }
+
+                // --- Most liked article
+                var mostLiked = await _context.Articles
+                    .Where(a => a.ArticleStatus == ArticleStatus.Published)
+                    .OrderByDescending(a => a.Likes)
+                    .Select(a => new { a.Headline, a.Likes, a.DateStamp, a.Author.FullName })
+                    .FirstOrDefaultAsync();
+
+                if (mostLiked != null)
+                {
+                    stats.AppendLine("❤️ Most Liked Article:");
+                    stats.AppendLine($"  • \"{mostLiked.Headline}\"");
+                    stats.AppendLine($"    → {mostLiked.Likes:N0} likes ({mostLiked.DateStamp:MMM dd, yyyy})");
+                    stats.AppendLine($"    → by {mostLiked.FullName}");
+                    stats.AppendLine();
+                }
+
+                // --- Categories
+                var categories = await _context.Articles
                     .Where(a => a.ArticleStatus == ArticleStatus.Published)
                     .Include(a => a.Category)
                     .GroupBy(a => a.Category.Name)
@@ -158,121 +183,117 @@ namespace YesterdayNews.Services
                     .OrderByDescending(x => x.Count)
                     .ToListAsync();
 
-                stats.AppendLine("📂 ARTICLES BY CATEGORY:");
-                foreach (var cat in categoriesWithCounts)
-                {
-                    stats.AppendLine($"• {cat.Category}: {cat.Count} articles");
-                }
+                stats.AppendLine("📂 Articles by Category:");
+                foreach (var cat in categories)
+                    stats.AppendLine($"  • {cat.Category}: {cat.Count}");
                 stats.AppendLine();
 
-                // Top authors
-                var topAuthors = await _context.Articles
+                // --- Recent 5 articles
+                var recent = await _context.Articles
                     .Where(a => a.ArticleStatus == ArticleStatus.Published)
-                    .Include(a => a.Author)
-                    .GroupBy(a => new { a.Author.FirstName, a.Author.LastName })
-                    .Select(g => new {
-                        AuthorName = g.Key.FirstName + " " + g.Key.LastName,
-                        ArticleCount = g.Count(),
-                        TotalViews = g.Sum(x => x.Views),
-                        TotalLikes = g.Sum(x => x.Likes)
-                    })
-                    .OrderByDescending(x => x.ArticleCount)
-                    .Take(10)
-                    .ToListAsync();
-
-                stats.AppendLine("👥 TOP AUTHORS:");
-                foreach (var author in topAuthors)
-                {
-                    stats.AppendLine($"• {author.AuthorName}: {author.ArticleCount} articles, {author.TotalViews} views, {author.TotalLikes} likes");
-                }
-                stats.AppendLine();
-
-                // Most popular articles
-                var popularArticles = await _context.Articles
-                    .Where(a => a.ArticleStatus == ArticleStatus.Published)
-                    .Include(a => a.Author)
-                    .Include(a => a.Category)
-                    .OrderByDescending(a => a.Views)
-                    .Take(5)
-                    .Select(a => new {
-                        a.Headline,
-                        AuthorName = a.Author.FirstName + " " + a.Author.LastName,
-                        a.Category.Name,
-                        a.Views,
-                        a.Likes,
-                        a.DateStamp
-                    })
-                    .ToListAsync();
-
-                stats.AppendLine("🔥 MOST POPULAR ARTICLES:");
-                foreach (var article in popularArticles)
-                {
-                    stats.AppendLine($"• '{article.Headline}' by {article.AuthorName} - {article.Views} views, {article.Likes} likes ({article.DateStamp:MMM dd, yyyy})");
-                }
-                stats.AppendLine();
-
-                // Recent activity
-                var recentArticles = await _context.Articles
-                    .Where(a => a.ArticleStatus == ArticleStatus.Published)
-                    .Include(a => a.Author)
                     .OrderByDescending(a => a.DateStamp)
                     .Take(5)
-                    .Select(a => new {
-                        a.Headline,
-                        AuthorName = a.Author.FirstName + " " + a.Author.LastName,
-                        a.DateStamp
-                    })
+                    .Select(a => new { a.Headline, a.DateStamp })
                     .ToListAsync();
 
-                stats.AppendLine("📅 RECENTLY PUBLISHED:");
-                foreach (var article in recentArticles)
-                {
-                    stats.AppendLine($"• '{article.Headline}' by {article.AuthorName} ({article.DateStamp:MMM dd, yyyy})");
-                }
+                stats.AppendLine("🆕 Recently Published:");
+                foreach (var art in recent)
+                    stats.AppendLine($"  • \"{art.Headline}\" ({art.DateStamp:MMM dd, yyyy})");
                 stats.AppendLine();
 
-                // Engagement stats
-                var totalViews = await _context.Articles
-                    .Where(a => a.ArticleStatus == ArticleStatus.Published)
-                    .SumAsync(a => a.Views);
+                var plans = await _context.SubscriptionTypes.ToListAsync();
+                stats.AppendLine("💳 Subscription Plans:");
+                stats.AppendLine($"  • Total Plans: {plans.Count}");
 
-                var totalLikes = await _context.Articles
-                    .Where(a => a.ArticleStatus == ArticleStatus.Published)
-                    .SumAsync(a => a.Likes);
+                foreach (var plan in plans)
+                {
+                    stats.AppendLine($"    - {plan.TypeName}: {plan.Price:C}");
+                }
 
-                var averageViews = publishedCount > 0 ? totalViews / publishedCount : 0;
-                var averageLikes = publishedCount > 0 ? totalLikes / publishedCount : 0;
+                stats.AppendLine();
 
-                stats.AppendLine("💡 ENGAGEMENT STATISTICS:");
-                stats.AppendLine($"• Total Views: {totalViews:N0}");
-                stats.AppendLine($"• Total Likes: {totalLikes:N0}");
-                stats.AppendLine($"• Average Views per Article: {averageViews:N0}");
-                stats.AppendLine($"• Average Likes per Article: {averageLikes:N0}");
+
+
+                var (editorCount, journalistCount) = await GetEditorsAndJournlistsNumber();
+
+
+                stats.AppendLine("👥 User Statistics:\n");
+                stats.AppendLine($"  • Editors (Editor): {editorCount}");
+                stats.AppendLine($"  • Journalists: {journalistCount}");
+               
+                stats.AppendLine();
+
+                // --- Engagement
+                var totalViews = await _context.Articles.Where(a => a.ArticleStatus == ArticleStatus.Published).SumAsync(a => a.Views);
+                var totalLikes = await _context.Articles.Where(a => a.ArticleStatus == ArticleStatus.Published).SumAsync(a => a.Likes);
+
+                stats.AppendLine("📈 Engagement Stats:");
+                stats.AppendLine($"  • Total Views: {totalViews:N0}");
+                stats.AppendLine($"  • Total Likes: {totalLikes:N0}");
+                stats.AppendLine($"  • Avg Views per Article: {(publishedCount > 0 ? totalViews / publishedCount : 0):N0}");
+                stats.AppendLine($"  • Avg Likes per Article: {(publishedCount > 0 ? totalLikes / publishedCount : 0):N0}");
 
                 return stats.ToString();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting database statistics");
-                return "Error retrieving database statistics.";
+                return "⚠️ Error retrieving database statistics.";
             }
         }
+
 
         private async Task<string> GetGeneralDatabaseInfoAsync()
         {
             try
             {
                 var publishedCount = await _context.Articles.CountAsync(a => a.ArticleStatus == ArticleStatus.Published);
-                var authorCount = await _context.Users.CountAsync();
+                var (editorCount, journalistCount) = await GetEditorsAndJournlistsNumber();
+
                 var categoryCount = await _context.Categories.CountAsync();
 
-                return $"YesterdayNews has {publishedCount} published articles, {authorCount} authors, and {categoryCount} categories.";
+                return $"YesterdayNews has {publishedCount} published articles ,\n {journalistCount} authors, {editorCount} editors. \n And {categoryCount} categories.";
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting general database info");
                 return "Database information unavailable.";
             }
+        }
+
+        private async Task<(int editorCount, int journalistCount)> GetEditorsAndJournlistsNumber()
+        {
+
+            var adminRoleId = await _context.Roles
+                .Where(r => r.Name == "Admin")
+                .Select(r => r.Id)
+                .FirstOrDefaultAsync();
+
+            var editorRoleId = await _context.Roles
+                .Where(r => r.Name == "Editor")
+                .Select(r => r.Id)
+                .FirstOrDefaultAsync();
+
+            var journalistRoleId = await _context.Roles
+                .Where(r => r.Name == "Journalist")
+                .Select(r => r.Id)
+                .FirstOrDefaultAsync();
+
+
+            var editorCount = await _context.UserRoles
+                .Where(ur => ur.RoleId == adminRoleId || ur.RoleId == editorRoleId)
+                .Select(ur => ur.UserId)
+                .Distinct()
+                .CountAsync();
+
+
+            var journalistCount = await _context.UserRoles
+                .Where(ur => ur.RoleId == journalistRoleId)
+                .Select(ur => ur.UserId)
+                .Distinct()
+                .CountAsync();
+
+            return (editorCount, journalistCount);
         }
 
         private async Task<List<Article>> SearchRelevantArticlesAsync(string userMessage)
@@ -367,7 +388,7 @@ namespace YesterdayNews.Services
             var messages = new List<ChatMessage>();
 
             // System message with context
-            var systemPrompt = $@"You are a helpful news assistant for YesterdayNews website. Your role is to help users find and understand news articles from our database and provide insights about the website's content.
+            var systemPrompt = $@"You are a helpful news assistant for YesterdayNews website and you name is Sir Newston. Your role is to help users find and understand news articles from our website which is YN or Yesterday news and provide insights about the website's content.
 
 GENERAL DATABASE INFO:
 {generalInfo}
@@ -375,7 +396,7 @@ GENERAL DATABASE INFO:
 IMPORTANT GUIDELINES:
 1. You can answer questions about:
    - Specific articles and their content
-   - Database statistics (number of articles, authors, categories, etc.)
+   - YN statistics (number of articles, authors, categories, etc.)
    - Popular articles, trending topics, author information
    - Article engagement (views, likes)
    - Content categories and their popularity
@@ -384,10 +405,13 @@ IMPORTANT GUIDELINES:
 2. Only provide information based on the data provided in the context
 3. If the user asks about something not available in the database, politely explain the limitations
 4. Be conversational, helpful, and informative
-5. When referencing articles, mention the title, author, and key details
+5. When referencing articles, mention the title,and key details if provided
 6. For statistics queries, provide comprehensive and well-formatted information
 7. Keep responses concise but informative
 8. Always stay focused on YesterdayNews content
+9. any questions about the users personal data or account should be directed to the support team and direct the users to read our policy 
+10. If you are unsure about an answer, it's better to say you don't know than to provide incorrect information
+11. you can say the actualy number of the authors and actual number of editors and not the normal users based on the data you have
 
 CONTEXT FROM DATABASE:
 {articlesContext}
@@ -426,10 +450,15 @@ Answer the user's questions based only on the information provided above.";
 
             foreach (var article in relevantArticles.Take(3)) // Show max 3 references
             {
-                references.AppendLine($"• **{article.Headline}** by {article.Author?.FirstName} {article.Author?.LastName} ({article.DateStamp:MMM dd, yyyy})");
+                references.AppendLine($"• {Truncate(article.Headline)} ({article.DateStamp:MMM dd, yyyy})"); ;
             }
 
-            return response + references.ToString();
+            return response + Environment.NewLine + Environment.NewLine + references.ToString();
+        }
+        private string Truncate(string text, int maxLength = 50)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            return text.Length <= maxLength ? text : text.Substring(0, maxLength) + "...";
         }
     }
 }
