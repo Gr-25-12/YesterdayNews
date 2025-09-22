@@ -709,7 +709,7 @@ description-container {
 
     .news-chat-toggle:hover {
         transform: scale(1.1);
-        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+        /*box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);*/
     }
 
     .news-chat-toggle i {
@@ -931,7 +931,7 @@ description-container {
     position: absolute;
     top: 0;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-70%);
     padding: 10px;
     opacity: 0;
     pointer-events: none;

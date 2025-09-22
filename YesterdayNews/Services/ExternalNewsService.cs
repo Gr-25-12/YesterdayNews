@@ -72,7 +72,7 @@ namespace YesterdayNews.Services
             }
         }
 
-        public async Task<List<Article>> GetTopFromSEBY()
+        public async Task<List<ExternalNewsVMSEBY>> GetTopFromSEBY()
         {
             var response = await _httpClient.GetAsync("https://api.sebynews.v7.ua/api/articles?PageSize=3");
             var content = await response.Content.ReadAsStringAsync();

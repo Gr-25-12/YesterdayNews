@@ -98,7 +98,7 @@ public class SebyArticlesResponse
 { 
 
 [JsonPropertyName("items")]
-public List<Article> Articles { get; set; } = new List<Article>();
+public List<ExternalNewsVMSEBY> Articles { get; set; } = new List<ExternalNewsVMSEBY>();
 
     [JsonPropertyName("pageSize")]
     public int? PageSize { get; set; }
@@ -108,5 +108,27 @@ public List<Article> Articles { get; set; } = new List<Article>();
     public int? Total { get; set; }
     [JsonPropertyName("hasNextPage")]
     public bool? HasNextPage { get; set; }
+}
+
+public class ExternalNewsVMSEBY
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+    [JsonPropertyName("dateStamp")]
+    public DateTime? DateStamp { get; set; }
+    [JsonPropertyName("imageLink")]
+    public string? ImageLink { get; set; }
+    [JsonPropertyName("headline")]
+    public string? Headline { get; set; }
+    [JsonPropertyName("contentSummary")]
+    public string? ContentSummary { get; set; }
+    [JsonPropertyName("content")]
+    public string? Content { get; set; }
+    [JsonPropertyName("category")]
+    public string? Category { get; set; }
+ 
+
+
+
 }
 

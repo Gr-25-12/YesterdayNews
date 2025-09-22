@@ -7,6 +7,6 @@ namespace YesterdayNews.Services.IServices
     public interface IExternalNewsService
     {
         Task<List<ExternalNewsVM>> GetTopNewsAsync([FromServices] IWebHostEnvironment env);
-        Task<List<Article>> GetTopFromSEBY();
+        Task<List<ExternalNewsVMSEBY>> GetTopFromSEBY();
     }
 }
