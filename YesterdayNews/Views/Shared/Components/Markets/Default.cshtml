@@ -1,4 +1,4 @@
-@model FinanceServices.Models.MarketDto
+﻿@model FinanceServices.Models.MarketDto
 
 @* Markets View Component *@
 @{
@@ -6,12 +6,22 @@
     {
         return exchange switch
         {
-            "NASDAQ" => "devicon-google-plain colored",             // Google for NASDAQ
-            "NYSE" => "devicon-amazonwebservices-original colored", // AWS for NYSE
-            "CRYPTO" => "devicon-bitcoin-plain colored",            // Bitcoin for Crypto
-            "FOREX" => "fa-solid fa-money-bill-trend-up text-success",  // currency symbol
-            "COMMODITIES" => "fa-solid fa-oil-can text-warning",        // oil/metal symbol
+            "CRYPTO" => "devicon-bitcoin-plain colored",
+            "COMMODITIES" => "fa-solid fa-oil-can text-warning",
             _ => "devicon-devicon-plain"
+        };
+    };
+
+    Func<string, string> getForexFlag = (symbol) =>
+    {
+        return symbol.ToUpper() switch
+        {
+            "EURUSD" => "🇪🇺",
+            "GBPUSD" => "🇬🇧",
+            "USDJPY" => "🇯🇵",
+            "USDCAD" => "🇨🇦",
+            "AUDUSD" => "🇦🇺",
+            _ => "💱"
         };
     };
 }
@@ -43,12 +53,19 @@
                         if (stock == null) continue;
                         <tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
                             <td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
-                                <i class="@getExchangeIcon("NASDAQ")" style="font-size:24px; margin-right:5px;"></i>
+                                @if (!string.IsNullOrEmpty(stock.LogoUrl))
+                                {
+                                    <img src="@stock.LogoUrl" alt="@stock.DisplayName" style="width:24px;height:24px;margin-right:5px;" />
+                                }
+                                else
+                                {
+                                    <i class="devicon-devicon-plain" style="font-size:24px;margin-right:5px;"></i>
+                                }
                                 <span>@stock.DisplayName</span>
                             </td>
                             <td>@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")</td>
-                            <td> - </td>
-                            <td> - </td>
+                            <td>@(stock.Change != 0 ? stock.Change.ToString("0.##") : " - ")</td>
+                            <td>@(stock.PercentageChange != 0 ? stock.PercentageChange.ToString("0.##") + "%" : " - ")</td>
                         </tr>
                     }
                 </tbody>
@@ -68,12 +85,19 @@
                         if (stock == null) continue;
                         <tr data-exchange="NYSE" data-symbol="@stock.Symbol">
                             <td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
-                                <i class="@getExchangeIcon("NYSE")" style="font-size:24px; margin-right:5px;"></i>
+                                @if (!string.IsNullOrEmpty(stock.LogoUrl))
+                                {
+                                    <img src="@stock.LogoUrl" alt="@stock.DisplayName" style="width:24px;height:24px;margin-right:5px;" />
+                                }
+                                else
+                                {
+                                    <i class="devicon-devicon-plain" style="font-size:24px;margin-right:5px;"></i>
+                                }
                                 <span>@stock.DisplayName</span>
                             </td>
                             <td>@(stock.CurrentPrice != 0 ? stock.CurrentPrice.ToString("0.##") : " - ")</td>
-                            <td> - </td>
-                            <td> - </td>
+                            <td>@(stock.Change != 0 ? stock.Change.ToString("0.##") : " - ")</td>
+                            <td>@(stock.PercentageChange != 0 ? stock.PercentageChange.ToString("0.##") + "%" : " - ")</td>
                         </tr>
                     }
                 </tbody>
@@ -93,7 +117,7 @@
                         if (crypto == null) continue;
                         <tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
                             <td class="description @(crypto.Description == "(Missing data)" ? "text-danger" : "")">
-                                <i class="@getExchangeIcon("CRYPTO")" style="font-size:24px; margin-right:5px;"></i>
+                                <i class="@getExchangeIcon("CRYPTO")" style="font-size:24px;margin-right:5px;"></i>
                                 <span>@crypto.Description</span>
                             </td>
                             <td>@(crypto.CurrentPrice != 0 ? crypto.CurrentPrice.ToString("0.##") : " - ")</td>
@@ -118,7 +142,7 @@
                         if (forex == null) continue;
                         <tr data-exchange="FOREX" data-symbol="@forex.Symbol">
                             <td class="description @(forex.Description == "(Missing data)" ? "text-danger" : "")">
-                                <i class="@getExchangeIcon("FOREX")" style="font-size:24px; margin-right:5px;"></i>
+                                <span style="font-size:24px;margin-right:5px;">@getForexFlag(forex.Symbol)</span>
                                 <span>@forex.Description</span>
                             </td>
                             <td>@(forex.CurrentPrice != 0 ? forex.CurrentPrice.ToString("0.##") : " - ")</td>
@@ -143,7 +167,7 @@
                         if (comm == null) continue;
                         <tr data-exchange="COMMODITIES" data-symbol="@comm.Symbol">
                             <td class="description @(comm.Description == "(Missing data)" ? "text-danger" : "")">
-                                <i class="@getExchangeIcon("COMMODITIES")" style="font-size:24px; margin-right:5px;"></i>
+                                <i class="@getExchangeIcon("COMMODITIES")" style="font-size:24px;margin-right:5px;"></i>
                                 <span>@comm.Description</span>
                             </td>
                             <td>@(comm.CurrentPrice != 0 ? comm.CurrentPrice.ToString("0.##") : " - ")</td>

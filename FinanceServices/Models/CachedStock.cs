@@ -17,6 +17,9 @@ namespace FinanceServices.Models
 
         // New property for logos/links
         public string WebsiteDomain { get; set; }
+
+        public string LogoUrl { get; set; }  // new property for Clearbit logo
+
         public decimal Change => ClosingPrice != 0 ? CurrentPrice - ClosingPrice : 0;
         public decimal PercentageChange => ClosingPrice != 0
             ? (CurrentPrice - ClosingPrice) / ClosingPrice * 100
