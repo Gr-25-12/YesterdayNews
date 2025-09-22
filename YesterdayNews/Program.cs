@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using YesterdayNews.Data;
 using YesterdayNews.Hubs;
 using YesterdayNews.Services;
+using YesterdayNews.Services.BackgroundServices;
 using YesterdayNews.Services.IServices;
 using YesterdayNews.Utils;
 namespace YesterdayNews;
@@ -47,6 +48,16 @@ public class Program
         builder.Services.AddScoped<ISubscriptionServices, SubscriptionServices>();
         builder.Services.AddScoped<ISubscriptionTypeServices, SubscriptionTypeServices>();
         builder.Services.AddScoped<ILikeService, LikeService>();
+        builder.Services.AddHttpClient<IWeatherApiService, WeatherApiService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.openweathermap.org/");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
+        builder.Services.AddHostedService<WeatherApiBackgroundService>();
+
+     
+
         builder.Services.AddScoped<IStripe, StripeServices>();
         builder.Services.AddScoped<IPdfService, PdfService>();
         builder.Services.AddScoped<IUserService, UserService>();
@@ -54,11 +65,12 @@ public class Program
         builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
         builder.Services.AddScoped<IExternalNewsService, ExternalNewsService>();
         builder.Services.AddScoped<IDbInitalizlier, DbInitalizlier>();
-
+        builder.Services.AddScoped<INewsChatService, NewsChatService>();
         builder.Services.AddHttpClient<ExternalNewsService>();
         builder.Services.AddHttpClient<DbInitalizlier>();
-   
+
         builder.Services.AddHttpClient();
+
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>
          {
              googleOptions.ClientId = builder.Configuration.GetSection("Google:ClientId").Get<string>()!;
