@@ -588,10 +588,14 @@ description-container {
         border-bottom: none;
     }
 
+
+
+
 .status-badge {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
 }
+
 }
 
 .custom-radio:checked {
@@ -601,4 +605,5 @@ description-container {
 
 .custom-radio {
     accent-color: var(--bs-secondary);
+
 }
