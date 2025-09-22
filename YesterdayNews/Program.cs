@@ -65,11 +65,10 @@ public class Program
         builder.Services.AddScoped<IFinanceApiServices, FinanceApiServices>();
         builder.Services.AddScoped<IExternalNewsService, ExternalNewsService>();
         builder.Services.AddScoped<IDbInitalizlier, DbInitalizlier>();
-
-
+        builder.Services.AddScoped<INewsChatService, NewsChatService>();
         builder.Services.AddHttpClient<ExternalNewsService>();
         builder.Services.AddHttpClient<DbInitalizlier>();
-   
+
         builder.Services.AddHttpClient();
 
         builder.Services.AddAuthentication().AddGoogle(googleOptions =>

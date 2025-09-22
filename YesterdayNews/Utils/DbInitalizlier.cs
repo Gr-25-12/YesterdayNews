@@ -40,10 +40,12 @@ namespace YesterdayNews.Utils
             var rand = new Random();
             var categories =await _db.Categories.ToListAsync();
 
-            int page = rand.Next(1, 15);
+            string[] queries = new[] { "economy", "health", "science", "sport", "sweden", "technology", "world", "business","bitcoin" };
             var authors = new[] { "998b77da-f88e-410b-9f7c-d46673d2a4af", "6e6fa4cf-29c2-4cc2-9ba2-7f64534f52c5" };
+            int page = rand.Next(1, 10);
+            string q = queries[rand.Next(queries.Length)];
 
-            var url = $"https://newsapi.org/v2/everything?q=a&pageSize=3&page={page}&apiKey={apiKeyDev}";
+            var url = $"https://newsapi.org/v2/everything?q={q}&pageSize=3&page={page}&apiKey={apiKeyDev}";
             List<Article> articlesToSeedDatabse = new List<Article>();
             try
             {

@@ -1,0 +1,105 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using YesterdayNews.Models.Db
+@using YesterdayNews.Services.IServices
+@inject UserManager<IdentityUser> UserManager
+@inject ISubscriptionServices SubscriptionService
+
+@{
+	
+	var user = await UserManager.GetUserAsync(User);
+	var appUser = user as User;
+	var hasActiveSubscription = user != null && SubscriptionService.HasActiveSubscription(user.Id);
+
+	var isStaff = User.IsInRole(StaticConsts.Role_Admin) || User.IsInRole(StaticConsts.Role_Editor) || User.IsInRole(StaticConsts.Role_Journalist);
+}
+
+@* <button class="news-chat-toggle" id="newsChatToggle"> *@
+@* 	<i class="fas fa-robot"></i> *@
+@* </button> *@
+
+<div class="news-chat-container" id="newsChatContainer">
+	<div class="news-chat-header">
+		<h5 class="mb-0">
+			<i class="bi bi-robot text-white me-2"></i>
+			<span class="fw-bold text-white">Sir Newston</span> <br/>
+			<small class="text-white ms-3" style="font-size:10px">Your news butler 🤖</small>
+			
+		</h5>
+		<button class="news-chat-close" id="newsChatClose">&times;</button>
+	</div>
+
+	<div class="news-chat-messages" id="newsChatMessages">
+		<div class="news-chat-welcome">
+			👋 Hi I'am <strong>News</strong>ton! YesterdayNews' robot and the right hand!
+		</div>
+	</div>
+
+	<div class="news-chat-typing" id="newsChatTyping">
+		<div class="news-chat-typing-dots">
+			<div class="news-chat-typing-dot"></div>
+			<div class="news-chat-typing-dot"></div>
+			<div class="news-chat-typing-dot"></div>
+		</div>
+	</div>
+	@if (hasActiveSubscription || isStaff)
+	{
+		
+		<div class="news-chat-input-container">
+			<input class="news-chat-input"
+				   id="newsChatInput"
+				   placeholder="Ask about us..." />
+			<button class="news-chat-send" id="newsChatSend">
+				<i class="fas fa-paper-plane"></i>
+			</button>
+		</div>
+	}else {
+
+		<div class="news-chat-input-container">
+			<input class="news-chat-input"
+				   id="newsChatInput"
+				   disabled
+				   readonly
+				   placeholder="Subscribe first bror..." />
+			<button type="submit" class=" btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#subscribeModal">
+				Subscribe
+			</button>
+		</div>
+	}
+	@* <small class="text-muted text-center text-sm-center">Powered by gpt-4o</small> *@
+</div>
+
+<button class="news-chat-toggle" id="newsChatToggle">
+	
+
+<div class="tooltip-container">
+	<div class="tooltip">
+		<div class="profile">
+			<div class="user"> 			
+				<div class="img"><i class="fas fa-robot"></i></div>
+				<div class="details">
+					<div class="name">Sir Newston</div>
+					@* <div class="username">Yesterday's News right hand'</div> *@
+				</div>
+			</div>
+			<div class="about">Powered by Gpt-4o </div>
+		</div>
+	</div>
+	<div class="text">
+		
+		<a  class="icon">
+			<div class="layer">
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				
+					<i class="fas fa-robot mt-3"></i>
+										
+
+				
+			</div>
+			@* <div class="text">Newston</div> *@
+		</a>
+	</div>
+</div>
+</button>
