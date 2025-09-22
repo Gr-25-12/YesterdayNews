@@ -19,7 +19,7 @@ namespace YesterdayNews.Controllers
 
 
         [HttpGet("/weather")]
-        public async Task<IActionResult> Index(double? lat, double? lon,string city)
+        public async Task<IActionResult> Index(double? lat, double? lon, string city)
         {
             if (!string.IsNullOrWhiteSpace(city))
             {
@@ -30,15 +30,23 @@ namespace YesterdayNews.Controllers
                     ViewBag.Message = $"No forecast found for \"{city}\". Please check the name and try again.";
                     return View(new List<ForecastVM>());
                 }
-                   
 
                 return View(searchForecast);
             }
 
+            // Fallback default city if no lat/lon provided
             if (!lat.HasValue || !lon.HasValue)
             {
-              
-                return View(new List<ForecastVM>());
+                city = "stockholm";
+                var searchForecast = await _weatherApiService.GetMultiDayForecastByCityAsync(city);
+
+                if (searchForecast == null)
+                {
+                    ViewBag.Message = $"No forecast found for \"{city}\". Please check the name and try again.";
+                    return View(new List<ForecastVM>());
+                }
+
+                return View(searchForecast);
             }
 
             var forecast = await _weatherApiService.GetMultiDayForecastByCoordAsync(lat.Value, lon.Value);
@@ -48,7 +56,6 @@ namespace YesterdayNews.Controllers
                 ViewBag.Message = "Could not retrieve forecast for your location.";
                 return View(new List<ForecastVM>());
             }
-
 
             return View(forecast);
         }
@@ -64,11 +71,7 @@ namespace YesterdayNews.Controllers
             }
 
 
-            var defaultLat = 59.3293;
-            var defaultLon = 18.0686;
-
-
-            return ViewComponent("WeatherApi", new { lat = defaultLat, lon = defaultLon });
+            return ViewComponent("WeatherApi", new { lat = 0.0, lon = 0.0 });
         }
 
 

@@ -33,7 +33,6 @@ namespace YesterdayNews.Services
         //API CALLS
         public async Task<List<ForecastVM>> GetMultiDayForecastByCityAsync(string city)
         {
-            
             var normalizedCity = city?.Trim().ToLowerInvariant();
             var cacheKey = $"weather_{normalizedCity}";
             if (_cache.TryGetValue(cacheKey, out List<ForecastVM> cached))
@@ -66,6 +65,8 @@ namespace YesterdayNews.Services
 
         public async Task<List<ForecastVM>> GetMultiDayForecastByCoordAsync(double lat, double lon)
         {
+
+            
             var cacheKey = $"weather_coords_multiday_{lat:F2}_{lon:F2}";
             if (_cache.TryGetValue(cacheKey, out List<ForecastVM> cached))
                 return cached;
@@ -84,6 +85,15 @@ namespace YesterdayNews.Services
 
         public async Task<ForecastVM?> GetSingleCurrentForecastByCoordAsync(double lat, double lon)
         {
+     
+            const double defaultLat = 59.32;
+            const double defaultLon = 18.06;
+
+            if (lat == 0 && lon == 0)
+            {
+                lat = defaultLat;
+                lon = defaultLon;
+            }
             var cacheKey = $"weather_coords_{lat:F2}_{lon:F2}_single";
             if (_cache.TryGetValue(cacheKey, out ForecastVM? cached))
                 return cached;
@@ -106,7 +116,7 @@ namespace YesterdayNews.Services
             }
             catch (Exception ex)
             {
-               
+
                 return null;
             }
         }
@@ -181,27 +191,30 @@ namespace YesterdayNews.Services
 
         private static List<ForecastVM> ProjectCurrentForecastData(OpenWeatherMapModel.Rootobject response)
         {
-           
+
             if (response == null || response.list == null)
                 return new List<ForecastVM>();
 
 
             var city = response.city?.name ?? "Unknown";
             var country = response.city?.country ?? "XX";
+
+
+
             var cleanCity = LocationUtils.CleanCityName(city);
             var now = DateTime.Now;
 
 
-           
+
             var closestForecast = response.list
-               
+
                 .Select(f => new {
                     ForecastTime = DateTime.Parse(f.dt_txt),
                     Forecast = f
                 })
-             
+
                 .Where(x => x.ForecastTime >= now)
-             
+
                 .OrderBy(x => x.ForecastTime)
                 .FirstOrDefault();
 
@@ -210,7 +223,7 @@ namespace YesterdayNews.Services
 
             var weather = closestForecast.Forecast.weather?.FirstOrDefault();
 
-      
+
             var currentWeather = new ForecastVM
             {
                 City = city,
@@ -227,12 +240,6 @@ namespace YesterdayNews.Services
 
 
 
-
-
-
-
-
-
         //Data Cache ##########
         public async Task RefreshPreloadedCitiesAsync()
         {
@@ -240,7 +247,7 @@ namespace YesterdayNews.Services
             {
                 try
                 {
-                 
+
                     var rawData = await FetchForecastDataAsync(city);
 
                     if (rawData == null)
@@ -249,11 +256,11 @@ namespace YesterdayNews.Services
                         continue;
                     }
 
-                   
+
                     var multiDay = ProjectMultiForecastData(rawData);
                     _cache.Set($"weather_{city.ToLowerInvariant()}", multiDay, _cacheDuration);
 
-                   
+
                     var current = ProjectCurrentForecastData(rawData);
                     _cache.Set($"weather_current_{city.ToLowerInvariant()}", current, _cacheDuration);
                 }
@@ -265,7 +272,7 @@ namespace YesterdayNews.Services
             }
         }
 
-    
+
 
 
 
