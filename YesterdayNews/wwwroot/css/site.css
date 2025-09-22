@@ -589,12 +589,6 @@ description-container {
     }
 
 
-<<<<<<< HEAD
-    /* Login partial adjustments */
-    .navbar-primary {
-        padding: 1rem;
-        border-top: 1px solid #eee;
-    }
 
 
 .status-badge {
@@ -612,8 +606,4 @@ description-container {
 .custom-radio {
     accent-color: var(--bs-secondary);
 
-=======
-   
-  
->>>>>>> made some quality of life changes, add default value of stockholm ,minor changes to filter to access 00:00 correctly ,addedbackground color to cards
 }
