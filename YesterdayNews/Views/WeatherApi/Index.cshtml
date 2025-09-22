@@ -5,28 +5,39 @@
     var searchedCity = Context.Request.Query["city"];
 }
 
-<h2>Weather Forecast</h2>
+<div class="container my-4">
+    <h1 class="text-center text-primary mb-4">
+        <i class="fas fa-cloud-sun me-2"></i>Weather Forecast
+    </h1>
 
-<div class="m-2 mb-4 p-1 d-flex bg-primary rounded">
-    <form method="get" asp-controller="WeatherApi" asp-action="Index" class="d-flex w-100">
-        <input type="text" name="city" class="form-control me-2" placeholder="Enter city name" value="@(Model.Any() ? "" : searchedCity)" />
-
-        <button type="submit" class="btn btn-secondary">
-            <i class="bi bi-search"></i>
-        </button>
-    </form>
-</div>
-
-
-@if (!Model.Any())
-{
-    <div class="alert alert-warning mt-4 text-center">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        @ViewBag.Message  "No forecast data found."
+    <!-- Search Form -->
+    <div class="card shadow-sm mb-4 w-50 mx-auto">
+        <div class="card-body p-3 bg-primary bg-opacity-10">
+            <form method="get" asp-controller="WeatherApi" asp-action="Index" class="d-flex">
+                <input type="text" name="city" class="form-control me-2" placeholder="Enter city name" value="@(Model.Any() ? "" : searchedCity)" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i> Search
+                </button>
+            </form>
+        </div>
     </div>
 
-}
-else
-{
-    @await Html.PartialAsync("_ForecastPartial", Model)
-}
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center p-4">
+            <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+            <h4>No Forecast Data Found</h4>
+            <p class="mb-0">@ViewBag.Message</p>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-center align-content-center">
+
+        <div class=" col-md-10">
+
+        @await Html.PartialAsync("_ForecastPartial", Model)
+        </div>
+        </div>
+    }
+</div>
