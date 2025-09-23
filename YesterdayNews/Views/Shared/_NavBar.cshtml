@@ -17,7 +17,7 @@
     <div class="container-fluid">
         <ul class="navbar-nav d-flex justify-content-center align-items-center w-100 fw-semibold">
             <li class="nav-item">
-                <a class="nav-link text-white @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active bg-primary" : "")"
+                <a class="nav-link text-white hover-bg-secondary @(ViewData["SelectedCategory"]?.ToString() == "0" ? "active bg-primary" : "")"
                    asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-house-fill fs-4 me-2"></i>
                 </a>
