@@ -88,11 +88,11 @@
                                 var displayTime = forecast.Date.Hour == 0 && forecast.Date.Minute == 0 ? "00:00" : forecast.Date.ToString("HH:mm");
 
                                 <div class="col-6 col-lg-4 col-xl-3">
-                                    <div class="card h-100 @(isPast ? "bg-light text-muted border-light" : "bg-info bg-opacity-10 border-info") @(isCurrent ? "border-warning border-2" : "border") position-relative rounded-3 shadow-sm">
+                                    <div class="card h-100 @(isPast ? "bg-light text-muted border-light" : "bg-light bg-opacity-10 border-primary") @(isCurrent ? "border-warning border-2" : "border") position-relative rounded-3 shadow-sm">
 
                                         @if (isCurrent)
                                         {
-                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="z-index: 1050;">
+                                            <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-warning text-dark">
                                                 Next
                                             </span>
 

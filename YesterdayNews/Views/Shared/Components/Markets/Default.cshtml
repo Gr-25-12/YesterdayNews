@@ -36,7 +36,7 @@
                             var arrowClass = diff > 0 ? "text-success fas fa-arrow-up" : diff < 0 ? "text-danger fas fa-arrow-down" : "text-muted fas fa-minus";
                             <tr data-exchange="@exchangeName" data-symbol="@stock.Symbol">
                                 <td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
-                                    <i class="@(GetIconClass(stock.Symbol)) me-2"></i> @stock.DisplayName
+                                    <i class="@(StaticConsts.GetIconClass(stock.Symbol)) me-2"></i> @stock.DisplayName
                                 </td>
                                 <td class="price">@stock.CurrentPrice.ToString("0.##")</td>
                                 <td class="text-center"><i class="@arrowClass"></i></td>
@@ -61,7 +61,7 @@
                         var arrowClass = diff > 0 ? "text-success fas fa-arrow-up" : diff < 0 ? "text-danger fas fa-arrow-down" : "text-muted fas fa-minus";
                         <tr data-exchange="CRYPTO" data-symbol="@crypto.Symbol">
                             <td>
-                                <i class="@(GetCryptoClass(crypto.Symbol)) me-2"></i> @crypto.Description
+                                <i class="@(StaticConsts.GetCryptoClass(crypto.Symbol)) me-2"></i> @crypto.Description
                             </td>
                             <td class="price">@crypto.CurrentPrice.ToString("0.##")</td>
                             <td class="text-center"><i class="@arrowClass"></i></td>
@@ -86,7 +86,7 @@
                         var arrowClass = diff > 0 ? "text-success fas fa-arrow-up" : diff < 0 ? "text-danger fas fa-arrow-down" : "text-muted fas fa-minus";
                         <tr data-exchange="FOREX" data-symbol="@forex.Symbol">
                             <td>
-                                <i class="@(GetForexClass(forex.DisplaySymbol, forex.Description)) me-2"></i>@forex.Description
+                                <i class="@(StaticConsts.GetForexClass(forex.DisplaySymbol, forex.Description)) me-2"></i>@forex.Description
                             </td>
                             <td class="price">@forex.CurrentPrice.ToString("0.##")</td>
                             <td class="text-center"><i class="@arrowClass"></i></td>
@@ -111,7 +111,7 @@
                         var arrowClass = diff > 0 ? "text-success fas fa-arrow-up" : diff < 0 ? "text-danger fas fa-arrow-down" : "text-muted fas fa-minus";
                         <tr data-exchange="COMMODITIES" data-symbol="@comm.Symbol">
                             <td>
-                                <i class="@(GetCommodityClass(comm.Description)) me-2"></i> @comm.Description
+                                <i class="@(StaticConsts.GetCommodityClass(comm.Description)) me-2"></i> @comm.Description
                             </td>
                             <td class="price">@comm.CurrentPrice.ToString("0.##")</td>
                             <td class="text-center"><i class="@arrowClass"></i></td>
@@ -123,79 +123,3 @@
         </div>
     </a>
 </article>
-
-@functions {
-    public string GetIconClass(string symbol)
-    {
-        return symbol?.ToUpper() switch
-        {
-            "AAPL" => "fab fa-apple text-muted",
-            "MSFT" => "fab fa-microsoft text-primary",
-            "GOOGL" or "GOOG" => "fab fa-google text-danger",
-            "NVDA" => "fab fa-nvidia text-success",
-            "AMZN" => "fab fa-amazon text-warning",
-            "TSLA" => "fab fa-tesla text-danger",
-            "META" => "fab fa-meta text-info",
-            _ => "fas fa-chart-bar text-muted"
-        };
-    }
-
-    public string GetCryptoClass(string symbol)
-    {
-        
-         return symbol?.ToUpper() switch
-         {
-             "BINANCE:BTCUSDT" => "fab fa-bitcoin text-warning",   // Bitcoin
-             "BINANCE:ETHUSDT" => "fab fa-ethereum text-dark",     // Ethereum
-             "BINANCE:BNBUSDT" => "fab fa-binance text-warning",   // Binance Coin
-            _ => "fas fa-coins text-info"
-        };
-    }
-  
-
-    public string GetCommodityClass(string description)
-    {
-        return description?.ToUpper() switch
-        {
-            "GOLD PER OUNCE (1OZ)" => "fas fa-gem text-warning",
-            "SILVER PER OUNCE (1OZ)" => "fas fa-gem text-secondary",
-            "BRENT CRUDE OIL" => "fas fa-oil-well text-danger",
-            "WTI CRUDE OIL" => "fas fa-oil-well text-danger",
-            _ => "fas fa-chart-bar text-muted"
-        };
-    }
-    private static readonly Dictionary<string, string> ForexIcons = new()
-    {
-        { "EUR/USD", "fas fa-euro-sign text-primary" },
-        { "USD/JPY", "fas fa-yen-sign text-success" },
-        { "GBP/USD", "fas fa-pound-sign text-warning" },
-        { "AUD/USD", "fas fa-dollar-sign text-info" },
-        { "USD/CAD", "fas fa-dollar-sign text-danger" }
-    };
-
-    public string GetForexClass(string displaySymbol, string description)
-    {
-        if (string.IsNullOrWhiteSpace(displaySymbol) && string.IsNullOrWhiteSpace(description))
-            return "fas fa-money-bill text-muted";
-
-        // Normalize symbol: remove whitespace & uppercase
-        var symbol = (displaySymbol ?? description ?? "").Trim().ToUpper();
-
-        // Try exact match first
-        if (ForexIcons.TryGetValue(symbol, out var icon))
-            return icon;
-
-        // Fallback: try to detect currency code in description
-        if (description != null)
-        {
-            if (description.Contains("EUR")) return "fas fa-euro-sign text-primary";
-            if (description.Contains("JPY")) return "fas fa-yen-sign text-success";
-            if (description.Contains("GBP")) return "fas fa-pound-sign text-warning";
-            if (description.Contains("AUD")) return "fas fa-dollar-sign text-info";
-            if (description.Contains("CAD")) return "fas fa-dollar-sign text-danger";
-        }
-
-        return "fas fa-money-bill text-muted";
-    }
-
-}
