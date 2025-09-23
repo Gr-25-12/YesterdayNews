@@ -67,7 +67,18 @@
                                         <tr data-exchange="NASDAQ" data-symbol="@stock.Symbol">
                                             <td class="ps-4">
                                                 <div class="d-flex align-items-center">
-                                                    <i class="@(StaticConsts.GetIconClass(stock.Symbol)) me-2"></i>
+
+                                                    @if (StaticConsts.GetIconClass(stock.Symbol).EndsWith("</svg>"))
+                                                    {
+                                                        <span class="me-2">
+
+                                                        @Html.Raw(StaticConsts.GetIconClass(stock.Symbol))
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="@(StaticConsts.GetIconClass(stock.Symbol)) me-2"></i>
+                                                    }                                                   
                                                     <span class="@(stock.DisplayName == "(Missing data)" ? "text-danger" : "fw-medium")">
                                                         @stock.DisplayName
                                                     </span>

@@ -36,7 +36,17 @@
                             var arrowClass = diff > 0 ? "text-success fas fa-arrow-up" : diff < 0 ? "text-danger fas fa-arrow-down" : "text-muted fas fa-minus";
                             <tr data-exchange="@exchangeName" data-symbol="@stock.Symbol">
                                 <td class="description @(stock.DisplayName == "(Missing data)" ? "text-danger" : "")">
-                                    <i class="@(StaticConsts.GetIconClass(stock.Symbol)) me-2"></i> @stock.DisplayName
+                                    @if (StaticConsts.GetIconClass(stock.Symbol).EndsWith("</svg>"))
+                                    {
+                                        <span class="me-2">
+
+                                            @Html.Raw(StaticConsts.GetIconClass(stock.Symbol))
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <i class="@(StaticConsts.GetIconClass(stock.Symbol)) me-2"></i>
+                                    }           @stock.DisplayName
                                 </td>
                                 <td class="price">@stock.CurrentPrice.ToString("0.##")</td>
                                 <td class="text-center"><i class="@arrowClass"></i></td>
