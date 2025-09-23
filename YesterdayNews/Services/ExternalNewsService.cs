@@ -42,6 +42,7 @@ namespace YesterdayNews.Services
 
             if (!response.IsSuccessStatusCode)
             {
+                
                 Console.WriteLine($"API Error: {response.StatusCode}");
                 return new List<ExternalNewsVM>();
             }
@@ -77,9 +78,15 @@ namespace YesterdayNews.Services
             var response = await _httpClient.GetAsync("https://api.sebynews.v7.ua/api/articles?PageSize=3");
             var content = await response.Content.ReadAsStringAsync();
 
+            if (!response.IsSuccessStatusCode)
+            {
+                // avoid crashing, just return empty list
+                return new List<ExternalNewsVMSEBY>();
+            }
+
             var SebyArticles = JsonSerializer.Deserialize<SebyArticlesResponse>(content);
 
-            return SebyArticles?.Articles;
+            return SebyArticles?.Articles ?? new List<ExternalNewsVMSEBY>();
         }
         private List<ExternalNewsVM> ConvertProdToStandard(List<ExternalNewsVMProd> prodArticles)
         {

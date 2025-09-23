@@ -80,7 +80,7 @@ namespace FinanceServices.Services
                 reply = value.Session;
             else if(!value.IsOpen && value.Holiday != string.Empty)
             {
-                reply = "Closed - " + value.Holiday;
+                reply = "Closed  " + value.Holiday;
             }
             else
                 reply = "Closed";

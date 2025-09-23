@@ -27,10 +27,14 @@ namespace YesterdayNews.Controllers
                 news = await _externalnews.GetTopNewsAsync(_environment);
                 _cache.Set("TopNewsCache", news, TimeSpan.FromHours(2));
             }
+            
 
             ViewBag.SebyNews = await _externalnews.GetTopFromSEBY();
+            ViewBag.ErrorSebyNew= ViewBag.SebyNews.Count > 0 ? "No error found" : "Server error, StatusCode=500";
+                
+            
 
-            return View(news);
+                return View(news);
         }
     }
 }
